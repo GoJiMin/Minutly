@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --watchAll --coverage",
+    "test:ci": "jest --ci --watchAll=false --coverage"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.5",

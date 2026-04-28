@@ -127,13 +127,13 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 
 #### Test / CI Setup
 
-- [ ] Jest 설정을 적용한다.
-- [ ] React Testing Library 설정을 적용한다.
-- [ ] jest setup 파일을 작성한다.
+- [x] Jest 설정을 적용한다.
+- [x] React Testing Library 설정을 적용한다.
+- [x] jest setup 파일을 작성한다.
 - [ ] 테스트 실행 스크립트를 작성한다.
 - [ ] CI 테스트 실행 스크립트를 작성한다.
-- [ ] 커버리지 수집 설정을 적용한다.
-- [ ] 커버리지 threshold를 설정한다.
+- [x] 커버리지 수집 설정을 적용한다.
+- [x] 커버리지 threshold를 설정한다.
 - [ ] GitHub Actions 테스트 workflow를 작성한다.
 - [ ] 테스트 실패 시 CI가 실패하도록 설정한다.
 - [ ] 커버리지 threshold 미달 시 CI가 실패하도록 설정한다.
