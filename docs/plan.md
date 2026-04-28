@@ -117,7 +117,7 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 - [x] Prettier 설정을 적용한다.
 - [x] 절대 경로 alias를 설정한다.
 - [x] FSD 기본 디렉터리 구조를 생성한다.
-- [ ] React Query Provider를 애플리케이션에 연결한다.
+- [x] React Query Provider를 애플리케이션에 연결한다.
 - [ ] 기본 레이아웃을 생성한다.
 - [ ] 전역 스타일을 설정한다.
 - [ ] `/login` 라우트를 생성한다.
