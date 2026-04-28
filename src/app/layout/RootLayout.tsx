@@ -1,0 +1,29 @@
+import type {Metadata} from 'next';
+import {AppProvider} from '../providers';
+
+export const metadata: Metadata = {
+  title: {
+    default: '미닛리',
+    template: '%s | 미닛리',
+  },
+  description: '회의 내용을 실시간으로 텍스트화하고, AI가 회의 요약과 주요 사항을 정리해주는 회의록 서비스입니다.',
+  formatDetection: {
+    telephone: false,
+    address: false,
+    email: false,
+  },
+};
+
+export function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" className={`h-full antialiased`}>
+      <body className="min-h-full flex flex-col w-full">
+        <AppProvider>{children}</AppProvider>
+      </body>
+    </html>
+  );
+}
