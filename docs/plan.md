@@ -120,7 +120,7 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 - [x] React Query Provider를 애플리케이션에 연결한다.
 - [x] 기본 레이아웃을 생성한다.
 - [x] 전역 스타일을 설정한다.
-- [ ] `/login` 라우트를 생성한다.
+- [x] `/login` 라우트를 생성한다.
 - [ ] `/` 라우트를 생성한다.
 - [ ] `/history` 라우트를 생성한다.
 - [ ] `.env.example` 파일을 작성한다.
