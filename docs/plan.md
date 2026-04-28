@@ -114,7 +114,7 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 - [x] Next.js 최신 버전 프로젝트를 생성한다.
 - [x] TypeScript 설정을 적용한다.
 - [x] ESLint 설정을 적용한다.
-- [ ] Prettier 설정을 적용한다.
+- [x] Prettier 설정을 적용한다.
 - [ ] 절대 경로 alias를 설정한다.
 - [ ] FSD 기본 디렉터리 구조를 생성한다.
 - [ ] React Query Provider를 애플리케이션에 연결한다.
@@ -238,12 +238,12 @@ type ErrorResponse = {
 };
 
 type SecurityEvent =
-  | "INVALID_PASSWORD"
-  | "INVALID_LOGIN_REQUEST"
-  | "INVALID_REFRESH_TOKEN"
-  | "UNAUTHORIZED_API_ACCESS"
-  | "TOO_MANY_LOGIN_ATTEMPTS"
-  | "SUSPICIOUS_REQUEST";
+  | 'INVALID_PASSWORD'
+  | 'INVALID_LOGIN_REQUEST'
+  | 'INVALID_REFRESH_TOKEN'
+  | 'UNAUTHORIZED_API_ACCESS'
+  | 'TOO_MANY_LOGIN_ATTEMPTS'
+  | 'SUSPICIOUS_REQUEST';
 ```
 
 ### 5-4. 테스트 체크리스트
@@ -604,13 +604,7 @@ DELETE /api/meetings/{date}/{id}
 ### 9-3. 상태
 
 ```ts
-type RecordingStatus =
-  | "idle"
-  | "recording"
-  | "transcript_review"
-  | "summarizing"
-  | "completed"
-  | "error";
+type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing' | 'completed' | 'error';
 ```
 
 ### 9-4. 테스트 체크리스트
