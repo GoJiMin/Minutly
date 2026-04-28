@@ -111,7 +111,7 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 
 #### Project Setup
 
-- [ ] Next.js 최신 버전 프로젝트를 생성한다.
+- [x] Next.js 최신 버전 프로젝트를 생성한다.
 - [ ] TypeScript 설정을 적용한다.
 - [ ] ESLint 설정을 적용한다.
 - [ ] Prettier 설정을 적용한다.
