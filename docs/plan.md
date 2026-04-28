@@ -122,7 +122,7 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 - [x] 전역 스타일을 설정한다.
 - [x] `/login` 라우트를 생성한다.
 - [x] `/` 라우트를 생성한다.
-- [ ] `/history` 라우트를 생성한다.
+- [x] `/history` 라우트를 생성한다.
 - [ ] `.env.example` 파일을 작성한다.
 
 #### Test / CI Setup
