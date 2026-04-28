@@ -13,6 +13,38 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+    overrides: [
+      {
+        files: [
+          "**/__tests__/**/*.[jt]s?(x)",
+          "**/?(*.)+(spec|test).[jt]s?(x)",
+        ],
+        rules: {
+          "react/display-name": "off",
+          "no-console": "off",
+          "@typescript-eslint/no-explicit-any": "off",
+          "@next/next/no-img-element": "off",
+          "@typescript-eslint/no-require-imports": "off",
+          "@typescript-eslint/no-unused-vars": "off",
+        },
+      },
+    ],
+  },
 ]);
 
 export default eslintConfig;

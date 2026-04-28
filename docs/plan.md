@@ -113,7 +113,7 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 
 - [x] Next.js 최신 버전 프로젝트를 생성한다.
 - [x] TypeScript 설정을 적용한다.
-- [ ] ESLint 설정을 적용한다.
+- [x] ESLint 설정을 적용한다.
 - [ ] Prettier 설정을 적용한다.
 - [ ] 절대 경로 alias를 설정한다.
 - [ ] FSD 기본 디렉터리 구조를 생성한다.
