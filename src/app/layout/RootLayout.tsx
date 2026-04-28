@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import {AppProvider} from '../providers';
+import {pretendard} from '../styles';
 
 export const metadata: Metadata = {
   title: {
@@ -20,8 +21,8 @@ export function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased`}>
-      <body className="min-h-full flex flex-col w-full">
+    <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col w-full h-full">
         <AppProvider>{children}</AppProvider>
       </body>
     </html>
