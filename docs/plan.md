@@ -153,10 +153,9 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 - [x] Vercel runtime에서 사용할 Neon DB 접속 문자열을 Vercel 환경 변수(`DATABASE_URL`)로 등록한다.
 - [x] 로컬 개발용 `.env.local`에 `DATABASE_URL`을 설정한다.
 - [x] `.env.example`에 `DATABASE_URL` placeholder를 추가한다.
-- [ ] Azure Speech 환경 변수를 `.env.example`에 등록한다.
-- [ ] AI API 환경 변수를 `.env.example`에 등록한다.
-- [ ] 인증 관련 환경 변수를 `.env.example`에 등록다.
-- [ ] 배포 후 `/`, `/login`, `/history` 접근으로 기본 route를 확인한다.
+- [x] Azure Speech 환경 변수를 `.env.example`에 등록한다.
+- [x] AI API 환경 변수를 `.env.example`에 등록한다.
+- [x] 배포 후 `/`, `/login`, `/history` 접근으로 기본 route를 확인한다.
 
 ### 4-3. 예상 디렉터리
 
@@ -178,17 +177,17 @@ src/ => FSD 아키텍처 구성 디렉터리
 
 ### 4-4. 완료 기준 체크리스트
 
-- [ ] 개발 서버가 정상 실행된다.
-- [ ] 기본 라우트(`/`, `/login`, `/history`)가 생성되어 있다.
-- [ ] FSD 디렉터리 구조가 준비되어 있다.
-- [ ] React Query Provider가 애플리케이션에 연결되어 있다.
-- [ ] Jest와 React Testing Library로 테스트를 실행할 수 있다.
-- [ ] 커버리지 threshold 미달 시 CI가 실패한다.
-- [ ] Vercel 프로젝트가 현재 Git 저장소와 연결되어 있다.
-- [ ] Vercel Production/Preview 배포 기준이 설정되어 있다.
-- [ ] Neon Postgres 프로젝트, database, role, connection string 기준이 정리되어 있다.
-- [ ] Neon Postgres 연결에 필요한 `DATABASE_URL` 환경 변수가 등록되어 있다.
-- [ ] 배포 환경에서 필요한 secret 항목이 `.env.example`과 문서에 반영되어 있다.
+- [x] 개발 서버가 정상 실행된다.
+- [x] 기본 라우트(`/`, `/login`, `/history`)가 생성되어 있다.
+- [x] FSD 디렉터리 구조가 준비되어 있다.
+- [x] React Query Provider가 애플리케이션에 연결되어 있다.
+- [x] Jest와 React Testing Library로 테스트를 실행할 수 있다.
+- [x] 커버리지 threshold 미달 시 CI가 실패한다.
+- [x] Vercel 프로젝트가 현재 Git 저장소와 연결되어 있다.
+- [x] Vercel Production/Preview 배포 기준이 설정되어 있다.
+- [x] Neon Postgres 프로젝트, database, role, connection string 기준이 정리되어 있다.
+- [x] Neon Postgres 연결에 필요한 `DATABASE_URL` 환경 변수가 등록되어 있다.
+- [x] 배포 환경에서 필요한 secret 항목이 `.env.example`과 문서에 반영되어 있다.
 
 ---
 
