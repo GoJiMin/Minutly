@@ -201,7 +201,7 @@ API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 �
 
 #### API / Error Foundation
 
-- [ ] `ErrorResponse` 타입을 정의한다.
+- [x] `ErrorResponse` 타입을 정의한다.
 - [ ] API 에러 응답 파서를 구현한다.
 - [ ] 공통 fetch wrapper를 구현한다.
 - [ ] 공통 에러 응답 생성 유틸을 구현한다.
