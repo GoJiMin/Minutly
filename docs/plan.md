@@ -149,10 +149,10 @@ Next.js와 TypeScript 기반으로 Minutly 프로젝트의 기본 구조를 생�
 - [x] Vercel Production branch를 `main`으로 설정한다.
 - [x] 기존 CI 워크플로우를 제거하고 Vercel Build Command로 테스트 및 빌드를 함께 적용한다.
 - [x] Production 배포는 `main`, Preview 배포는 feature branch 또는 PR 기준으로 생성되도록 설정한다.
-- [ ] Neon에서 Minutly용 Postgres 프로젝트를 생성한다.
-- [ ] Vercel runtime에서 사용할 Neon DB 접속 문자열을 Vercel 환경 변수(`DATABASE_URL`)로 등록한다.
-- [ ] 로컬 개발용 `.env.local`에 `DATABASE_URL`을 설정한다.
-- [ ] `.env.example`에 `DATABASE_URL` placeholder를 추가한다.
+- [x] Neon에서 Minutly용 Postgres 프로젝트를 생성한다.
+- [x] Vercel runtime에서 사용할 Neon DB 접속 문자열을 Vercel 환경 변수(`DATABASE_URL`)로 등록한다.
+- [x] 로컬 개발용 `.env.local`에 `DATABASE_URL`을 설정한다.
+- [x] `.env.example`에 `DATABASE_URL` placeholder를 추가한다.
 - [ ] Azure Speech 환경 변수를 `.env.example`에 등록한다.
 - [ ] AI API 환경 변수를 `.env.example`에 등록한다.
 - [ ] 인증 관련 환경 변수를 `.env.example`에 등록다.
