@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --watchAll --coverage",
-    "test:ci": "jest --ci --watchAll=false --coverage"
+    "test:ci": "jest --ci --watchAll=false --coverage",
+    "vercel:build": "pnpm test:ci && pnpm build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.5",
