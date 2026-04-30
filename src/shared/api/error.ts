@@ -18,14 +18,16 @@ type RequestErrorProps = {
   requestBody: RequestBody;
 };
 
+export type RequestContext = {
+  endpoint: string;
+  method: RequestMethod;
+  requestBody: RequestBody;
+  errorHandlingType?: ErrorHandlingType;
+};
+
 type CreateRequestErrorProps = {
   errorResponse: ErrorResponse;
-  context: {
-    endpoint: string;
-    method: RequestMethod;
-    requestBody: RequestBody;
-    errorHandlingType?: ErrorHandlingType;
-  };
+  context: RequestContext;
 };
 
 export class RequestError extends Error {
