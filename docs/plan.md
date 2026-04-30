@@ -206,8 +206,8 @@ API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 �
 - [x] 공통 fetch wrapper를 구현한다.
 - [x] 공통 에러 응답 생성 유틸을 구현한다.
 - [x] zod 기반 request body 검증 유틸을 구현한다.
-- [ ] zod 기반 query parameter 검증 유틸을 구현한다.
-- [ ] zod 기반 route parameter 검증 유틸을 구현한다.
+- [x] zod 기반 query parameter 검증 유틸을 구현한다.
+- [x] zod 기반 route parameter 검증 유틸을 구현한다.
 
 #### Date / Meeting Foundation
 

@@ -50,3 +50,21 @@ export async function validateRequestBody<TSchema extends z.ZodType>(
 
   return validateSchema(body, schema, getValidationError);
 }
+
+export async function validateQueryParams<TSchema extends z.ZodType>(
+  searchParams: URLSearchParams,
+  schema: TSchema,
+  getValidationError: ValidationErrorMapper,
+): Promise<ValidationResult<z.infer<TSchema>>> {
+  const query = Object.fromEntries(searchParams.entries());
+
+  return validateSchema(query, schema, getValidationError);
+}
+
+export async function validateRouteParams<TSchema extends z.ZodType>(
+  params: unknown,
+  schema: TSchema,
+  getValidationError: ValidationErrorMapper,
+): Promise<ValidationResult<z.infer<TSchema>>> {
+  return validateSchema(params, schema, getValidationError);
+}
