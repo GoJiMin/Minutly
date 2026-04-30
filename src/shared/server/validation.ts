@@ -1,0 +1,44 @@
+import 'server-only';
+
+import {NextRequest, NextResponse} from 'next/server';
+import z from 'zod';
+import {createErrorJsonResponse} from './response';
+import {ErrorResponse} from '../api';
+
+type ValidationResult<T> = {ok: true; value: T} | {ok: false; error: NextResponse<ErrorResponse>};
+type ValidationErrorMapper = (error: z.ZodError) => ErrorResponse;
+
+export async function validateRequestBody<TSchema extends z.ZodType>(
+  request: NextRequest,
+  schema: TSchema,
+  getValidationError: ValidationErrorMapper,
+): Promise<ValidationResult<z.infer<TSchema>>> {
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return {
+      ok: false,
+      error: createErrorJsonResponse({
+        title: 'INVALID_REQUEST_BODY',
+        detail: '요청 본문의 형식이 올바르지 않아요.',
+        status: 400,
+      }),
+    };
+  }
+
+  const result = schema.safeParse(body);
+
+  if (result.success) {
+    return {
+      ok: true,
+      value: result.data,
+    };
+  }
+
+  return {
+    ok: false,
+    error: createErrorJsonResponse(getValidationError(result.error)),
+  };
+}
