@@ -8,6 +8,26 @@ import {ErrorResponse} from '../api';
 type ValidationResult<T> = {ok: true; value: T} | {ok: false; error: NextResponse<ErrorResponse>};
 type ValidationErrorMapper = (error: z.ZodError) => ErrorResponse;
 
+function validateSchema<TSchema extends z.ZodType>(
+  value: unknown,
+  schema: TSchema,
+  getValidationError: ValidationErrorMapper,
+): ValidationResult<z.infer<TSchema>> {
+  const result = schema.safeParse(value);
+
+  if (result.success) {
+    return {
+      ok: true,
+      value: result.data,
+    };
+  }
+
+  return {
+    ok: false,
+    error: createErrorJsonResponse(getValidationError(result.error)),
+  };
+}
+
 export async function validateRequestBody<TSchema extends z.ZodType>(
   request: NextRequest,
   schema: TSchema,
@@ -28,17 +48,5 @@ export async function validateRequestBody<TSchema extends z.ZodType>(
     };
   }
 
-  const result = schema.safeParse(body);
-
-  if (result.success) {
-    return {
-      ok: true,
-      value: result.data,
-    };
-  }
-
-  return {
-    ok: false,
-    error: createErrorJsonResponse(getValidationError(result.error)),
-  };
+  return validateSchema(body, schema, getValidationError);
 }
