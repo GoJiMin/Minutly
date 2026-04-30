@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "coverage/**",
     "next-env.d.ts",
   ]),
   {
@@ -28,22 +29,22 @@ const eslintConfig = defineConfig([
         },
       ],
     },
-    overrides: [
-      {
-        files: [
-          "**/__tests__/**/*.[jt]s?(x)",
-          "**/?(*.)+(spec|test).[jt]s?(x)",
-        ],
-        rules: {
-          "react/display-name": "off",
-          "no-console": "off",
-          "@typescript-eslint/no-explicit-any": "off",
-          "@next/next/no-img-element": "off",
-          "@typescript-eslint/no-require-imports": "off",
-          "@typescript-eslint/no-unused-vars": "off",
-        },
-      },
+  },
+  {
+    files: [
+      "**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "**/*.{spec,test}.{js,jsx,ts,tsx}",
+      "jest.setup.{js,jsx,ts,tsx}",
     ],
+    rules: {
+      "react/display-name": "off",
+      "no-console": "off",
+      "jsx-a11y/alt-text": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@next/next/no-img-element": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   },
 ]);
 
