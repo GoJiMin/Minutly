@@ -211,7 +211,7 @@ API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 �
 
 #### Date / Meeting Foundation
 
-- [ ] `YYYY-MM-DD` 날짜 포맷 유틸을 구현한다.
+- [x] `YYYY-MM-DD` 날짜 포맷 유틸을 구현한다.
 - [ ] `[YYYY-MM-DD. 요일]` 제목 prefix 유틸을 구현한다.
 - [ ] `createdAt`에서 `meetingDate`를 생성하는 유틸을 구현한다.
 - [ ] 조회 대상 월의 시작일을 계산하는 유틸을 구현한다.
