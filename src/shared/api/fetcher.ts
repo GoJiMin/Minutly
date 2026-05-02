@@ -1,0 +1,154 @@
+import {createRequestError, parseErrorResponse} from './error';
+import {
+  CreateRequestInitProps,
+  FetcherProps,
+  RequestContext,
+  RequestInitWithMethod,
+  RequestProps,
+  RequestPropsWithoutResponse,
+  RequestPropsWithResponse,
+  RequestQueryParams,
+  WithErrorHandling,
+} from './types';
+
+function createRequestInit({method, body, headers, cacheOptions}: CreateRequestInitProps) {
+  const requestInit: RequestInitWithMethod = {
+    credentials: 'include',
+    method,
+    headers,
+    ...cacheOptions,
+  };
+
+  if (body !== undefined && body !== null) {
+    return {
+      ...requestInit,
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    };
+  }
+
+  return requestInit;
+}
+
+function createQueryString(queryParams?: RequestQueryParams) {
+  if (!queryParams || Object.keys(queryParams).length === 0) {
+    return '';
+  }
+
+  return new URLSearchParams(Object.entries(queryParams).map(([key, value]) => [key, String(value)])).toString();
+}
+
+function prepareRequest({endpoint, method, headers, body, queryParams, cacheOptions}: FetcherProps) {
+  let url = endpoint;
+  const queryString = createQueryString(queryParams);
+
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+
+  const requestInit = createRequestInit({method, body, headers, cacheOptions});
+
+  return {url, requestInit};
+}
+
+async function parseJsonResponse<T>(response: Response, context: RequestContext): Promise<T> {
+  if (response.status === 204) {
+    throw createRequestError({
+      errorResponse: {
+        title: 'EMPTY_RESPONSE',
+        detail: '서버 응답 본문이 비어 있어요.',
+        status: 500,
+      },
+      context,
+    });
+  }
+
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw createRequestError({
+      errorResponse: {
+        title: 'INVALID_JSON_RESPONSE',
+        detail: '서버 응답을 JSON으로 해석할 수 없어요.',
+        status: 500,
+      },
+      context,
+    });
+  }
+}
+
+// Network-level failures are intentionally not normalized here.
+// They should be handled by the app-level error boundary.
+async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
+  const {url, requestInit} = prepareRequest(props);
+
+  const context: RequestContext = {
+    endpoint: url,
+    method: props.method,
+    requestBody: props.body ?? null,
+    errorHandlingType: props.errorHandlingType,
+  };
+
+  const response: Response = await fetch(url, requestInit);
+
+  if (!response.ok) {
+    const errorResponse = await parseErrorResponse(response);
+    throw createRequestError({errorResponse, context});
+  }
+
+  if (props.withResponse) {
+    return await parseJsonResponse(response, context);
+  }
+
+  return undefined as T;
+}
+
+export function fetchGet<T>(
+  props: WithErrorHandling<Omit<RequestPropsWithResponse, 'withResponse'> & {withResponse?: true}>,
+): Promise<T>;
+export function fetchGet(props: WithErrorHandling<RequestPropsWithoutResponse>): Promise<void>;
+export async function fetchGet<T>({
+  withResponse = true,
+  errorHandlingType = 'errorBoundary',
+  ...args
+}: WithErrorHandling<RequestProps>): Promise<T> {
+  return fetcher<T>({
+    ...args,
+    method: 'GET',
+    withResponse,
+    errorHandlingType,
+  });
+}
+
+export function fetchPost<T>(props: RequestPropsWithResponse): Promise<T>;
+export function fetchPost(props: RequestPropsWithoutResponse): Promise<void>;
+export async function fetchPost<T>({withResponse = false, ...args}: RequestProps): Promise<T | void> {
+  return fetcher<T>({
+    ...args,
+    method: 'POST',
+    withResponse,
+  });
+}
+
+export function fetchPut<T>(props: RequestPropsWithResponse): Promise<T>;
+export function fetchPut(props: RequestPropsWithoutResponse): Promise<void>;
+export async function fetchPut<T>({withResponse = false, ...args}: RequestProps): Promise<T | void> {
+  return fetcher<T>({
+    ...args,
+    method: 'PUT',
+    withResponse,
+  });
+}
+
+export function fetchDelete<T>(props: RequestPropsWithResponse): Promise<T>;
+export function fetchDelete(props: RequestPropsWithoutResponse): Promise<void>;
+export async function fetchDelete<T>({withResponse = false, ...args}: RequestProps): Promise<T | void> {
+  return fetcher<T>({
+    ...args,
+    method: 'DELETE',
+    withResponse,
+  });
+}

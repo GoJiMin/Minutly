@@ -201,13 +201,13 @@ API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 �
 
 #### API / Error Foundation
 
-- [ ] `ErrorResponse` 타입을 정의한다.
-- [ ] API 에러 응답 파서를 구현한다.
-- [ ] 공통 fetch wrapper를 구현한다.
-- [ ] 공통 에러 응답 생성 유틸을 구현한다.
-- [ ] zod 기반 request body 검증 유틸을 구현한다.
-- [ ] zod 기반 query parameter 검증 유틸을 구현한다.
-- [ ] zod 기반 route parameter 검증 유틸을 구현한다.
+- [x] `ErrorResponse` 타입을 정의한다.
+- [x] API 에러 응답 파서를 구현한다.
+- [x] 공통 fetch wrapper를 구현한다.
+- [x] 공통 에러 응답 생성 유틸을 구현한다.
+- [x] zod 기반 request body 검증 유틸을 구현한다.
+- [x] zod 기반 query parameter 검증 유틸을 구현한다.
+- [x] zod 기반 route parameter 검증 유틸을 구현한다.
 
 #### Date / Meeting Foundation
 
@@ -260,12 +260,12 @@ type MeetingListItem = {
 
 ### 5-4. 테스트 체크리스트
 
-- [ ] `ErrorResponse` 타입 사용 케이스를 테스트한다.
-- [ ] API 에러 응답 파서를 테스트한다.
-- [ ] 공통 에러 응답 생성 유틸을 테스트한다.
-- [ ] request body 검증 유틸을 테스트한다.
-- [ ] query parameter 검증 유틸을 테스트한다.
-- [ ] route parameter 검증 유틸을 테스트한다.
+- [x] `ErrorResponse` 타입 사용 케이스를 테스트한다.
+- [x] API 에러 응답 파서를 테스트한다.
+- [x] 공통 에러 응답 생성 유틸을 테스트한다.
+- [x] request body 검증 유틸을 테스트한다.
+- [x] query parameter 검증 유틸을 테스트한다.
+- [x] route parameter 검증 유틸을 테스트한다.
 - [ ] 날짜 포맷 유틸을 테스트한다.
 - [ ] 제목 prefix 유틸을 테스트한다.
 - [ ] `createdAt`에서 `meetingDate`가 생성되는지 테스트한다.
