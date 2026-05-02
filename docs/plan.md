@@ -209,16 +209,12 @@ API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 �
 - [x] zod 기반 query parameter 검증 유틸을 구현한다.
 - [x] zod 기반 route parameter 검증 유틸을 구현한다.
 
-#### Date / Meeting Foundation
+#### Date Foundation
 
-- [ ] `YYYY-MM-DD` 날짜 포맷 유틸을 구현한다.
-- [ ] `[YYYY-MM-DD. 요일]` 제목 prefix 유틸을 구현한다.
-- [ ] `createdAt`에서 `meetingDate`를 생성하는 유틸을 구현한다.
-- [ ] 조회 대상 월의 시작일을 계산하는 유틸을 구현한다.
-- [ ] 조회 대상 월의 다음 달 시작일을 계산하는 유틸을 구현한다.
-- [ ] UUID route parameter 검증 schema를 구현한다.
-- [ ] `meetingDate` query parameter 검증 schema를 구현한다.
-- [ ] `year`, `month` query parameter 검증 schema를 구현한다.
+- [x] `YYYY-MM-DD` 날짜 포맷 유틸을 구현한다.
+- [x] `[YYYY-MM-DD. 요일]` 제목 prefix 유틸을 구현한다.
+- [x] 조회 대상 월의 시작일을 계산하는 유틸을 구현한다.
+- [x] 조회 대상 월의 다음 달 시작일을 계산하는 유틸을 구현한다.
 
 #### Draft Foundation
 
@@ -266,11 +262,9 @@ type MeetingListItem = {
 - [x] request body 검증 유틸을 테스트한다.
 - [x] query parameter 검증 유틸을 테스트한다.
 - [x] route parameter 검증 유틸을 테스트한다.
-- [ ] 날짜 포맷 유틸을 테스트한다.
-- [ ] 제목 prefix 유틸을 테스트한다.
-- [ ] `createdAt`에서 `meetingDate`가 생성되는지 테스트한다.
-- [ ] 월 시작일과 다음 달 시작일 계산을 테스트한다.
-- [ ] UUID route parameter 검증을 테스트한다.
+- [x] 날짜 포맷 유틸을 테스트한다.
+- [x] 제목 prefix 유틸을 테스트한다.
+- [x] 월 시작일과 다음 달 시작일 계산을 테스트한다.
 - [ ] localStorage read/write/remove 유틸을 테스트한다.
 
 ### 5-5. 완료 기준 체크리스트
@@ -405,6 +399,7 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [ ] `UpdateMeetingRequest` schema를 정의한다.
 - [ ] UUID `id` route parameter schema를 정의한다.
 - [ ] `meetingDate` query parameter schema를 정의한다.
+- [ ] `year`, `month` query parameter schema를 정의한다.
 
 #### Repository
 
