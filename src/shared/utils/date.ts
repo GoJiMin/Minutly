@@ -25,7 +25,7 @@ export function getMonthStartDate(meetingDate: string) {
 }
 
 export function getNextMonthStartDate(meetingDate: string) {
-  let [year, month] = meetingDate.split('-').map(Number);
+  const [year, month] = meetingDate.split('-').map(Number);
 
   const nextYear = month === 12 ? year + 1 : year;
   const nextMonth = month === 12 ? 1 : month + 1;
