@@ -9,3 +9,11 @@ export function formatDateToYYYYMMDD(_date: Date) {
 
   return `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
 }
+
+export function createMeetingTitlePrefix(meetingDate: string) {
+  const [year, month, day] = meetingDate.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getUTCDay()];
+
+  return `[${meetingDate}. ${weekday}] - `;
+}
