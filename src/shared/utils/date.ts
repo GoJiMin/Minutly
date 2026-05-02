@@ -1,6 +1,6 @@
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
-export function formatDateToYYYYMMDD(_date: Date) {
+export function toMeetingDate(_date: Date) {
   const kstDate = new Date(_date.getTime() + KST_OFFSET_MS);
 
   const year = kstDate.getUTCFullYear();

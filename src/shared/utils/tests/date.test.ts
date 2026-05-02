@@ -1,13 +1,17 @@
-import {formatDateToYYYYMMDD, createMeetingTitlePrefix} from '../date';
+import {toMeetingDate, createMeetingTitlePrefix} from '../date';
 
 describe('@/src/shared/utils/date.ts', () => {
-  describe('formatDateToYYYYMMDD', () => {
-    it('전달한 날짜를 Asia/Seoul 기준 YYYY-MM-DD 문자열로 변환한다.', () => {
-      expect(formatDateToYYYYMMDD(new Date('2026-05-02T10:30:00+09:00'))).toBe('2026-05-02');
+  describe('toMeetingDate', () => {
+    it('회의 시각을 서비스 날짜 형식으로 반환한다.', () => {
+      expect(toMeetingDate(new Date('2026-05-02T10:30:00+09:00'))).toBe('2026-05-02');
     });
 
-    it('Asia/Seoul 기준 늦은 밤 날짜가 다음 날로 밀리지 않는다.', () => {
-      expect(formatDateToYYYYMMDD(new Date('2026-05-02T20:00:00+09:00'))).toBe('2026-05-02');
+    it('한국 시간 기준 같은 날짜에 속한 시각은 같은 서비스 날짜로 반환한다.', () => {
+      expect(toMeetingDate(new Date('2026-05-02T20:00:00+09:00'))).toBe('2026-05-02');
+    });
+
+    it('UTC 날짜와 한국 날짜가 다르면 한국 날짜를 서비스 날짜로 반환한다.', () => {
+      expect(toMeetingDate(new Date('2026-05-01T15:00:00.000Z'))).toBe('2026-05-02');
     });
   });
 
