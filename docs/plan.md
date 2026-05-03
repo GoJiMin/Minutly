@@ -91,7 +91,7 @@
 | Phase    | 이름                               | 목표                                                                |
 | -------- | ---------------------------------- | ------------------------------------------------------------------- |
 | Phase 0  | 프로젝트 초기 세팅                 | Next.js, TypeScript, FSD, 테스트, CI, Vercel/Neon 환경 준비         |
-| Phase 1  | 공통 기반 구현                     | 공통 타입, API 클라이언트, 에러 응답, 검증, 날짜, draft 유틸 구축   |
+| Phase 1  | 공통 기반 구현                     | 공통 타입, API 클라이언트, 에러 응답, 검증, 날짜, localStorage 유틸 구축 |
 | Phase 2  | 인증 구현                          | 비밀번호 로그인, 토큰 발급/갱신, Proxy 보호, API 인증 검증 구현     |
 | Phase 3  | Neon Postgres 저장소 구현          | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현            |
 | Phase 4  | 핵심 API 구현                      | Speech token, summary, meetings API 구현                            |
@@ -195,38 +195,32 @@ src/ => FSD 아키텍처 구성 디렉터리
 
 ### 5-1. 목표
 
-API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 단계에서 반복 사용될 공통 기반을 만든다.
+API, 에러, 검증, 날짜 포맷, meetingDate, localStorage 접근 유틸 등 이후 단계에서 반복 사용될 공통 기반을 만든다.
 
 ### 5-2. 작업 체크리스트
 
 #### API / Error Foundation
 
-- [ ] `ErrorResponse` 타입을 정의한다.
-- [ ] API 에러 응답 파서를 구현한다.
-- [ ] 공통 fetch wrapper를 구현한다.
-- [ ] 공통 에러 응답 생성 유틸을 구현한다.
-- [ ] zod 기반 request body 검증 유틸을 구현한다.
-- [ ] zod 기반 query parameter 검증 유틸을 구현한다.
-- [ ] zod 기반 route parameter 검증 유틸을 구현한다.
+- [x] `ErrorResponse` 타입을 정의한다.
+- [x] API 에러 응답 파서를 구현한다.
+- [x] 공통 fetch wrapper를 구현한다.
+- [x] 공통 에러 응답 생성 유틸을 구현한다.
+- [x] zod 기반 request body 검증 유틸을 구현한다.
+- [x] zod 기반 query parameter 검증 유틸을 구현한다.
+- [x] zod 기반 route parameter 검증 유틸을 구현한다.
 
-#### Date / Meeting Foundation
+#### Date Foundation
 
-- [ ] `YYYY-MM-DD` 날짜 포맷 유틸을 구현한다.
-- [ ] `[YYYY-MM-DD. 요일]` 제목 prefix 유틸을 구현한다.
-- [ ] `createdAt`에서 `meetingDate`를 생성하는 유틸을 구현한다.
-- [ ] 조회 대상 월의 시작일을 계산하는 유틸을 구현한다.
-- [ ] 조회 대상 월의 다음 달 시작일을 계산하는 유틸을 구현한다.
-- [ ] UUID route parameter 검증 schema를 구현한다.
-- [ ] `meetingDate` query parameter 검증 schema를 구현한다.
-- [ ] `year`, `month` query parameter 검증 schema를 구현한다.
+- [x] `YYYY-MM-DD` 날짜 포맷 유틸을 구현한다.
+- [x] `[YYYY-MM-DD. 요일]` 제목 prefix 유틸을 구현한다.
+- [x] 조회 대상 월의 시작일을 계산하는 유틸을 구현한다.
+- [x] 조회 대상 월의 다음 달 시작일을 계산하는 유틸을 구현한다.
 
-#### Draft Foundation
+#### Storage Foundation
 
-- [ ] `localStorage` read 유틸을 구현한다.
-- [ ] `localStorage` write 유틸을 구현한다.
-- [ ] `localStorage` remove 유틸을 구현한다.
-- [ ] 녹음 중 draft 타입을 정의한다.
-- [ ] 요약 직전 summary snapshot 타입을 정의한다.
+- [x] `localStorage` read 유틸을 구현한다.
+- [x] `localStorage` write 유틸을 구현한다.
+- [x] `localStorage` remove 유틸을 구현한다.
 
 ### 5-3. 주요 타입
 
@@ -236,49 +230,27 @@ type ErrorResponse = {
   detail: string;
   status: number;
 };
-
-type Meeting = {
-  id: string;
-  title: string;
-  meetingDate: string;
-  createdAt: string;
-  updatedAt: string;
-  originTranscript: string;
-  transcript: string;
-  summary: string;
-  keyPoints: string[];
-};
-
-type MeetingListItem = {
-  id: string;
-  meetingDate: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-};
 ```
 
 ### 5-4. 테스트 체크리스트
 
-- [ ] `ErrorResponse` 타입 사용 케이스를 테스트한다.
-- [ ] API 에러 응답 파서를 테스트한다.
-- [ ] 공통 에러 응답 생성 유틸을 테스트한다.
-- [ ] request body 검증 유틸을 테스트한다.
-- [ ] query parameter 검증 유틸을 테스트한다.
-- [ ] route parameter 검증 유틸을 테스트한다.
-- [ ] 날짜 포맷 유틸을 테스트한다.
-- [ ] 제목 prefix 유틸을 테스트한다.
-- [ ] `createdAt`에서 `meetingDate`가 생성되는지 테스트한다.
-- [ ] 월 시작일과 다음 달 시작일 계산을 테스트한다.
-- [ ] UUID route parameter 검증을 테스트한다.
-- [ ] localStorage read/write/remove 유틸을 테스트한다.
+- [x] `ErrorResponse` 타입 사용 케이스를 테스트한다.
+- [x] API 에러 응답 파서를 테스트한다.
+- [x] 공통 에러 응답 생성 유틸을 테스트한다.
+- [x] request body 검증 유틸을 테스트한다.
+- [x] query parameter 검증 유틸을 테스트한다.
+- [x] route parameter 검증 유틸을 테스트한다.
+- [x] 날짜 포맷 유틸을 테스트한다.
+- [x] 제목 prefix 유틸을 테스트한다.
+- [x] 월 시작일과 다음 달 시작일 계산을 테스트한다.
+- [x] localStorage read/write/remove 유틸을 테스트한다.
 
 ### 5-5. 완료 기준 체크리스트
 
-- [ ] 성공 응답과 에러 응답을 일관되게 처리할 수 있다.
-- [ ] API 명세에 맞는 공통 에러 응답을 생성할 수 있다.
-- [ ] `meetingDate`와 월별 조회 범위를 생성할 수 있다.
-- [ ] 공통 localStorage 유틸로 draft 데이터를 다룰 수 있다.
+- [x] 성공 응답과 에러 응답을 일관되게 처리할 수 있다.
+- [x] API 명세에 맞는 공통 에러 응답을 생성할 수 있다.
+- [x] `meetingDate`와 월별 조회 범위를 생성할 수 있다.
+- [x] 공통 localStorage 유틸로 JSON 직렬화 가능한 값을 저장, 조회, 삭제할 수 있다.
 
 ---
 
@@ -405,6 +377,7 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [ ] `UpdateMeetingRequest` schema를 정의한다.
 - [ ] UUID `id` route parameter schema를 정의한다.
 - [ ] `meetingDate` query parameter schema를 정의한다.
+- [ ] `year`, `month` query parameter schema를 정의한다.
 
 #### Repository
 
@@ -575,6 +548,14 @@ DELETE /api/meetings/{id}
 - [ ] preview chunk가 10개를 초과하면 가장 오래된 문장을 제거한다.
 - [ ] 전체 transcript chunk를 review transcript로 변환하는 함수를 구현한다.
 
+#### Recording Draft
+
+- [ ] 녹음 중 draft 타입을 정의한다.
+- [ ] 녹음 중 draft schema를 정의한다.
+- [ ] 녹음 중 draft 저장 유틸을 구현한다.
+- [ ] 녹음 중 draft 복원 유틸을 구현한다.
+- [ ] 녹음 중 draft 삭제 유틸을 구현한다.
+
 #### Recording Error
 
 - [ ] STT 오류 발생 시 `error` 상태로 전환한다.
@@ -596,6 +577,8 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 최근 10개 문장 preview 유지 로직을 테스트한다.
 - [ ] preview chunk가 10개를 초과하면 오래된 문장이 제거되는지 테스트한다.
 - [ ] 전체 transcript chunk를 review transcript로 변환하는 함수를 테스트한다.
+- [ ] 녹음 중 draft schema 검증을 테스트한다.
+- [ ] 녹음 중 draft 저장/복원/삭제 유틸을 테스트한다.
 - [ ] STT 오류 발생 시 draft 저장 로직을 테스트한다.
 - [ ] 다시 녹음 시작 시 `[녹음 중단 구간]`이 추가되는지 테스트한다.
 - [ ] 녹음 상태 전이를 테스트한다.
@@ -605,6 +588,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 사용자가 녹음을 시작하고 종료할 수 있다.
 - [ ] Azure STT 최종 인식 문장을 transcript로 누적할 수 있다.
 - [ ] 화면에는 최근 10개 문장만 표시된다.
+- [ ] 녹음 중 draft 데이터를 저장, 복원, 삭제할 수 있다.
 - [ ] 녹음 중 오류가 발생하면 현재 데이터가 draft로 저장된다.
 - [ ] 다시 녹음을 시작하면 `[녹음 중단 구간]`이 transcript에 남는다.
 
@@ -631,6 +615,11 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 제목 미입력 시 요약 생성 버튼을 비활성화한다.
 - [ ] transcript가 비어 있을 때 요약 생성 버튼을 비활성화한다.
 - [ ] transcript가 너무 짧을 때 요약 생성 버튼을 비활성화한다.
+- [ ] 요약 직전 summary snapshot 타입을 정의한다.
+- [ ] 요약 직전 summary snapshot schema를 정의한다.
+- [ ] summary snapshot 저장 유틸을 구현한다.
+- [ ] summary snapshot 복원 유틸을 구현한다.
+- [ ] summary snapshot 삭제 유틸을 구현한다.
 - [ ] 요약 요청 직전 summary snapshot을 저장한다.
 - [ ] `POST /api/summaries` mutation을 구현한다.
 - [ ] 요약 요청 중 `summarizing` 상태로 전환한다.
@@ -658,6 +647,8 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 제목 미입력 시 요약 생성 버튼이 비활성화되는지 테스트한다.
 - [ ] transcript가 비어 있을 때 요약 생성 버튼이 비활성화되는지 테스트한다.
 - [ ] transcript가 너무 짧을 때 요약 생성 버튼이 비활성화되는지 테스트한다.
+- [ ] summary snapshot schema 검증을 테스트한다.
+- [ ] summary snapshot 저장/복원/삭제 유틸을 테스트한다.
 - [ ] 요약 요청 직전 summary snapshot이 저장되는지 테스트한다.
 - [ ] 요약 실패 시 title이 유지되는지 테스트한다.
 - [ ] 요약 실패 시 transcript가 유지되는지 테스트한다.
@@ -673,6 +664,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 사용자가 transcript를 수정할 수 있다.
 - [ ] 사용자가 제목을 입력할 수 있다.
 - [ ] 제목과 transcript가 준비된 경우에만 요약 생성이 가능하다.
+- [ ] 요약 요청 직전 summary snapshot을 저장할 수 있다.
 - [ ] 요약 성공 후 회의 레코드가 저장된다.
 - [ ] 저장 성공 후 결과 화면으로 전환된다.
 
