@@ -218,9 +218,9 @@ API, 에러, 검증, 날짜 포맷, meetingDate, localStorage draft 등 이후 �
 
 #### Draft Foundation
 
-- [ ] `localStorage` read 유틸을 구현한다.
-- [ ] `localStorage` write 유틸을 구현한다.
-- [ ] `localStorage` remove 유틸을 구현한다.
+- [x] `localStorage` read 유틸을 구현한다.
+- [x] `localStorage` write 유틸을 구현한다.
+- [x] `localStorage` remove 유틸을 구현한다.
 - [ ] 녹음 중 draft 타입을 정의한다.
 - [ ] 요약 직전 summary snapshot 타입을 정의한다.
 
@@ -265,7 +265,7 @@ type MeetingListItem = {
 - [x] 날짜 포맷 유틸을 테스트한다.
 - [x] 제목 prefix 유틸을 테스트한다.
 - [x] 월 시작일과 다음 달 시작일 계산을 테스트한다.
-- [ ] localStorage read/write/remove 유틸을 테스트한다.
+- [x] localStorage read/write/remove 유틸을 테스트한다.
 
 ### 5-5. 완료 기준 체크리스트
 
