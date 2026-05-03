@@ -1,6 +1,6 @@
 import {localStorageClient} from '../local-storage';
 
-describe('@/src/shared/utils/local-storage.client.ts', () => {
+describe('@/src/shared/utils/local-storage.ts', () => {
   const TEST_STORAGE_KEY = 'test';
 
   beforeEach(() => {
