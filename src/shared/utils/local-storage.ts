@@ -42,7 +42,11 @@ class LocalStorage {
   private getStorage(): Storage | null {
     if (typeof window === 'undefined') return null;
 
-    return window.localStorage;
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
   }
 
   private createKey(key: string) {

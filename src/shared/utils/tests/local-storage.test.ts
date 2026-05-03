@@ -33,4 +33,14 @@ describe('@/src/shared/utils/local-storage.ts', () => {
   it('존재하지 않는 값을 조회하면 null을 반환한다.', () => {
     expect(localStorageClient.read('unknown')).toBeNull();
   });
+
+  it('localStorage 접근이 실패하면 값을 읽지 않고 null을 반환한다.', () => {
+    const spy = jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+      throw new DOMException('Blocked', 'SecurityError');
+    });
+
+    expect(localStorageClient.read('test')).toBeNull();
+
+    spy.mockRestore();
+  });
 });
