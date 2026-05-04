@@ -2,7 +2,7 @@ import 'server-only';
 
 import {authSubject} from './constants';
 import {authConfig} from '../env';
-import {SignJWT} from 'jose';
+import {jwtVerify, SignJWT} from 'jose';
 
 export type AuthTokenType = 'access' | 'refresh';
 
@@ -42,4 +42,34 @@ export async function issueRefreshToken() {
     .setIssuedAt()
     .setExpirationTime('28d')
     .sign(refreshTokenSecret);
+}
+
+async function verifyToken<TPayload extends AuthTokenPayload>(
+  jwt: string,
+  tokenType: AuthTokenType,
+): Promise<TPayload | null> {
+  const secret = tokenType === 'access' ? accessTokenSecret : refreshTokenSecret;
+
+  try {
+    const {payload} = await jwtVerify(jwt, secret, {
+      subject: authSubject,
+      algorithms: ['HS256'],
+    });
+
+    if (payload.tokenType !== tokenType) {
+      return null;
+    }
+
+    return payload as TPayload;
+  } catch {
+    return null;
+  }
+}
+
+export function verifyAccessToken(jwt: string) {
+  return verifyToken<AccessTokenPayload>(jwt, 'access');
+}
+
+export function verifyRefreshToken(jwt: string) {
+  return verifyToken<RefreshTokenPayload>(jwt, 'refresh');
 }
