@@ -1,8 +1,8 @@
 import 'server-only';
 
-import {authSubject} from './constants';
-import {authConfig} from '../env';
 import {jwtVerify, SignJWT} from 'jose';
+import {accessTokenMaxAgeSeconds, authSubject, refreshTokenMaxAgeSeconds} from './constants';
+import {authConfig} from '../env';
 
 export type AuthTokenType = 'access' | 'refresh';
 
@@ -31,7 +31,7 @@ export async function issueAccessToken() {
     .setProtectedHeader({alg: 'HS256'})
     .setSubject(authSubject)
     .setIssuedAt()
-    .setExpirationTime('1h')
+    .setExpirationTime(`${accessTokenMaxAgeSeconds}s`)
     .sign(accessTokenSecret);
 }
 
@@ -40,7 +40,7 @@ export async function issueRefreshToken() {
     .setProtectedHeader({alg: 'HS256'})
     .setSubject(authSubject)
     .setIssuedAt()
-    .setExpirationTime('28d')
+    .setExpirationTime(`${refreshTokenMaxAgeSeconds}s`)
     .sign(refreshTokenSecret);
 }
 
