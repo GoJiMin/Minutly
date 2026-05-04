@@ -3,6 +3,7 @@ import 'server-only';
 import {jwtVerify, SignJWT} from 'jose';
 import {accessTokenMaxAgeSeconds, authSubject, refreshTokenMaxAgeSeconds} from './constants';
 import {authConfig} from '../env';
+import {JWTExpired} from 'jose/errors';
 
 export type AuthTokenType = 'access' | 'refresh';
 
@@ -20,6 +21,12 @@ export type AccessTokenPayload = AuthTokenPayload & {
 export type RefreshTokenPayload = AuthTokenPayload & {
   tokenType: 'refresh';
 };
+
+export type VerifyTokenFailureReason = 'expired' | 'invalid';
+
+export type VerifyTokenResult<TPayload extends AuthTokenPayload> =
+  | {ok: true; payload: TPayload}
+  | {ok: false; reason: VerifyTokenFailureReason};
 
 const textEncoder = new TextEncoder();
 
@@ -47,7 +54,7 @@ export async function issueRefreshToken() {
 async function verifyToken<TPayload extends AuthTokenPayload>(
   jwt: string,
   tokenType: AuthTokenType,
-): Promise<TPayload | null> {
+): Promise<VerifyTokenResult<TPayload>> {
   const secret = tokenType === 'access' ? accessTokenSecret : refreshTokenSecret;
 
   try {
@@ -57,12 +64,16 @@ async function verifyToken<TPayload extends AuthTokenPayload>(
     });
 
     if (payload.tokenType !== tokenType) {
-      return null;
+      return {ok: false, reason: 'invalid'};
     }
 
-    return payload as TPayload;
-  } catch {
-    return null;
+    return {ok: true, payload: payload as TPayload};
+  } catch (error) {
+    if (error instanceof JWTExpired) {
+      return {ok: false, reason: 'expired'};
+    }
+
+    return {ok: false, reason: 'invalid'};
   }
 }
 
