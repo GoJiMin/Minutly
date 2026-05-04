@@ -7,7 +7,9 @@ type SecretEnvKey =
   | 'AZURE_SPEECH_API_ENDPOINT'
   | 'GEMINI_API_KEY'
   | 'AUTH_LOGIN_ID'
-  | 'AUTH_PASSWORD';
+  | 'AUTH_PASSWORD'
+  | 'AUTH_ACCESS_TOKEN_SECRET'
+  | 'AUTH_REFRESH_TOKEN_SECRET';
 
 function readStringEnv(name: string) {
   return process.env[name]?.trim() ?? '';
@@ -42,4 +44,6 @@ export const aiConfig = Object.freeze({
 export const authConfig = Object.freeze({
   id: readRequiredSecretEnv('AUTH_LOGIN_ID'),
   password: readRequiredSecretEnv('AUTH_PASSWORD'),
+  accessTokenSecret: readRequiredSecretEnv('AUTH_ACCESS_TOKEN_SECRET'),
+  refreshTokenSecret: readRequiredSecretEnv('AUTH_REFRESH_TOKEN_SECRET'),
 });
