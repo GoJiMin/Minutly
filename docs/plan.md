@@ -315,10 +315,10 @@ GET  /api/auth/me
 ### 6-5. 테스트 체크리스트
 
 - [x] 로그인 정보 검증을 테스트한다.
-- [ ] access token 발급을 테스트한다.
-- [ ] refresh token 발급을 테스트한다.
-- [ ] access token 검증 성공/실패 케이스를 테스트한다.
-- [ ] refresh token 검증 성공/실패 케이스를 테스트한다.
+- [x] access token 발급을 테스트한다.
+- [x] refresh token 발급을 테스트한다.
+- [x] access token 검증 성공/실패 케이스를 테스트한다.
+- [x] refresh token 검증 성공/실패 케이스를 테스트한다.
 - [ ] 로그인 API 성공 케이스를 테스트한다.
 - [ ] 로그인 API 실패 케이스를 테스트한다.
 - [ ] 토큰 갱신 API 성공 케이스를 테스트한다.
