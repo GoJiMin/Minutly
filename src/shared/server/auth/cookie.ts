@@ -19,6 +19,12 @@ export async function setAccessTokenCookie(accessToken: string) {
   });
 }
 
+export async function deleteAccessTokenCookie() {
+  const cookieStore = await cookies();
+
+  cookieStore.delete(authCookieNames.accessToken);
+}
+
 export async function setAuthCookies(input: {accessToken: string; refreshToken: string}) {
   const cookieStore = await cookies();
 
@@ -31,4 +37,11 @@ export async function setAuthCookies(input: {accessToken: string; refreshToken: 
     ...authCookieOptions,
     maxAge: refreshTokenMaxAgeSeconds,
   });
+}
+
+export async function deleteAuthCookies() {
+  const cookieStore = await cookies();
+
+  cookieStore.delete(authCookieNames.accessToken);
+  cookieStore.delete(authCookieNames.refreshToken);
 }
