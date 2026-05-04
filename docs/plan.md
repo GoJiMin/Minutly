@@ -281,7 +281,7 @@ GET  /api/auth/me
 - [x] refresh token 발급 유틸을 구현한다.
 - [x] access token 검증 유틸을 구현한다.
 - [x] refresh token 검증 유틸을 구현한다.
-- [ ] 인증 쿠키 설정 유틸을 구현한다.
+- [x] 인증 쿠키 설정 유틸을 구현한다.
 - [ ] 인증 쿠키 제거 유틸을 구현한다.
 - [ ] Route Handler용 `requireAuth` 유틸을 구현한다.
 
