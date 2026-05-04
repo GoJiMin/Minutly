@@ -276,7 +276,7 @@ GET  /api/auth/me
 - [x] 로그인 요청 schema를 정의한다.
 - [x] access token payload 타입을 정의한다.
 - [x] refresh token payload 타입을 정의한다.
-- [ ] 비밀번호 검증 유틸을 구현한다.
+- [x] 로그인 정보 검증 유틸을 구현한다.
 - [ ] access token 발급 유틸을 구현한다.
 - [ ] refresh token 발급 유틸을 구현한다.
 - [ ] access token 검증 유틸을 구현한다.
