@@ -10,6 +10,18 @@ const authCookieOptions = {
   path: '/',
 } as const;
 
+export async function getAccessTokenCookieValue() {
+  const cookieStore = await cookies();
+
+  return cookieStore.get(authCookieNames.accessToken)?.value ?? null;
+}
+
+export async function getRefreshTokenCookieValue() {
+  const cookieStore = await cookies();
+
+  return cookieStore.get(authCookieNames.refreshToken)?.value ?? null;
+}
+
 export async function setAccessTokenCookie(accessToken: string) {
   const cookieStore = await cookies();
 
