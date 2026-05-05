@@ -41,8 +41,8 @@ export async function validateRequestBody<TSchema extends z.ZodType>(
     return {
       ok: false,
       error: createErrorJsonResponse({
-        title: 'INVALID_REQUEST_BODY',
-        detail: '요청 본문의 형식이 올바르지 않아요.',
+        title: 'INVALID_REQUEST',
+        detail: '요청 형식이 올바르지 않습니다.',
         status: 400,
       }),
     };

@@ -40,7 +40,16 @@ describe('@/src/shared/server/validation.ts', () => {
 
       const result = await validateRequestBody(request, schema, errorMapper);
 
-      expect(result.ok).toBe(false);
+      if (result.ok) {
+        throw new Error('Expected JSON parse failure');
+      }
+
+      expect(result.error.status).toBe(400);
+      await expect(result.error.json()).resolves.toEqual({
+        title: 'INVALID_REQUEST',
+        detail: '요청 형식이 올바르지 않습니다.',
+        status: 400,
+      });
       expect(errorMapper).not.toHaveBeenCalled();
     });
 

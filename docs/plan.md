@@ -62,16 +62,21 @@
 - 에러 응답은 `{ title, detail, status }` 구조를 사용한다.
 - 반환 본문이 없는 성공 응답은 `204 No Content`를 사용한다.
 - 보호된 API 요청은 Route Handler 내부에서 토큰 유효성을 검증한다.
+- 보호된 API에서 refresh 시도가 가능한 인증 만료 상태는 `TOKEN_EXPIRED`로 응답한다.
+- 보호된 API에서 인증 정보가 없거나 유효하지 않고 refresh 시도도 불가능한 상태는 `UNAUTHORIZED`로 응답한다.
+- 클라이언트는 모든 401에 refresh를 시도하지 않고 `TOKEN_EXPIRED`에 대해서만 refresh를 1회 시도한다.
+- refresh API에서 refresh token 검증에 실패하면 `UNAUTHORIZED`로 응답한다.
 - 회의 상세, 수정, 삭제 endpoint는 `/api/meetings/{id}` 형식을 따른다.
 - 히스토리 날짜 목록은 `meeting_date` range query로 조회한다.
 - 특정 날짜 회의 목록은 `meeting_date = date` 조건과 `updated_at desc` 정렬을 사용한다.
 
 ### 2-4. MVP 보안 원칙
 
-- 단일 비밀번호 인증으로 서비스 접근을 제한한다.
+- 단일 로그인 정보(`id`/`password`) 인증으로 서비스 접근을 제한한다.
 - 인증 토큰은 `httpOnly` 쿠키로 관리한다.
 - 보호된 페이지 접근 제어는 Next.js Proxy에서 수행한다.
 - 보호된 Route Handler는 토큰 유무와 유효성을 별도로 검증한다.
+- 인증 에러 응답은 로그인 실패 원인과 refresh token 검증 실패 원인을 상세히 노출하지 않는다.
 - Vercel 기본 보호 기능을 우선 사용한다.
 - 앱 레벨 감사 테이블과 rate limit은 MVP 이후 확장 후보로 둔다.
 
@@ -88,19 +93,19 @@
 
 ## 3. 전체 개발 단계 요약
 
-| Phase    | 이름                               | 목표                                                                |
-| -------- | ---------------------------------- | ------------------------------------------------------------------- |
-| Phase 0  | 프로젝트 초기 세팅                 | Next.js, TypeScript, FSD, 테스트, CI, Vercel/Neon 환경 준비         |
+| Phase    | 이름                               | 목표                                                                     |
+| -------- | ---------------------------------- | ------------------------------------------------------------------------ |
+| Phase 0  | 프로젝트 초기 세팅                 | Next.js, TypeScript, FSD, 테스트, CI, Vercel/Neon 환경 준비              |
 | Phase 1  | 공통 기반 구현                     | 공통 타입, API 클라이언트, 에러 응답, 검증, 날짜, localStorage 유틸 구축 |
-| Phase 2  | 인증 구현                          | 비밀번호 로그인, 토큰 발급/갱신, Proxy 보호, API 인증 검증 구현     |
-| Phase 3  | Neon Postgres 저장소 구현          | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현            |
-| Phase 4  | 핵심 API 구현                      | Speech token, summary, meetings API 구현                            |
-| Phase 5  | 녹음 및 STT 구현                   | Azure Speech SDK 연결, 최근 10개 문장 미리보기, draft autosave 구현 |
-| Phase 6  | 전사 검토 및 요약 저장 플로우 구현 | transcript review, title 입력, 요약 생성, 회의 저장 구현            |
-| Phase 7  | 히스토리 UI 구현                   | 캘린더, 날짜별 목록, 상세 조회 구현                                 |
-| Phase 8  | 저장된 회의 수정/삭제 구현         | transcript 편집, 재요약, 회의 레코드 갱신, 삭제 모달 구현           |
-| Phase 9  | 에러 복구 및 안정화                | draft 복구, summary snapshot 복구, 에러 바운더리, 테스트 보강       |
-| Phase 10 | 최종 검증 및 배포 안정화           | 테스트/CI/Vercel 배포/Neon 연결/주요 사용자 흐름 최종 검증          |
+| Phase 2  | 인증 구현                          | 로그인 정보 검증, 토큰 발급/갱신, Proxy 보호, API 인증 검증 구현         |
+| Phase 3  | Neon Postgres 저장소 구현          | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현                 |
+| Phase 4  | 핵심 API 구현                      | Speech token, summary, meetings API 구현                                 |
+| Phase 5  | 녹음 및 STT 구현                   | Azure Speech SDK 연결, 최근 10개 문장 미리보기, draft autosave 구현      |
+| Phase 6  | 전사 검토 및 요약 저장 플로우 구현 | transcript review, title 입력, 요약 생성, 회의 저장 구현                 |
+| Phase 7  | 히스토리 UI 구현                   | 캘린더, 날짜별 목록, 상세 조회 구현                                      |
+| Phase 8  | 저장된 회의 수정/삭제 구현         | transcript 편집, 재요약, 회의 레코드 갱신, 삭제 모달 구현                |
+| Phase 9  | 에러 복구 및 안정화                | draft 복구, summary snapshot 복구, 에러 바운더리, 테스트 보강            |
+| Phase 10 | 최종 검증 및 배포 안정화           | 테스트/CI/Vercel 배포/Neon 연결/주요 사용자 흐름 최종 검증               |
 
 ---
 
@@ -258,7 +263,7 @@ type ErrorResponse = {
 
 ### 6-1. 목표
 
-1인 사용을 전제로 한 단일 비밀번호 인증과 보호된 페이지/API 접근 제어를 구현한다.
+1인 사용을 전제로 한 단일 로그인 정보(`id`/`password`) 인증과 보호된 페이지/API 접근 제어를 구현한다.
 
 ### 6-2. 구현 API
 
@@ -273,29 +278,29 @@ GET  /api/auth/me
 
 #### Auth Domain
 
-- [ ] 로그인 요청 schema를 정의한다.
-- [ ] access token payload 타입을 정의한다.
-- [ ] refresh token payload 타입을 정의한다.
-- [ ] 비밀번호 검증 유틸을 구현한다.
-- [ ] access token 발급 유틸을 구현한다.
-- [ ] refresh token 발급 유틸을 구현한다.
-- [ ] access token 검증 유틸을 구현한다.
-- [ ] refresh token 검증 유틸을 구현한다.
-- [ ] 인증 쿠키 설정 유틸을 구현한다.
-- [ ] 인증 쿠키 제거 유틸을 구현한다.
-- [ ] Route Handler용 `requireAuth` 유틸을 구현한다.
+- [x] 로그인 요청 schema를 정의한다.
+- [x] auth token 용도 타입을 정의한다.
+- [x] token 검증 결과 타입을 정의한다.
+- [x] 로그인 정보 검증 유틸을 구현한다.
+- [x] access token 발급 유틸을 구현한다.
+- [x] refresh token 발급 유틸을 구현한다.
+- [x] access token 검증 유틸을 구현한다.
+- [x] refresh token 검증 유틸을 구현한다.
+- [x] 인증 쿠키 설정 유틸을 구현한다.
+- [x] 인증 쿠키 제거 유틸을 구현한다.
+- [x] Route Handler용 `requireAuth` 유틸을 구현한다.
 
 #### Auth API
 
-- [ ] `POST /api/auth/login` Route Handler를 구현한다.
-- [ ] `POST /api/auth/refresh` Route Handler를 구현한다.
-- [ ] `POST /api/auth/logout` Route Handler를 구현한다.
-- [ ] `GET /api/auth/me` Route Handler를 구현한다.
-- [ ] 로그인 성공 시 access token 쿠키를 발급한다.
-- [ ] 로그인 성공 시 refresh token 쿠키를 발급한다.
-- [ ] access token 유효 기간 1시간을 적용한다.
-- [ ] refresh token 유효 기간 4주를 적용한다.
-- [ ] 인증 실패 시 명세된 에러 응답을 반환한다.
+- [x] `POST /api/auth/login` Route Handler를 구현한다.
+- [x] `POST /api/auth/refresh` Route Handler를 구현한다.
+- [x] `POST /api/auth/logout` Route Handler를 구현한다.
+- [x] `GET /api/auth/me` Route Handler를 구현한다.
+- [x] 로그인 성공 시 access token 쿠키를 발급한다.
+- [x] 로그인 성공 시 refresh token 쿠키를 발급한다.
+- [x] access token 유효 기간 1시간을 적용한다.
+- [x] refresh token 유효 기간 4주를 적용한다.
+- [x] 인증 실패 시 `UNAUTHORIZED`와 `TOKEN_EXPIRED` 기준에 맞는 에러 응답을 반환한다.
 
 #### Proxy / UI
 
@@ -314,23 +319,23 @@ GET  /api/auth/me
 
 ### 6-5. 테스트 체크리스트
 
-- [ ] 비밀번호 검증 성공 케이스를 테스트한다.
-- [ ] 비밀번호 검증 실패 케이스를 테스트한다.
-- [ ] access token 발급을 테스트한다.
-- [ ] refresh token 발급을 테스트한다.
-- [ ] access token 검증 성공/실패 케이스를 테스트한다.
-- [ ] refresh token 검증 성공/실패 케이스를 테스트한다.
+- [x] 로그인 정보 검증을 테스트한다.
+- [x] access token 발급을 테스트한다.
+- [x] refresh token 발급을 테스트한다.
+- [x] access token 검증 성공/실패 케이스를 테스트한다.
+- [x] refresh token 검증 성공/실패 케이스를 테스트한다.
 - [ ] 로그인 API 성공 케이스를 테스트한다.
 - [ ] 로그인 API 실패 케이스를 테스트한다.
 - [ ] 토큰 갱신 API 성공 케이스를 테스트한다.
 - [ ] 토큰 갱신 API 실패 케이스를 테스트한다.
 - [ ] 인증되지 않은 사용자의 보호 페이지 접근 차단을 테스트한다.
 - [ ] 보호된 API에서 `requireAuth`가 동작하는지 테스트한다.
+- [ ] 보호된 API에서 `TOKEN_EXPIRED` 응답 시 refresh 요청이 1회 수행되는지 테스트한다.
 
 ### 6-6. 완료 기준 체크리스트
 
-- [ ] 올바른 비밀번호 입력 시 인증 쿠키가 발급된다.
-- [ ] 잘못된 비밀번호 입력 시 401 에러가 반환된다.
+- [ ] 올바른 `id`와 `password` 입력 시 인증 쿠키가 발급된다.
+- [ ] 잘못된 로그인 정보 입력 시 401 에러가 반환된다.
 - [ ] 인증되지 않은 사용자는 보호된 페이지에 접근할 수 없다.
 - [ ] 보호된 API는 토큰 검증을 통과해야만 실행된다.
 - [ ] access token 만료 시 refresh token으로 재발급할 수 있다.
