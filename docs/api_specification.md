@@ -116,7 +116,7 @@ type ErrorResponse = {
 | ------ | ---------------------------------------- | ---------------------------------------- | ------------------ |
 | POST   | `/api/auth/login`                        | 로그인 정보 검증 후 토큰 쿠키 발급       | 불필요             |
 | POST   | `/api/auth/refresh`                      | refresh token으로 access token 재발급    | refresh token 필요 |
-| POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 필요               |
+| POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
 | GET    | `/api/auth/me`                           | 현재 인증 상태 확인                      | 필요               |
 | POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
 | POST   | `/api/summaries`                         | transcript 기반 요약 생성                | 필요               |
@@ -233,7 +233,7 @@ POST /api/auth/logout
 
 ### 목적
 
-access token과 refresh token 쿠키를 제거한다.
+현재 브라우저의 access token과 refresh token 쿠키를 제거한다.
 
 ### Request
 
@@ -247,10 +247,20 @@ access token과 refresh token 쿠키를 제거한다.
 
 ### 처리 규칙
 
-- 서버는 access token 쿠키와 refresh token 쿠키를 만료 처리한다.
+- 로그아웃은 보호 리소스 접근이 아니라 클라이언트 인증 상태 정리 작업으로 취급한다.
+- 로그아웃 API는 access token 또는 refresh token 검증을 수행하지 않는다.
+- 로그아웃 API는 `requireAuth`를 사용하지 않는다.
+- 서버는 access token 쿠키와 refresh token 쿠키 존재 여부를 확인하지 않고 삭제 응답을 설정한다.
+- access token 또는 refresh token이 없거나 이미 만료되었어도 204를 반환한다.
 - 로그아웃 후 보호된 페이지 접근 시 로그인 페이지로 이동해야 한다.
 - 초기 버전에서는 1인 사용을 전제로 하므로 로그아웃 기능을 별도 UI로 노출하지 않는다.
 - 단, 인증 쿠키를 제거해야 하는 상황을 대비해 로그아웃 API 자체는 유지한다.
+
+### Error
+
+| Status | Title                | Detail                              |
+| ------ | -------------------- | ----------------------------------- |
+| 500    | `AUTH_LOGOUT_FAILED` | 로그아웃 처리 중 문제가 발생했습니다. |
 
 ---
 
