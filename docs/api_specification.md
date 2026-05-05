@@ -172,10 +172,10 @@ type LoginRequest = {
 - 두 토큰은 `httpOnly` 쿠키로 설정한다.
 - access token의 유효 기간은 1시간으로 설정한다.
 - refresh token의 유효 기간은 4주로 설정한다.
-- `id` 또는 `password`가 일치하지 않으면 401을 반환한다.
-- 로그인 요청 body가 올바르지 않으면 400을 반환한다.
+- 요청 본문을 JSON으로 해석할 수 없으면 400 `INVALID_REQUEST`를 반환한다.
+- JSON 해석은 성공했지만 `id`/`password` 형식이 올바르지 않거나 값이 일치하지 않으면 401 `INVALID_CREDENTIALS`를 반환한다.
 - `id`, `password`, 토큰 값은 응답 body에 포함하지 않는다.
-- 인증 실패 응답은 `id`와 `password` 중 어느 값이 잘못되었는지 구분하지 않는다.
+- 인증 실패 응답은 `id` 형식 오류, `password` 형식 오류, 값 불일치 중 어느 경우인지 구분하지 않는다.
 
 ### Error
 
