@@ -80,6 +80,49 @@ async function parseJsonResponse<T>(response: Response, context: RequestContext)
   }
 }
 
+let refreshPromise: Promise<void> | null = null;
+
+async function requestTokenRefresh(context: RequestContext): Promise<void> {
+  const refreshResponse = await fetch('/api/auth/refresh', {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!refreshResponse.ok) {
+    const refreshErrorResponse = await parseErrorResponse(refreshResponse);
+
+    throw createRequestError({
+      errorResponse: refreshErrorResponse,
+      context: {
+        endpoint: '/api/auth/refresh',
+        method: 'POST',
+        requestBody: null,
+        errorHandlingType: context.errorHandlingType,
+      },
+    });
+  }
+}
+
+async function refreshAccessTokenOnce(context: RequestContext): Promise<void> {
+  if (!refreshPromise) {
+    const promise = requestTokenRefresh(context);
+
+    refreshPromise = promise;
+
+    try {
+      await promise;
+    } finally {
+      if (refreshPromise === promise) {
+        refreshPromise = null;
+      }
+    }
+
+    return;
+  }
+
+  await refreshPromise;
+}
+
 // Network-level failures are intentionally not normalized here.
 // They should be handled by the app-level error boundary.
 async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
@@ -92,11 +135,23 @@ async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
     errorHandlingType: props.errorHandlingType,
   };
 
-  const response: Response = await fetch(url, requestInit);
+  let response: Response = await fetch(url, requestInit);
 
   if (!response.ok) {
     const errorResponse = await parseErrorResponse(response);
-    throw createRequestError({errorResponse, context});
+
+    if (errorResponse.title === 'TOKEN_EXPIRED') {
+      await refreshAccessTokenOnce(context);
+
+      response = await fetch(url, requestInit);
+
+      if (!response.ok) {
+        const retryErrorResponse = await parseErrorResponse(response);
+        throw createRequestError({errorResponse: retryErrorResponse, context});
+      }
+    } else {
+      throw createRequestError({errorResponse, context});
+    }
   }
 
   if (props.withResponse) {
