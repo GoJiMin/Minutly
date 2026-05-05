@@ -274,8 +274,8 @@ GET  /api/auth/me
 #### Auth Domain
 
 - [x] 로그인 요청 schema를 정의한다.
-- [x] access token payload 타입을 정의한다.
-- [x] refresh token payload 타입을 정의한다.
+- [x] auth token 용도 타입을 정의한다.
+- [x] token 검증 결과 타입을 정의한다.
 - [x] 로그인 정보 검증 유틸을 구현한다.
 - [x] access token 발급 유틸을 구현한다.
 - [x] refresh token 발급 유틸을 구현한다.

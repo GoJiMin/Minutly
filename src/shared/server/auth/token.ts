@@ -6,27 +6,8 @@ import {authConfig} from '../env';
 import {JWTExpired} from 'jose/errors';
 
 export type AuthTokenType = 'access' | 'refresh';
-
-export type AuthTokenPayload = {
-  sub: typeof authSubject;
-  tokenType: AuthTokenType;
-  iat: number;
-  exp: number;
-};
-
-export type AccessTokenPayload = AuthTokenPayload & {
-  tokenType: 'access';
-};
-
-export type RefreshTokenPayload = AuthTokenPayload & {
-  tokenType: 'refresh';
-};
-
 export type VerifyTokenFailureReason = 'expired' | 'invalid';
-
-export type VerifyTokenResult<TPayload extends AuthTokenPayload> =
-  | {ok: true; payload: TPayload}
-  | {ok: false; reason: VerifyTokenFailureReason};
+export type VerifyTokenResult = {ok: true} | {ok: false; reason: VerifyTokenFailureReason};
 
 const textEncoder = new TextEncoder();
 
@@ -51,10 +32,7 @@ export async function issueRefreshToken() {
     .sign(refreshTokenSecret);
 }
 
-async function verifyToken<TPayload extends AuthTokenPayload>(
-  jwt: string,
-  tokenType: AuthTokenType,
-): Promise<VerifyTokenResult<TPayload>> {
+async function verifyToken(jwt: string, tokenType: AuthTokenType): Promise<VerifyTokenResult> {
   const secret = tokenType === 'access' ? accessTokenSecret : refreshTokenSecret;
 
   try {
@@ -67,7 +45,7 @@ async function verifyToken<TPayload extends AuthTokenPayload>(
       return {ok: false, reason: 'invalid'};
     }
 
-    return {ok: true, payload: payload as TPayload};
+    return {ok: true};
   } catch (error) {
     if (error instanceof JWTExpired) {
       return {ok: false, reason: 'expired'};
@@ -78,9 +56,9 @@ async function verifyToken<TPayload extends AuthTokenPayload>(
 }
 
 export function verifyAccessToken(jwt: string) {
-  return verifyToken<AccessTokenPayload>(jwt, 'access');
+  return verifyToken(jwt, 'access');
 }
 
 export function verifyRefreshToken(jwt: string) {
-  return verifyToken<RefreshTokenPayload>(jwt, 'refresh');
+  return verifyToken(jwt, 'refresh');
 }

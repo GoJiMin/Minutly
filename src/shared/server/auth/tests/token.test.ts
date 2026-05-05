@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import {accessTokenMaxAgeSeconds, authSubject} from '../constants';
+import {accessTokenMaxAgeSeconds} from '../constants';
 import {issueAccessToken, issueRefreshToken, verifyAccessToken, verifyRefreshToken} from '../token';
 
 describe('@/src/shared/server/auth/token.ts', () => {
@@ -10,38 +10,14 @@ describe('@/src/shared/server/auth/token.ts', () => {
     const accessToken = await issueAccessToken();
     const result = await verifyAccessToken(accessToken);
 
-    expect(result.ok).toBe(true);
-
-    if (!result.ok) {
-      throw new Error('Expected access token verification to succeed');
-    }
-
-    const {exp, iat, sub, tokenType} = result.payload;
-
-    expect(sub).toBe(authSubject);
-    expect(tokenType).toBe('access');
-    expect(typeof iat).toBe('number');
-    expect(typeof exp).toBe('number');
-    expect(exp).toBeGreaterThan(iat);
+    expect(result).toStrictEqual({ok: true});
   });
 
   it('리프레쉬 토큰을 발급하고 검증할 수 있다.', async () => {
     const refreshToken = await issueRefreshToken();
     const result = await verifyRefreshToken(refreshToken);
 
-    expect(result.ok).toBe(true);
-
-    if (!result.ok) {
-      throw new Error('Expected refresh token verification to succeed');
-    }
-
-    const {exp, iat, sub, tokenType} = result.payload;
-
-    expect(sub).toBe(authSubject);
-    expect(tokenType).toBe('refresh');
-    expect(typeof iat).toBe('number');
-    expect(typeof exp).toBe('number');
-    expect(exp).toBeGreaterThan(iat);
+    expect(result).toStrictEqual({ok: true});
   });
 
   it('액세스 토큰은 토큰 재발급 권한으로 인정하지 않는다.', async () => {
