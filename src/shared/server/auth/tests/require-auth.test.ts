@@ -40,7 +40,7 @@ describe('@/src/shared/server/auth/require-auth.ts', () => {
     jest.clearAllMocks();
   });
 
-  it('액세스 토큰과 리프레쉬 토큰이 모두 없다면 AUTH_REQUIRED 에러를 반환한다.', async () => {
+  it('액세스 토큰과 리프레쉬 토큰이 모두 없다면 UNAUTHORIZED 에러를 반환한다.', async () => {
     mockCookieStore({});
 
     const result = await requireAuth();
@@ -49,11 +49,11 @@ describe('@/src/shared/server/auth/require-auth.ts', () => {
     expect(result.ok).toBe(false);
 
     if (result.ok) {
-      throw new Error('Excepted auth failure');
+      throw new Error('Expected auth failure');
     }
 
     await expect(result.error.json()).resolves.toEqual({
-      title: 'AUTH_REQUIRED',
+      title: 'UNAUTHORIZED',
       detail: '인증이 필요합니다.',
       status: 401,
     });
@@ -70,12 +70,12 @@ describe('@/src/shared/server/auth/require-auth.ts', () => {
     expect(result.ok).toBe(false);
 
     if (result.ok) {
-      throw new Error('Excepted auth failure');
+      throw new Error('Expected auth failure');
     }
 
     await expect(result.error.json()).resolves.toEqual({
       title: 'TOKEN_EXPIRED',
-      detail: '인증 토큰이 만료되었습니다.',
+      detail: '인증 정보가 만료되었습니다.',
       status: 401,
     });
   });
@@ -92,7 +92,7 @@ describe('@/src/shared/server/auth/require-auth.ts', () => {
     expect(result.ok).toBe(true);
   });
 
-  it('액세스 토큰이 만료되었으면 TOKEN_EXPIRED 에러를 반환한다.', async () => {
+  it('액세스 토큰이 만료되었고 리프레쉬 토큰이 없다면 UNAUTHORIZED 에러를 반환한다.', async () => {
     mockCookieStore({
       [authCookieNames.accessToken]: 'expired-access-token',
     });
@@ -104,19 +104,43 @@ describe('@/src/shared/server/auth/require-auth.ts', () => {
     expect(result.ok).toBe(false);
 
     if (result.ok) {
-      throw new Error('Excepted auth failure');
+      throw new Error('Expected auth failure');
+    }
+
+    await expect(result.error.json()).resolves.toEqual({
+      title: 'UNAUTHORIZED',
+      detail: '인증이 필요합니다.',
+      status: 401,
+    });
+  });
+
+  it('액세스 토큰이 만료되었고 리프레쉬 토큰이 있다면 TOKEN_EXPIRED 에러를 반환한다.', async () => {
+    mockCookieStore({
+      [authCookieNames.accessToken]: 'expired-access-token',
+      [authCookieNames.refreshToken]: 'refresh-token',
+    });
+
+    mockedVerifyAccessToken.mockResolvedValue({ok: false, reason: 'expired'});
+
+    const result = await requireAuth();
+
+    expect(result.ok).toBe(false);
+
+    if (result.ok) {
+      throw new Error('Expected auth failure');
     }
 
     await expect(result.error.json()).resolves.toEqual({
       title: 'TOKEN_EXPIRED',
-      detail: '인증 토큰이 만료되었습니다.',
+      detail: '인증 정보가 만료되었습니다.',
       status: 401,
     });
   });
 
   it('액세스 토큰이 유효하지 않으면 UNAUTHORIZED 에러를 반환한다.', async () => {
     mockCookieStore({
-      [authCookieNames.accessToken]: 'expired-access-token',
+      [authCookieNames.accessToken]: 'invalid-access-token',
+      [authCookieNames.refreshToken]: 'refresh-token',
     });
 
     mockedVerifyAccessToken.mockResolvedValue({ok: false, reason: 'invalid'});
@@ -126,7 +150,7 @@ describe('@/src/shared/server/auth/require-auth.ts', () => {
     expect(result.ok).toBe(false);
 
     if (result.ok) {
-      throw new Error('Excepted auth failure');
+      throw new Error('Expected auth failure');
     }
 
     await expect(result.error.json()).resolves.toEqual({
