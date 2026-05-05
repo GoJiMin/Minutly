@@ -3,8 +3,8 @@ import 'server-only';
 import type {NextResponse} from 'next/server';
 import {createErrorJsonResponse} from '../response';
 import {verifyAccessToken} from './token';
+import {getAuthCookieValues} from './cookie';
 import type {ErrorResponse} from '@/shared/api';
-import {getAccessTokenCookieValue, getRefreshTokenCookieValue} from './cookie';
 
 type AuthFailureTitle = 'TOKEN_EXPIRED' | 'UNAUTHORIZED';
 type RequireAuthResult = {ok: true} | {ok: false; error: NextResponse<ErrorResponse>};
@@ -34,8 +34,7 @@ function createRefreshableAuthFailureResult(hasRefreshToken: boolean): RequireAu
 }
 
 export async function requireAuth(): Promise<RequireAuthResult> {
-  const accessToken = await getAccessTokenCookieValue();
-  const refreshToken = await getRefreshTokenCookieValue();
+  const {accessToken, refreshToken} = await getAuthCookieValues();
   const hasRefreshToken = Boolean(refreshToken);
 
   if (!accessToken) {

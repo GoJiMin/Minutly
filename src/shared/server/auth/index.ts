@@ -7,6 +7,7 @@ export {
   deleteAuthCookies,
   getAccessTokenCookieValue,
   getRefreshTokenCookieValue,
+  getAuthCookieValues,
 } from './cookie';
 export {verifyCredentials} from './credentials';
 export {requireAuth} from './require-auth';

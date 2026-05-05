@@ -22,6 +22,15 @@ export async function getRefreshTokenCookieValue() {
   return cookieStore.get(authCookieNames.refreshToken)?.value ?? null;
 }
 
+export async function getAuthCookieValues() {
+  const cookieStore = await cookies();
+
+  return {
+    accessToken: cookieStore.get(authCookieNames.accessToken)?.value ?? null,
+    refreshToken: cookieStore.get(authCookieNames.refreshToken)?.value ?? null,
+  };
+}
+
 export async function setAccessTokenCookie(accessToken: string) {
   const cookieStore = await cookies();
 
