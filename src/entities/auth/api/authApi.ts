@@ -1,5 +1,4 @@
 import {LoginRequest} from '../model/schema';
-import {AuthMeResponse} from '../model/types';
 import {fetchGet, fetchPost} from '@/shared/api';
 
 export async function fetchLogin(input: LoginRequest) {
@@ -21,9 +20,10 @@ export async function fetchTokenRefresh() {
   });
 }
 
-export async function fetchAuthMe() {
-  return await fetchGet<AuthMeResponse>({
-    endpoint: '/api/auth/me',
+export async function fetchAuthCheck() {
+  await fetchGet({
+    endpoint: '/api/auth/check',
+    withResponse: false,
     errorHandlingType: 'silent',
   });
 }

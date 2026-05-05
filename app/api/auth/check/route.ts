@@ -8,5 +8,5 @@ export async function GET() {
     return authResult.error;
   }
 
-  return NextResponse.json({authenticated: true}, {status: 200});
+  return new NextResponse(null, {status: 204});
 }

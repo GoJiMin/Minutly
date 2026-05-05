@@ -117,7 +117,7 @@ type ErrorResponse = {
 | POST   | `/api/auth/login`                        | 로그인 정보 검증 후 토큰 쿠키 발급       | 불필요             |
 | POST   | `/api/auth/refresh`                      | refresh token으로 access token 재발급    | refresh token 필요 |
 | POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
-| GET    | `/api/auth/me`                           | 현재 인증 상태 확인                      | 필요               |
+| GET    | `/api/auth/check`                        | 현재 인증 상태 확인                      | 필요               |
 | POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
 | POST   | `/api/summaries`                         | transcript 기반 요약 생성                | 필요               |
 | POST   | `/api/meetings`                          | 신규 회의 저장                           | 필요               |
@@ -267,33 +267,23 @@ POST /api/auth/logout
 ## 5-4. 인증 상태 확인
 
 ```http
-GET /api/auth/me
+GET /api/auth/check
 ```
 
 ### 목적
 
-현재 요청이 인증된 사용자인지 확인한다.
-
-### Type
-
-```ts
-type AuthMeResponse = {
-  authenticated: boolean;
-};
-```
+현재 요청의 access token으로 보호 API를 호출할 수 있는지 확인한다.
 
 ### Response
 
-```json
-{
-  "authenticated": true
-}
+```http
+204 No Content
 ```
 
 ### 처리 규칙
 
 - access token이 없거나 유효하지 않으면 401을 반환한다.
-- 인증이 유효하면 `{ authenticated: true }`를 반환한다.
+- 인증이 유효하면 응답 본문 없이 204를 반환한다.
 
 ### Error
 
@@ -891,7 +881,7 @@ await fetch(`/api/meetings?date=${meeting.meetingDate}`);
 
 ```http
 POST   /api/auth/logout
-GET    /api/auth/me
+GET    /api/auth/check
 POST   /api/speech/token
 POST   /api/summaries
 POST   /api/meetings

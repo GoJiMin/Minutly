@@ -271,7 +271,7 @@ type ErrorResponse = {
 POST /api/auth/login
 POST /api/auth/refresh
 POST /api/auth/logout
-GET  /api/auth/me
+GET  /api/auth/check
 ```
 
 ### 6-3. 작업 체크리스트
@@ -295,7 +295,7 @@ GET  /api/auth/me
 - [x] `POST /api/auth/login` Route Handler를 구현한다.
 - [x] `POST /api/auth/refresh` Route Handler를 구현한다.
 - [x] `POST /api/auth/logout` Route Handler를 구현한다.
-- [x] `GET /api/auth/me` Route Handler를 구현한다.
+- [x] `GET /api/auth/check` Route Handler를 구현한다.
 - [x] 로그인 성공 시 access token 쿠키를 발급한다.
 - [x] 로그인 성공 시 refresh token 쿠키를 발급한다.
 - [x] access token 유효 기간 1시간을 적용한다.
@@ -307,7 +307,7 @@ GET  /api/auth/me
 - [x] Next.js Proxy에서 보호 페이지 접근을 검사한다.
 - [x] 인증되지 않은 사용자를 `/login`으로 리다이렉트한다.
 - [ ] 로그인 mutation을 구현한다.
-- [ ] 인증 상태 확인 query를 구현한다.
+- [ ] 인증 상태 확인 query를 `GET /api/auth/check` 기반으로 구현한다.
 - [ ] 로그인 페이지 UI를 구현한다.
 - [ ] 로그인 성공 시 메인 화면으로 이동한다.
 
