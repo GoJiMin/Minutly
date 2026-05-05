@@ -293,7 +293,7 @@ GET  /api/auth/me
 #### Auth API
 
 - [x] `POST /api/auth/login` Route Handler를 구현한다.
-- [ ] `POST /api/auth/refresh` Route Handler를 구현한다.
+- [x] `POST /api/auth/refresh` Route Handler를 구현한다.
 - [ ] `POST /api/auth/logout` Route Handler를 구현한다.
 - [ ] `GET /api/auth/me` Route Handler를 구현한다.
 - [ ] 로그인 성공 시 access token 쿠키를 발급한다.
