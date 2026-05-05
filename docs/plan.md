@@ -296,11 +296,11 @@ GET  /api/auth/me
 - [x] `POST /api/auth/refresh` Route Handler를 구현한다.
 - [x] `POST /api/auth/logout` Route Handler를 구현한다.
 - [x] `GET /api/auth/me` Route Handler를 구현한다.
-- [ ] 로그인 성공 시 access token 쿠키를 발급한다.
-- [ ] 로그인 성공 시 refresh token 쿠키를 발급한다.
-- [ ] access token 유효 기간 1시간을 적용한다.
-- [ ] refresh token 유효 기간 4주를 적용한다.
-- [ ] 인증 실패 시 `UNAUTHORIZED`와 `TOKEN_EXPIRED` 기준에 맞는 에러 응답을 반환한다.
+- [x] 로그인 성공 시 access token 쿠키를 발급한다.
+- [x] 로그인 성공 시 refresh token 쿠키를 발급한다.
+- [x] access token 유효 기간 1시간을 적용한다.
+- [x] refresh token 유효 기간 4주를 적용한다.
+- [x] 인증 실패 시 `UNAUTHORIZED`와 `TOKEN_EXPIRED` 기준에 맞는 에러 응답을 반환한다.
 
 #### Proxy / UI
 
