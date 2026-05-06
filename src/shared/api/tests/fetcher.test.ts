@@ -116,6 +116,36 @@ describe('@/src/shared/api/fetcher.ts', () => {
       });
     });
 
+    it('읽기 요청 중 네트워크 에러가 발생하면 읽기 요청 실패 에러를 전파한다.', async () => {
+      fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+      const promise = fetchGet({endpoint: '/api/test', errorHandlingType: 'toast'});
+
+      await expect(promise).rejects.toBeInstanceOf(RequestGetError);
+      await expect(promise).rejects.toMatchObject({
+        name: 'NETWORK_ERROR',
+        endpoint: '/api/test',
+        method: 'GET',
+        status: 503,
+        errorHandlingType: 'toast',
+      });
+    });
+
+    it('쓰기 요청 중 네트워크 에러가 발생하면 요청 실패 에러를 전파한다.', async () => {
+      fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+      const promise = fetchPost({endpoint: '/api/test'});
+
+      await expect(promise).rejects.toBeInstanceOf(RequestError);
+      await expect(promise).rejects.not.toBeInstanceOf(RequestGetError);
+      await expect(promise).rejects.toMatchObject({
+        name: 'NETWORK_ERROR',
+        endpoint: '/api/test',
+        method: 'POST',
+        status: 503,
+      });
+    });
+
     it('토큰 만료 에러가 반환되면 재발행 요청 후 기존 요청을 다시 수행한다.', async () => {
       fetchMock
         .mockResolvedValueOnce(
@@ -186,6 +216,59 @@ describe('@/src/shared/api/fetcher.ts', () => {
         name: 'AUTH_REFRESH_FAILED',
         endpoint: '/api/test',
         method: 'GET',
+        errorHandlingType: 'toast',
+      });
+    });
+
+    it('토큰 만료 에러가 반환된 후 재발행 요청 중 네트워크 에러가 발생하면 기존 읽기 요청 기준으로 에러를 반환한다.', async () => {
+      fetchMock
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              title: 'TOKEN_EXPIRED',
+              detail: '토큰 만료',
+              status: 401,
+            }),
+            {status: 401},
+          ),
+        )
+        .mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+      const promise = fetchGet({endpoint: '/api/test', errorHandlingType: 'toast'});
+
+      await expect(promise).rejects.toBeInstanceOf(RequestGetError);
+      await expect(promise).rejects.toMatchObject({
+        name: 'NETWORK_ERROR',
+        endpoint: '/api/test',
+        method: 'GET',
+        status: 503,
+        errorHandlingType: 'toast',
+      });
+    });
+
+    it('토큰 재발행 성공 후 기존 요청 재시도 중 네트워크 에러가 발생하면 기존 읽기 요청 기준으로 에러를 반환한다.', async () => {
+      fetchMock
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              title: 'TOKEN_EXPIRED',
+              detail: '토큰 만료',
+              status: 401,
+            }),
+            {status: 401},
+          ),
+        )
+        .mockResolvedValueOnce(new Response(null, {status: 204}))
+        .mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+      const promise = fetchGet({endpoint: '/api/test', errorHandlingType: 'toast'});
+
+      await expect(promise).rejects.toBeInstanceOf(RequestGetError);
+      await expect(promise).rejects.toMatchObject({
+        name: 'NETWORK_ERROR',
+        endpoint: '/api/test',
+        method: 'GET',
+        status: 503,
         errorHandlingType: 'toast',
       });
     });

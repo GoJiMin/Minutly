@@ -54,6 +54,27 @@ function prepareRequest({endpoint, method, headers, body, queryParams, cacheOpti
   return {url, requestInit};
 }
 
+const NETWORK_ERROR_RESPONSE: ErrorResponse = {
+  title: 'NETWORK_ERROR',
+  detail: '네트워크 연결을 확인해주세요.',
+  status: 503,
+};
+
+type FetchResult = {ok: true; response: Response} | {ok: false; errorResponse: ErrorResponse};
+
+async function request(url: string, requestInit: RequestInitWithMethod): Promise<FetchResult> {
+  try {
+    const response = await fetch(url, requestInit);
+
+    return {ok: true, response};
+  } catch {
+    return {
+      ok: false,
+      errorResponse: NETWORK_ERROR_RESPONSE,
+    };
+  }
+}
+
 async function parseJsonResponse<T>(response: Response, context: RequestContext): Promise<T> {
   if (response.status === 204) {
     throw createRequestError({
@@ -86,10 +107,16 @@ type TokenRefreshResult = {ok: true} | {ok: false; errorResponse: ErrorResponse}
 let refreshPromise: Promise<TokenRefreshResult> | null = null;
 
 async function requestTokenRefresh(): Promise<TokenRefreshResult> {
-  const refreshResponse = await fetch('/api/auth/refresh', {
+  const refreshResult = await request('/api/auth/refresh', {
     method: 'POST',
     credentials: 'include',
   });
+
+  if (!refreshResult.ok) {
+    return refreshResult;
+  }
+
+  const {response: refreshResponse} = refreshResult;
 
   if (!refreshResponse.ok) {
     const refreshErrorResponse = await parseErrorResponse(refreshResponse);
@@ -121,8 +148,6 @@ async function refreshAccessTokenOnce(): Promise<TokenRefreshResult> {
   return await refreshPromise;
 }
 
-// Network-level failures are intentionally not normalized here.
-// They should be handled by the app-level error boundary.
 async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
   const {url, requestInit} = prepareRequest(props);
 
@@ -133,7 +158,13 @@ async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
     errorHandlingType: props.errorHandlingType,
   };
 
-  let response: Response = await fetch(url, requestInit);
+  const requestResult = await request(url, requestInit);
+
+  if (!requestResult.ok) {
+    throw createRequestError({errorResponse: requestResult.errorResponse, context});
+  }
+
+  let {response} = requestResult;
 
   if (!response.ok) {
     const errorResponse = await parseErrorResponse(response);
@@ -145,7 +176,13 @@ async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
         throw createRequestError({errorResponse: refreshResult.errorResponse, context});
       }
 
-      response = await fetch(url, requestInit);
+      const retryResult = await request(url, requestInit);
+
+      if (!retryResult.ok) {
+        throw createRequestError({errorResponse: retryResult.errorResponse, context});
+      }
+
+      response = retryResult.response;
 
       if (!response.ok) {
         const retryErrorResponse = await parseErrorResponse(response);

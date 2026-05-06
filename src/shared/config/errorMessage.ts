@@ -7,6 +7,7 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
   UNAUTHORIZED: '인증이 필요한 기능이에요.',
   TOKEN_EXPIRED: '인증 정보가 만료됐어요. 다시 로그인해주세요.',
   INVALID_REQUEST: '잘못된 요청이에요. 다시 시도해주세요.',
+  NETWORK_ERROR: '네트워크 연결을 확인해주세요.',
 
   /**
    * 인증 관련
