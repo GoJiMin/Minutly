@@ -26,4 +26,6 @@ export async function fetchAuthCheck() {
     withResponse: false,
     errorHandlingType: 'silent',
   });
+
+  return null;
 }
