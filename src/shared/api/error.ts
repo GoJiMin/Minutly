@@ -1,5 +1,6 @@
 import z from 'zod';
 import {ErrorHandlingType, RequestBody, RequestMethod, WithErrorHandling} from './types';
+import {SERVER_ERROR_MESSAGE} from '../config/errorMessage';
 
 export const errorResponseSchema = z.object({
   title: z.string(),
@@ -104,4 +105,12 @@ export function createRequestError({errorResponse, context}: CreateRequestErrorP
     endpoint,
     requestBody,
   });
+}
+
+export function isRequestError(error: Error): error is RequestError {
+  return error instanceof RequestError;
+}
+
+export function isPredictableServerError(error: Error) {
+  return isRequestError(error) && SERVER_ERROR_MESSAGE[error.name] !== undefined;
 }

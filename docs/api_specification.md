@@ -49,7 +49,7 @@ API는 RESTful한 형태를 기본으로 하며, 인증이 필요한 API는 서�
 ```json
 {
   "title": "TOKEN_EXPIRED",
-  "detail": "인증 정보가 만료됐어요. 다시 로그인해주세요.",
+  "detail": "인증 정보가 만료되었습니다.",
   "status": 401
 }
 ```
@@ -69,7 +69,7 @@ type ErrorResponse = {
 | Field    | Type   | 설명                                                                    |
 | -------- | ------ | ----------------------------------------------------------------------- |
 | `title`  | string | 에러를 식별하기 위한 코드. 예: `INTERNAL_SERVER_ERROR`, `TOKEN_EXPIRED` |
-| `detail` | string | 에러 코드를 사람이 이해할 수 있는 문장으로 풀어쓴 상세 메시지           |
+| `detail` | string | 에러 코드를 간결하게 설명하는 메시지                                      |
 | `status` | number | 원래 의도한 HTTP 상태 코드. body에도 함께 포함한다.                     |
 
 ### 3-5. 주요 HTTP 상태 코드
@@ -85,16 +85,39 @@ type ErrorResponse = {
 | 404    | 리소스 없음              |
 | 500    | 서버 내부 오류           |
 
+### 3-6. 공통 요청 에러 코드
+
+요청 본문이 필요한 API에서 요청 본문을 JSON으로 해석할 수 없거나 기본 요청 형식이 올바르지 않은 경우 `INVALID_REQUEST`를 반환한다.
+
+각 API의 Error 표에는 API별 검증 에러를 중심으로 표기하며, 요청 본문 해석 실패는 이 공통 에러 규칙을 따른다.
+
+| Status | Title             | 사용 조건                                                              | Detail                         |
+| ------ | ----------------- | ---------------------------------------------------------------------- | ------------------------------ |
+| 400    | `INVALID_REQUEST` | 요청 본문을 JSON으로 해석할 수 없거나 기본 요청 형식이 올바르지 않은 경우 | 요청 형식이 올바르지 않습니다. |
+
+### 3-7. 인증 에러 코드
+
+인증 관련 401 응답은 클라이언트 제어에 필요한 최소한의 코드만 구분한다.
+
+| Status | Title           | 사용 조건                                                                 | Detail                      |
+| ------ | --------------- | ------------------------------------------------------------------------- | --------------------------- |
+| 401    | `UNAUTHORIZED`  | 인증 정보가 없거나 유효하지 않은 경우, 또는 refresh token 검증에 실패한 경우 | 인증이 필요합니다.          |
+| 401    | `TOKEN_EXPIRED` | 보호된 API에서 access token이 없거나 만료되었고 refresh token 쿠키가 있는 경우 | 인증 정보가 만료되었습니다. |
+
+- `TOKEN_EXPIRED`는 사용자가 볼 상세 사유가 아니라 클라이언트가 `/api/auth/refresh`를 호출할지 판단하는 제어 신호다.
+- 클라이언트는 모든 401 응답에 refresh를 시도하지 않고, `TOKEN_EXPIRED`에 대해서만 refresh를 1회 시도한다.
+- refresh token 자체가 없거나 만료되었거나 유효하지 않은 경우 refresh API는 `UNAUTHORIZED`를 반환한다.
+
 ---
 
 ## 4. API 목록
 
 | Method | Endpoint                                 | 설명                                     | 인증               |
 | ------ | ---------------------------------------- | ---------------------------------------- | ------------------ |
-| POST   | `/api/auth/login`                        | 비밀번호 검증 후 토큰 쿠키 발급          | 불필요             |
+| POST   | `/api/auth/login`                        | 로그인 정보 검증 후 토큰 쿠키 발급       | 불필요             |
 | POST   | `/api/auth/refresh`                      | refresh token으로 access token 재발급    | refresh token 필요 |
-| POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 필요               |
-| GET    | `/api/auth/me`                           | 현재 인증 상태 확인                      | 필요               |
+| POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
+| GET    | `/api/auth/check`                        | 현재 인증 상태 확인                      | 필요               |
 | POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
 | POST   | `/api/summaries`                         | transcript 기반 요약 생성                | 필요               |
 | POST   | `/api/meetings`                          | 신규 회의 저장                           | 필요               |
@@ -116,12 +139,13 @@ POST /api/auth/login
 
 ### 목적
 
-사용자가 입력한 비밀번호를 검증하고, 검증 성공 시 `httpOnly` 속성의 access token과 refresh token 쿠키를 발급한다.
+사용자가 입력한 `id`와 `password`를 검증하고, 검증 성공 시 `httpOnly` 속성의 access token과 refresh token 쿠키를 발급한다.
 
 ### Request Body
 
 ```json
 {
+  "id": "사용자 입력 ID",
   "password": "사용자 입력 비밀번호"
 }
 ```
@@ -130,6 +154,7 @@ POST /api/auth/login
 
 ```ts
 type LoginRequest = {
+  id: string;
   password: string;
 };
 ```
@@ -142,22 +167,23 @@ type LoginRequest = {
 
 ### 처리 규칙
 
-- 서버는 요청으로 받은 비밀번호를 환경 변수에 저장된 비밀번호와 비교한다.
-- 비밀번호가 일치하면 access token과 refresh token을 발급한다.
+- 서버는 요청으로 받은 `id`와 `password`를 서버 환경 변수의 `AUTH_LOGIN_ID`, `AUTH_PASSWORD`와 비교한다.
+- `id`와 `password`가 모두 일치하면 access token과 refresh token을 발급한다.
 - 두 토큰은 `httpOnly` 쿠키로 설정한다.
 - access token의 유효 기간은 1시간으로 설정한다.
 - refresh token의 유효 기간은 4주로 설정한다.
-- 비밀번호가 일치하지 않으면 401을 반환한다.
-- 로그인 요청 body가 올바르지 않으면 400을 반환한다.
-- 비밀번호와 토큰 값은 응답 body에 포함하지 않는다.
+- 요청 본문을 JSON으로 해석할 수 없으면 400 `INVALID_REQUEST`를 반환한다.
+- JSON 해석은 성공했지만 `id`/`password` 형식이 올바르지 않거나 값이 일치하지 않으면 401 `INVALID_CREDENTIALS`를 반환한다.
+- `id`, `password`, 토큰 값은 응답 body에 포함하지 않는다.
+- 인증 실패 응답은 `id` 형식 오류, `password` 형식 오류, 값 불일치 중 어느 경우인지 구분하지 않는다.
 
 ### Error
 
-| Status | Title               | Detail                              |
-| ------ | ------------------- | ----------------------------------- |
-| 400    | `INVALID_REQUEST`   | 비밀번호를 입력해주세요.            |
-| 401    | `INVALID_PASSWORD`  | 비밀번호가 올바르지 않습니다.       |
-| 500    | `AUTH_LOGIN_FAILED` | 로그인 처리 중 문제가 발생했습니다. |
+| Status | Title                 | Detail                              |
+| ------ | --------------------- | ----------------------------------- |
+| 400    | `INVALID_REQUEST`     | 요청 형식이 올바르지 않습니다.      |
+| 401    | `INVALID_CREDENTIALS` | 로그인 정보가 올바르지 않습니다.    |
+| 500    | `AUTH_LOGIN_FAILED`   | 로그인 처리 중 문제가 발생했습니다. |
 
 ---
 
@@ -194,7 +220,7 @@ access token이 만료된 경우 refresh token을 검증해 새로운 access tok
 
 | Status | Title                   | Detail                            |
 | ------ | ----------------------- | --------------------------------- |
-| 401    | `INVALID_REFRESH_TOKEN` | 다시 로그인해주세요.              |
+| 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                |
 | 500    | `AUTH_REFRESH_FAILED`   | 토큰 갱신 중 문제가 발생했습니다. |
 
 ---
@@ -207,7 +233,7 @@ POST /api/auth/logout
 
 ### 목적
 
-access token과 refresh token 쿠키를 제거한다.
+현재 브라우저의 access token과 refresh token 쿠키를 제거한다.
 
 ### Request
 
@@ -221,49 +247,50 @@ access token과 refresh token 쿠키를 제거한다.
 
 ### 처리 규칙
 
-- 서버는 access token 쿠키와 refresh token 쿠키를 만료 처리한다.
+- 로그아웃은 보호 리소스 접근이 아니라 클라이언트 인증 상태 정리 작업으로 취급한다.
+- 로그아웃 API는 access token 또는 refresh token 검증을 수행하지 않는다.
+- 로그아웃 API는 `requireAuth`를 사용하지 않는다.
+- 서버는 access token 쿠키와 refresh token 쿠키 존재 여부를 확인하지 않고 삭제 응답을 설정한다.
+- access token 또는 refresh token이 없거나 이미 만료되었어도 204를 반환한다.
 - 로그아웃 후 보호된 페이지 접근 시 로그인 페이지로 이동해야 한다.
 - 초기 버전에서는 1인 사용을 전제로 하므로 로그아웃 기능을 별도 UI로 노출하지 않는다.
 - 단, 인증 쿠키를 제거해야 하는 상황을 대비해 로그아웃 API 자체는 유지한다.
+
+### Error
+
+| Status | Title                | Detail                              |
+| ------ | -------------------- | ----------------------------------- |
+| 500    | `AUTH_LOGOUT_FAILED` | 로그아웃 처리 중 문제가 발생했습니다. |
 
 ---
 
 ## 5-4. 인증 상태 확인
 
 ```http
-GET /api/auth/me
+GET /api/auth/check
 ```
 
 ### 목적
 
-현재 요청이 인증된 사용자인지 확인한다.
-
-### Type
-
-```ts
-type AuthMeResponse = {
-  authenticated: boolean;
-};
-```
+현재 요청의 access token으로 보호 API를 호출할 수 있는지 확인한다.
 
 ### Response
 
-```json
-{
-  "authenticated": true
-}
+```http
+204 No Content
 ```
 
 ### 처리 규칙
 
 - access token이 없거나 유효하지 않으면 401을 반환한다.
-- 인증이 유효하면 `{ authenticated: true }`를 반환한다.
+- 인증이 유효하면 응답 본문 없이 204를 반환한다.
 
 ### Error
 
 | Status | Title          | Detail             |
 | ------ | -------------- | ------------------ |
 | 401    | `UNAUTHORIZED` | 인증이 필요합니다. |
+| 401    | `TOKEN_EXPIRED` | 인증 정보가 만료되었습니다. |
 
 ---
 
@@ -320,6 +347,7 @@ Cache-Control: no-store
 | Status | Title                 | Detail                              |
 | ------ | --------------------- | ----------------------------------- |
 | 401    | `UNAUTHORIZED`        | 인증이 필요합니다.                  |
+| 401    | `TOKEN_EXPIRED`       | 인증 정보가 만료되었습니다.         |
 | 500    | `SPEECH_TOKEN_FAILED` | 음성 인식 토큰 발급에 실패했습니다. |
 
 ---
@@ -387,6 +415,7 @@ type CreateSummaryResponse = {
 | 400    | `INVALID_TRANSCRIPT` | 요약할 회의 내용이 충분하지 않습니다. |
 | 400    | `INVALID_TITLE`      | 회의 제목을 입력해주세요.             |
 | 401    | `UNAUTHORIZED`       | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`      | 인증 정보가 만료되었습니다.           |
 | 500    | `SUMMARY_FAILED`     | 요약 생성에 실패했습니다.             |
 
 ---
@@ -461,6 +490,7 @@ type CreateMeetingResponse = {
 | ------ | --------------------- | ------------------------------------- |
 | 400    | `INVALID_MEETING`     | 회의 저장 데이터가 올바르지 않습니다. |
 | 401    | `UNAUTHORIZED`        | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`       | 인증 정보가 만료되었습니다.           |
 | 500    | `MEETING_SAVE_FAILED` | 회의 저장에 실패했습니다.             |
 
 ---
@@ -542,6 +572,7 @@ type UpdateMeetingResponse = {
 | 400    | `INVALID_MEETING_ID`    | 회의 식별자 형식이 올바르지 않습니다. |
 | 400    | `INVALID_MEETING`       | 회의 수정 데이터가 올바르지 않습니다. |
 | 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`         | 인증 정보가 만료되었습니다.           |
 | 404    | `MEETING_NOT_FOUND`     | 회의 기록을 찾을 수 없습니다.         |
 | 500    | `MEETING_UPDATE_FAILED` | 회의 수정 저장에 실패했습니다.        |
 
@@ -590,6 +621,7 @@ type DeleteMeetingParams = {
 | ------ | ----------------------- | ------------------------------------- |
 | 400    | `INVALID_MEETING_ID`    | 회의 식별자 형식이 올바르지 않습니다. |
 | 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`         | 인증 정보가 만료되었습니다.           |
 | 404    | `MEETING_NOT_FOUND`     | 회의 기록을 찾을 수 없습니다.         |
 | 500    | `MEETING_DELETE_FAILED` | 회의 삭제에 실패했습니다.             |
 
@@ -664,6 +696,7 @@ type GetMeetingDatesResponse = {
 | ------ | --------------------------- | ------------------------------------- |
 | 400    | `INVALID_YEAR_MONTH`        | 조회할 연월 형식이 올바르지 않습니다. |
 | 401    | `UNAUTHORIZED`              | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`             | 인증 정보가 만료되었습니다.           |
 | 500    | `MEETING_DATES_READ_FAILED` | 회의 날짜 목록을 불러오지 못했습니다. |
 
 ---
@@ -736,6 +769,7 @@ type GetMeetingsByDateResponse = {
 | ------ | ---------------------- | -------------------------------- |
 | 400    | `INVALID_DATE`         | 날짜 형식이 올바르지 않습니다.   |
 | 401    | `UNAUTHORIZED`         | 인증이 필요합니다.               |
+| 401    | `TOKEN_EXPIRED`        | 인증 정보가 만료되었습니다.      |
 | 500    | `MEETINGS_READ_FAILED` | 회의 목록을 불러오지 못했습니다. |
 
 ---
@@ -805,6 +839,7 @@ type GetMeetingDetailResponse = MeetingDetail;
 | ------ | --------------------- | ------------------------------------- |
 | 400    | `INVALID_MEETING_ID`  | 회의 식별자 형식이 올바르지 않습니다. |
 | 401    | `UNAUTHORIZED`        | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`       | 인증 정보가 만료되었습니다.           |
 | 404    | `MEETING_NOT_FOUND`   | 회의 기록을 찾을 수 없습니다.         |
 | 500    | `MEETING_READ_FAILED` | 회의 상세를 불러오지 못했습니다.      |
 
@@ -837,13 +872,16 @@ await fetch(`/api/meetings?date=${meeting.meetingDate}`);
 ### 10-2. 보호된 API 요청
 
 - 보호된 API 요청은 access token 쿠키를 기준으로 인증된다.
-- access token이 만료된 경우 클라이언트는 `/api/auth/refresh`를 호출해 토큰 갱신을 시도할 수 있다.
-- refresh token도 유효하지 않으면 로그인 페이지로 이동한다.
+- 보호된 API에서 `TOKEN_EXPIRED`가 반환되면 클라이언트는 `/api/auth/refresh`를 1회 호출해 access token 갱신을 시도한다.
+- 보호된 API에서 `UNAUTHORIZED`가 반환되면 클라이언트는 refresh를 시도하지 않고 로그인 페이지로 이동한다.
+- refresh API에서 `UNAUTHORIZED`가 반환되면 클라이언트는 로그인 페이지로 이동한다.
 - 보호된 API에서 인증 정보가 없거나 유효하지 않은 경우 Route Handler 내부의 인증 검증에서 요청을 거부한다.
 
 보호된 API 대상:
 
 ```http
+POST   /api/auth/logout
+GET    /api/auth/check
 POST   /api/speech/token
 POST   /api/summaries
 POST   /api/meetings
@@ -861,6 +899,8 @@ DELETE /api/meetings/{id}
 - 요약 생성 API와 회의 저장 API는 분리한다.
 - access token의 유효 기간은 1시간으로 설정한다.
 - refresh token의 유효 기간은 4주로 설정한다.
+- `TOKEN_EXPIRED`는 refresh token 쿠키가 있어 갱신 시도가 가능한 경우에만 반환한다.
+- refresh token 검증 실패는 `UNAUTHORIZED`로 처리한다.
 - 로그아웃 API는 유지하되, 초기 버전에서는 별도 UI로 노출하지 않는다.
 - 회의 저장소는 Neon Postgres를 사용한다.
 - 회의 1건은 `meetings` 레코드 1개로 저장한다.

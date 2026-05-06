@@ -46,7 +46,7 @@ export type RequestPropsWithoutResponse = RequestProps & {
   withResponse?: false;
 };
 
-export type ErrorHandlingType = 'toast' | 'errorBoundary';
+export type ErrorHandlingType = 'toast' | 'errorBoundary' | 'silent';
 export type WithErrorHandling<P = unknown> = P & {
   errorHandlingType?: ErrorHandlingType;
 };

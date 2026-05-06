@@ -1,4 +1,4 @@
-import {createRequestError, parseErrorResponse} from './error';
+import {createRequestError, type ErrorResponse, parseErrorResponse} from './error';
 import {
   CreateRequestInitProps,
   FetcherProps,
@@ -80,6 +80,47 @@ async function parseJsonResponse<T>(response: Response, context: RequestContext)
   }
 }
 
+type TokenRefreshResult = {ok: true} | {ok: false; errorResponse: ErrorResponse};
+
+// Share one in-flight refresh request across concurrent TOKEN_EXPIRED responses.
+let refreshPromise: Promise<TokenRefreshResult> | null = null;
+
+async function requestTokenRefresh(): Promise<TokenRefreshResult> {
+  const refreshResponse = await fetch('/api/auth/refresh', {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!refreshResponse.ok) {
+    const refreshErrorResponse = await parseErrorResponse(refreshResponse);
+
+    return {
+      ok: false,
+      errorResponse: refreshErrorResponse,
+    };
+  }
+
+  return {ok: true};
+}
+
+async function refreshAccessTokenOnce(): Promise<TokenRefreshResult> {
+  if (!refreshPromise) {
+    const promise = requestTokenRefresh();
+
+    refreshPromise = promise;
+
+    try {
+      return await promise;
+    } finally {
+      if (refreshPromise === promise) {
+        refreshPromise = null;
+      }
+    }
+  }
+
+  return await refreshPromise;
+}
+
 // Network-level failures are intentionally not normalized here.
 // They should be handled by the app-level error boundary.
 async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
@@ -92,11 +133,27 @@ async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
     errorHandlingType: props.errorHandlingType,
   };
 
-  const response: Response = await fetch(url, requestInit);
+  let response: Response = await fetch(url, requestInit);
 
   if (!response.ok) {
     const errorResponse = await parseErrorResponse(response);
-    throw createRequestError({errorResponse, context});
+
+    if (errorResponse.title === 'TOKEN_EXPIRED') {
+      const refreshResult = await refreshAccessTokenOnce();
+
+      if (!refreshResult.ok) {
+        throw createRequestError({errorResponse: refreshResult.errorResponse, context});
+      }
+
+      response = await fetch(url, requestInit);
+
+      if (!response.ok) {
+        const retryErrorResponse = await parseErrorResponse(response);
+        throw createRequestError({errorResponse: retryErrorResponse, context});
+      }
+    } else {
+      throw createRequestError({errorResponse, context});
+    }
   }
 
   if (props.withResponse) {

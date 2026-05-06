@@ -115,5 +115,79 @@ describe('@/src/shared/api/fetcher.ts', () => {
         endpoint: '/api/test',
       });
     });
+
+    it('토큰 만료 에러가 반환되면 재발행 요청 후 기존 요청을 다시 수행한다.', async () => {
+      fetchMock
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              title: 'TOKEN_EXPIRED',
+              detail: '토큰 만료',
+              status: 401,
+            }),
+            {status: 401},
+          ),
+        )
+        .mockResolvedValueOnce(new Response(null, {status: 204}))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ok: true}), {status: 200}));
+
+      await expect(fetchGet({endpoint: '/api/test'})).resolves.toEqual({ok: true});
+
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        1,
+        '/api/test',
+        expect.objectContaining({
+          method: 'GET',
+          credentials: 'include',
+        }),
+      );
+      expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        3,
+        '/api/test',
+        expect.objectContaining({
+          method: 'GET',
+          credentials: 'include',
+        }),
+      );
+    });
+
+    it('토큰 만료 에러가 반환된 후 재발행 요청이 실패하면 기존 읽기 요청 기준으로 재발행 실패 에러를 반환한다.', async () => {
+      fetchMock
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              title: 'TOKEN_EXPIRED',
+              detail: '토큰 만료',
+              status: 401,
+            }),
+            {status: 401},
+          ),
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              title: 'AUTH_REFRESH_FAILED',
+              detail: '재발행 실패',
+              status: 401,
+            }),
+            {status: 401},
+          ),
+        );
+
+      const promise = fetchGet({endpoint: '/api/test', errorHandlingType: 'toast'});
+
+      await expect(promise).rejects.toBeInstanceOf(RequestGetError);
+      await expect(promise).rejects.toMatchObject({
+        name: 'AUTH_REFRESH_FAILED',
+        endpoint: '/api/test',
+        method: 'GET',
+        errorHandlingType: 'toast',
+      });
+    });
   });
 });

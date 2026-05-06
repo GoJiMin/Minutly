@@ -8,6 +8,11 @@ export const pretendard = localFont({
       style: 'normal',
     },
     {
+      path: './Pretendard-Medium.subset.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
       path: './Pretendard-SemiBold.subset.woff2',
       weight: '600',
       style: 'normal',
