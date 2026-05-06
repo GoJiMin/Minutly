@@ -3,7 +3,7 @@
 import {Controller, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import {LoginRequest, loginRequestSchema} from '@/entities/auth';
+import {LoginRequest, loginRequestSchema, useFetchLogin} from '@/entities/auth';
 import {
   Button,
   Card,
@@ -17,6 +17,7 @@ import {
   FieldGroup,
   FieldLabel,
   Input,
+  Spinner,
 } from '@/shared/components';
 
 export function LoginForm() {
@@ -29,9 +30,12 @@ export function LoginForm() {
     mode: 'onSubmit',
   });
 
+  const {login, isPendingLogin} = useFetchLogin();
+
   const onSubmit = (data: LoginRequest) => {
-    // TODO: 로그인 요청 훅 연결
-    console.log(data);
+    if (isPendingLogin) return;
+
+    login(data);
   };
 
   return (
@@ -85,8 +89,8 @@ export function LoginForm() {
         </form>
       </CardContent>
       <CardFooter>
-        <Button type="submit" form="login-form" size="lg" className="w-full font-semibold">
-          로그인
+        <Button type="submit" form="login-form" size="lg" className="w-full font-semibold" disabled={isPendingLogin}>
+          {isPendingLogin ? <Spinner /> : '로그인'}
         </Button>
       </CardFooter>
     </Card>
