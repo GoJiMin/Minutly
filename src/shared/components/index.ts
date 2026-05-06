@@ -6,3 +6,4 @@ export * from './separator';
 export * from './skeleton';
 export * from './spinner';
 export * from './typography';
+export * from './toast';
