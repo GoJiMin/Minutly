@@ -9,5 +9,6 @@ export function useAuthCheckQuery() {
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: false,
+    throwOnError: false,
   });
 }

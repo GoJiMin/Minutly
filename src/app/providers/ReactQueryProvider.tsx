@@ -20,7 +20,7 @@ export function ReactQueryProvider({children}: PropsWithChildren) {
 
             retry: 0,
 
-            throwOnError: error => error instanceof RequestGetError && error.errorHandlingType === 'errorBoundary',
+            throwOnError: error => !(error instanceof RequestGetError) || error.errorHandlingType === 'errorBoundary',
           },
         },
 
