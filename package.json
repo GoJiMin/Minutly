@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --watchAll --coverage",
-    "test:ci": "jest --ci --watchAll=false --coverage --passWithNoTests",
+    "test:ci": "NODE_ENV=test jest --ci --watchAll=false --coverage --passWithNoTests",
     "vercel:build": "pnpm test:ci && pnpm build"
   },
   "dependencies": {
