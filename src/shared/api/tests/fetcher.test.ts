@@ -156,7 +156,7 @@ describe('@/src/shared/api/fetcher.ts', () => {
       );
     });
 
-    it('토큰 만료 에러가 반환된 후 재발행 요청이 실패하면 재발행 실패 에러를 반환한다.', async () => {
+    it('토큰 만료 에러가 반환된 후 재발행 요청이 실패하면 기존 읽기 요청 기준으로 재발행 실패 에러를 반환한다.', async () => {
       fetchMock
         .mockResolvedValueOnce(
           new Response(
@@ -179,13 +179,14 @@ describe('@/src/shared/api/fetcher.ts', () => {
           ),
         );
 
-      const promise = fetchGet({endpoint: '/api/test'});
+      const promise = fetchGet({endpoint: '/api/test', errorHandlingType: 'toast'});
 
-      await expect(promise).rejects.toBeInstanceOf(RequestError);
-      await expect(promise).rejects.not.toBeInstanceOf(RequestGetError);
+      await expect(promise).rejects.toBeInstanceOf(RequestGetError);
       await expect(promise).rejects.toMatchObject({
         name: 'AUTH_REFRESH_FAILED',
-        endpoint: '/api/auth/refresh',
+        endpoint: '/api/test',
+        method: 'GET',
+        errorHandlingType: 'toast',
       });
     });
   });

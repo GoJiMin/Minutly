@@ -1,4 +1,4 @@
-import {createRequestError, parseErrorResponse} from './error';
+import {createRequestError, type ErrorResponse, parseErrorResponse} from './error';
 import {
   CreateRequestInitProps,
   FetcherProps,
@@ -80,9 +80,12 @@ async function parseJsonResponse<T>(response: Response, context: RequestContext)
   }
 }
 
-let refreshPromise: Promise<void> | null = null;
+type TokenRefreshResult = {ok: true} | {ok: false; errorResponse: ErrorResponse};
 
-async function requestTokenRefresh(context: RequestContext): Promise<void> {
+// Share one in-flight refresh request across concurrent TOKEN_EXPIRED responses.
+let refreshPromise: Promise<TokenRefreshResult> | null = null;
+
+async function requestTokenRefresh(): Promise<TokenRefreshResult> {
   const refreshResponse = await fetch('/api/auth/refresh', {
     method: 'POST',
     credentials: 'include',
@@ -91,36 +94,31 @@ async function requestTokenRefresh(context: RequestContext): Promise<void> {
   if (!refreshResponse.ok) {
     const refreshErrorResponse = await parseErrorResponse(refreshResponse);
 
-    throw createRequestError({
+    return {
+      ok: false,
       errorResponse: refreshErrorResponse,
-      context: {
-        endpoint: '/api/auth/refresh',
-        method: 'POST',
-        requestBody: null,
-        errorHandlingType: context.errorHandlingType,
-      },
-    });
+    };
   }
+
+  return {ok: true};
 }
 
-async function refreshAccessTokenOnce(context: RequestContext): Promise<void> {
+async function refreshAccessTokenOnce(): Promise<TokenRefreshResult> {
   if (!refreshPromise) {
-    const promise = requestTokenRefresh(context);
+    const promise = requestTokenRefresh();
 
     refreshPromise = promise;
 
     try {
-      await promise;
+      return await promise;
     } finally {
       if (refreshPromise === promise) {
         refreshPromise = null;
       }
     }
-
-    return;
   }
 
-  await refreshPromise;
+  return await refreshPromise;
 }
 
 // Network-level failures are intentionally not normalized here.
@@ -141,7 +139,11 @@ async function fetcher<T>(props: WithErrorHandling<FetcherProps>): Promise<T> {
     const errorResponse = await parseErrorResponse(response);
 
     if (errorResponse.title === 'TOKEN_EXPIRED') {
-      await refreshAccessTokenOnce(context);
+      const refreshResult = await refreshAccessTokenOnce();
+
+      if (!refreshResult.ok) {
+        throw createRequestError({errorResponse: refreshResult.errorResponse, context});
+      }
 
       response = await fetch(url, requestInit);
 
