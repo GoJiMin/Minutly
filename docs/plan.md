@@ -271,7 +271,7 @@ type ErrorResponse = {
 POST /api/auth/login
 POST /api/auth/refresh
 POST /api/auth/logout
-GET  /api/auth/me
+GET  /api/auth/check
 ```
 
 ### 6-3. 작업 체크리스트
@@ -295,7 +295,7 @@ GET  /api/auth/me
 - [x] `POST /api/auth/login` Route Handler를 구현한다.
 - [x] `POST /api/auth/refresh` Route Handler를 구현한다.
 - [x] `POST /api/auth/logout` Route Handler를 구현한다.
-- [x] `GET /api/auth/me` Route Handler를 구현한다.
+- [x] `GET /api/auth/check` Route Handler를 구현한다.
 - [x] 로그인 성공 시 access token 쿠키를 발급한다.
 - [x] 로그인 성공 시 refresh token 쿠키를 발급한다.
 - [x] access token 유효 기간 1시간을 적용한다.
@@ -304,12 +304,12 @@ GET  /api/auth/me
 
 #### Proxy / UI
 
-- [ ] Next.js Proxy에서 보호 페이지 접근을 검사한다.
-- [ ] 인증되지 않은 사용자를 `/login`으로 리다이렉트한다.
-- [ ] 로그인 페이지 UI를 구현한다.
-- [ ] 로그인 mutation을 구현한다.
-- [ ] 로그인 성공 시 메인 화면으로 이동한다.
-- [ ] 인증 상태 확인 query를 구현한다.
+- [x] Next.js Proxy에서 보호 페이지 접근을 검사한다.
+- [x] 인증되지 않은 사용자를 `/login`으로 리다이렉트한다.
+- [x] 로그인 mutation을 구현한다.
+- [x] 인증 상태 확인 query를 `GET /api/auth/check` 기반으로 구현한다.
+- [x] 로그인 페이지 UI를 구현한다.
+- [x] 로그인 성공 시 메인 화면으로 이동한다.
 
 ### 6-4. 보호 대상
 
@@ -320,25 +320,25 @@ GET  /api/auth/me
 ### 6-5. 테스트 체크리스트
 
 - [x] 로그인 정보 검증을 테스트한다.
+- [x] credentials 검증 성공/실패 케이스를 테스트한다.
 - [x] access token 발급을 테스트한다.
 - [x] refresh token 발급을 테스트한다.
 - [x] access token 검증 성공/실패 케이스를 테스트한다.
 - [x] refresh token 검증 성공/실패 케이스를 테스트한다.
-- [ ] 로그인 API 성공 케이스를 테스트한다.
-- [ ] 로그인 API 실패 케이스를 테스트한다.
-- [ ] 토큰 갱신 API 성공 케이스를 테스트한다.
-- [ ] 토큰 갱신 API 실패 케이스를 테스트한다.
-- [ ] 인증되지 않은 사용자의 보호 페이지 접근 차단을 테스트한다.
-- [ ] 보호된 API에서 `requireAuth`가 동작하는지 테스트한다.
-- [ ] 보호된 API에서 `TOKEN_EXPIRED` 응답 시 refresh 요청이 1회 수행되는지 테스트한다.
+- [x] `requireAuth` 인증 성공/실패 케이스를 테스트한다.
+- [x] `TOKEN_EXPIRED` 응답 시 fetcher가 refresh 요청 후 원 요청을 재시도하는지 테스트한다.
+- [x] refresh 요청 실패 시 fetcher가 refresh 실패 에러를 전파하는지 테스트한다.
+- [x] 로그인 폼 렌더링을 테스트한다.
+- [x] 로그인 폼 입력 schema 검증을 테스트한다.
+- [x] 로그인 성공 시 메인페이지 이동을 테스트한다.
 
 ### 6-6. 완료 기준 체크리스트
 
-- [ ] 올바른 `id`와 `password` 입력 시 인증 쿠키가 발급된다.
-- [ ] 잘못된 로그인 정보 입력 시 401 에러가 반환된다.
-- [ ] 인증되지 않은 사용자는 보호된 페이지에 접근할 수 없다.
-- [ ] 보호된 API는 토큰 검증을 통과해야만 실행된다.
-- [ ] access token 만료 시 refresh token으로 재발급할 수 있다.
+- [x] 올바른 `id`와 `password` 입력 시 인증 쿠키가 발급된다.
+- [x] 잘못된 로그인 정보 입력 시 401 에러가 반환된다.
+- [x] 인증되지 않은 사용자는 보호된 페이지에 접근할 수 없다.
+- [x] 보호된 API는 토큰 검증을 통과해야만 실행된다.
+- [x] access token 만료 시 refresh token으로 재발급할 수 있다.
 
 ---
 

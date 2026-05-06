@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-import {loginRequestSchema} from '@/entities/auth';
+import {loginRequestSchema} from '@/entities/auth/model/schema';
 import {createErrorJsonResponse, validateRequestBody} from '@/shared/server';
 import {issueAccessToken, issueRefreshToken, setAuthCookies, verifyCredentials} from '@/shared/server/auth';
 
