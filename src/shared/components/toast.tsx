@@ -1,17 +1,47 @@
+import {toast as sonnerToast} from 'sonner';
+import {cva} from 'class-variance-authority';
 import {CircleAlert, CircleCheckBig, Info, X} from 'lucide-react';
-import clsx, {type ClassValue} from 'clsx';
-import {toast as sonnerToast, type ExternalToast} from 'sonner';
-import {twMerge} from 'tailwind-merge';
+import {cn} from '../utils';
 
-type ToastContent = {
-  description?: string;
+const toastContainerVariants = cva('flex rounded-lg shadow-lg ring-1 ring-black/5 min-w-fit items-center p-4', {
+  variants: {
+    type: {
+      success: 'bg-green-50',
+      error: 'bg-red-50',
+      info: 'bg-white',
+      default: 'bg-white',
+    },
+  },
+  defaultVariants: {
+    type: 'default',
+  },
+});
+
+const toastTitleVariants = cva('font-medium', {
+  variants: {
+    type: {
+      success: 'text-green-800',
+      error: 'text-red-800',
+      info: 'text-gray-900',
+      default: 'text-gray-900',
+    },
+  },
+  defaultVariants: {
+    type: 'default',
+  },
+});
+
+type ToastType = 'success' | 'error' | 'info';
+
+type ToastProps = {
+  toastId: string | number;
   title: string;
+  description?: string;
+  type: ToastType;
 };
 
-type ToastTone = 'error' | 'info' | 'success';
-
 const TOAST_TONE_META: Record<
-  ToastTone,
+  ToastType,
   {
     icon: typeof CircleAlert;
     iconClassName: string;
@@ -23,7 +53,7 @@ const TOAST_TONE_META: Record<
   },
   info: {
     icon: Info,
-    iconClassName: 'bg-accent-soft text-accent',
+    iconClassName: 'bg-gray-400 text-accent',
   },
   success: {
     icon: CircleCheckBig,
@@ -31,42 +61,24 @@ const TOAST_TONE_META: Record<
   },
 };
 
-function mergeClassNames(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-function renderAlertToast({
-  description,
-  title,
-  toastId,
-  tone,
-}: {
-  description?: string;
-  title: string;
-  toastId: string;
-  tone: ToastTone;
-}) {
-  const {icon: Icon, iconClassName} = TOAST_TONE_META[tone];
+function AlertToast(props: ToastProps) {
+  const {toastId, title, type, description} = props;
+  const {icon: Icon, iconClassName} = TOAST_TONE_META[type];
 
   return (
-    <div className="border-line bg-surface shadow-card flex w-full items-start gap-3 rounded-3xl border px-3 py-3.5 backdrop-blur sm:gap-4 sm:px-4 sm:py-4">
-      <div
-        className={mergeClassNames(
-          'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 sm:rounded-2xl',
-          iconClassName,
-        )}
-      >
+    <div className={toastContainerVariants({type})}>
+      <div className={cn('mt-0.5 flex shrink-0 items-center justify-center rounded-3xl h-11 w-11 mr-3', iconClassName)}>
         <Icon size={20} strokeWidth={2.2} />
       </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-text text-sm font-semibold">{title}</p>
-        {description && <p className="text-text-muted mt-1 text-sm leading-5">{description}</p>}
+      <div className="flex-1 mr-5">
+        <p className={toastTitleVariants({type})}>{title}</p>
+        {description && <p className="text-gray-500 mt-1 text-sm leading-5 text-nowrap">{description}</p>}
       </div>
 
       <button
         aria-label="토스트 닫기"
-        className="text-text-muted hover:text-text focus-visible:ring-accent-soft inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-4 sm:h-8 sm:w-8"
+        className="text-gray-500 hover:text-black inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full outline-none transition-colors"
         onClick={() => sonnerToast.dismiss(toastId)}
         type="button"
       >
@@ -76,28 +88,23 @@ function renderAlertToast({
   );
 }
 
-function showToast(tone: ToastTone, {title, description}: ToastContent, options?: ExternalToast) {
-  return sonnerToast.custom(toastId => renderAlertToast({description, title, toastId: String(toastId), tone}), {
-    duration: 4000,
-    ...options,
-  });
-}
-
+type ToastOptions = Omit<ToastProps, 'toastId' | 'type'>;
 const toast = {
-  dismiss: sonnerToast.dismiss,
-  error(content: ToastContent, options?: ExternalToast) {
-    return showToast('error', content, options);
+  show: (options: ToastOptions) => {
+    return sonnerToast.custom(id => <AlertToast toastId={id} type="info" {...options} />);
   },
-  info(content: ToastContent, options?: ExternalToast) {
-    return showToast('info', content, options);
+
+  success: (options: ToastOptions) => {
+    return sonnerToast.custom(id => <AlertToast toastId={id} type="success" {...options} />);
   },
-  show(content: ToastContent, options?: ExternalToast) {
-    return showToast('info', content, options);
+
+  error: (options: ToastOptions) => {
+    return sonnerToast.custom(id => <AlertToast toastId={id} type="error" {...options} />);
   },
-  success(content: ToastContent, options?: ExternalToast) {
-    return showToast('success', content, options);
+
+  info: (options: ToastOptions) => {
+    return sonnerToast.custom(id => <AlertToast toastId={id} type="info" {...options} />);
   },
-} as const;
+};
 
 export {toast};
-export type {ToastContent};
