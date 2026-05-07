@@ -357,12 +357,6 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 
 ### 7-3. 작업 체크리스트
 
-#### DB Connection
-
-- [ ] Neon Postgres 연결 유틸을 구현한다.
-- [ ] `DATABASE_URL` 환경 변수 누락 시 명확한 서버 에러를 반환하도록 한다.
-- [ ] 서버 전용 DB 모듈이 클라이언트 번들에 포함되지 않도록 경계를 정리한다.
-
 #### Schema / Migration
 
 - [ ] `meetings` 테이블 생성 SQL 또는 migration을 준비한다.
@@ -413,7 +407,6 @@ where id = meeting_id
 
 ### 7-5. 테스트 체크리스트
 
-- [ ] Neon Postgres 연결 유틸을 테스트한다.
 - [ ] UUID `id` 검증을 테스트한다.
 - [ ] `meetingDate` 생성 규칙을 테스트한다.
 - [ ] 신규 회의 저장 repository를 테스트한다.
