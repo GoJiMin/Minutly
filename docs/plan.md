@@ -359,15 +359,15 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 
 #### DB Table Setup
 
-- [ ] `meetings` 테이블을 생성하는 SQL 파일을 작성한다.
-- [ ] `id`, `title`, `meeting_date`, `created_at`, `updated_at`, `origin_transcript`, `transcript`, `summary`, `key_points` 컬럼을 정의한다.
-- [ ] `id`는 `uuid primary key default gen_random_uuid()`로 정의한다.
-- [ ] `key_points` 컬럼에는 JSON 배열만 저장되도록 CHECK 제약을 추가한다.
-- [ ] 월별 캘린더 조회를 위해 `meeting_date` 인덱스를 추가한다.
-- [ ] 특정 날짜의 회의 목록 정렬을 위해 `(meeting_date, updated_at desc)` 인덱스를 추가한다.
-- [ ] Neon SQL Editor에서 SQL을 실행한다.
-- [ ] Neon Table Editor에서 `meetings` 테이블이 생성됐는지 확인한다.
-- [ ] 테스트용 회의 레코드를 insert/select/delete 해서 기본 동작을 확인한다.
+- [x] `meetings` 테이블을 생성하는 SQL 파일을 작성한다.
+- [x] `id`, `title`, `meeting_date`, `created_at`, `updated_at`, `origin_transcript`, `transcript`, `summary`, `key_points` 컬럼을 정의한다.
+- [x] `id`는 `uuid primary key default gen_random_uuid()`로 정의한다.
+- [x] `key_points` 컬럼에는 JSON 배열만 저장되도록 CHECK 제약을 추가한다.
+- [x] 월별 캘린더 조회를 위해 `meeting_date` 인덱스를 추가한다.
+- [x] 특정 날짜의 회의 목록 정렬을 위해 `(meeting_date, updated_at desc)` 인덱스를 추가한다.
+- [x] Neon SQL Editor에서 SQL을 실행한다.
+- [x] Neon Table Editor에서 `meetings` 테이블이 생성됐는지 확인한다.
+- [x] 테스트용 회의 레코드를 insert/select/delete 해서 기본 동작을 확인한다.
 
 #### Meeting Model
 
