@@ -372,7 +372,7 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 #### Meeting Model
 
 - [x] `src/entities/meeting/model/types.ts` 파일에 회의 응답 타입을 정의한다.
-- [ ] `src/entities/meeting/model/schema.ts` 파일에 회의 요청 및 parameter 검증 schema를 정의한다.
+- [x] `src/entities/meeting/model/schema.ts` 파일에 회의 요청 및 parameter 검증 schema를 정의한다.
 - [x] 저장된 회의 상세 응답 타입 `MeetingDetail`을 정의한다.
 - [x] 날짜별 회의 목록 응답 타입 `MeetingListItem`을 정의한다.
 - [x] 날짜별 회의 목록 응답 타입 `GetMeetingsByDateResponse`를 정의한다.
@@ -382,9 +382,9 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [x] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
 - [x] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
 - [x] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
-- [ ] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
-- [ ] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
-- [ ] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
+- [x] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
+- [x] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
+- [x] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
 - [ ] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
 
 #### Repository
