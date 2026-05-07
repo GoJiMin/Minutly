@@ -428,12 +428,9 @@ where id = meeting_id
 
 #### Unit Test
 
-- [ ] 회의 생성 요청 schema 검증을 테스트한다.
-- [ ] 회의 수정 요청 schema 검증을 테스트한다.
-- [ ] UUID route params schema 검증을 테스트한다.
-- [ ] 날짜별 조회 query schema 검증을 테스트한다.
-- [ ] 월별 조회 query schema 검증을 테스트한다.
-- [ ] DB row를 `camelCase` 응답 객체로 변환하는 mapper를 테스트한다.
+- [x] 날짜 query schema가 `YYYY-MM-DD` 형식과 실제 존재 날짜를 검증하는지 테스트한다.
+- [x] 월별 조회 query schema가 `YYYY`, `MM` 형식과 `01`-`12` 범위를 검증하는지 테스트한다.
+- [x] DB row를 `camelCase` 응답 객체로 변환하는 mapper를 테스트한다.
 - [ ] `createdAt`에서 `meetingDate`를 생성하는 규칙을 테스트한다.
 
 #### DB 동작 확인
