@@ -385,7 +385,7 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [x] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
 - [x] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
 - [x] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
-- [ ] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
+- [x] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
 
 #### Repository
 
