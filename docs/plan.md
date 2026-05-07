@@ -357,38 +357,55 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 
 ### 7-3. 작업 체크리스트
 
-#### Schema / Migration
+#### DB Table Setup
 
-- [ ] `meetings` 테이블 생성 SQL 또는 migration을 준비한다.
-- [ ] `pgcrypto` 확장 적용 여부를 정리한다.
-- [ ] `meeting_date` 인덱스를 정의한다.
-- [ ] `(meeting_date, updated_at desc)` 인덱스를 정의한다.
-- [ ] `key_points`가 배열인지 확인하는 제약을 준비한다.
+- [ ] `meetings` 테이블을 생성하는 SQL 파일을 작성한다.
+- [ ] `id`, `title`, `meeting_date`, `created_at`, `updated_at`, `origin_transcript`, `transcript`, `summary`, `key_points` 컬럼을 정의한다.
+- [ ] `id`는 `uuid primary key default gen_random_uuid()`로 정의한다.
+- [ ] `key_points` 컬럼에는 JSON 배열만 저장되도록 CHECK 제약을 추가한다.
+- [ ] 월별 캘린더 조회를 위해 `meeting_date` 인덱스를 추가한다.
+- [ ] 특정 날짜의 회의 목록 정렬을 위해 `(meeting_date, updated_at desc)` 인덱스를 추가한다.
+- [ ] Neon SQL Editor에서 SQL을 실행한다.
+- [ ] Neon Table Editor에서 `meetings` 테이블이 생성됐는지 확인한다.
+- [ ] 테스트용 회의 레코드를 insert/select/delete 해서 기본 동작을 확인한다.
 
 #### Meeting Model
 
-- [ ] `Meeting` 타입을 정의한다.
-- [ ] `MeetingListItem` 타입을 정의한다.
-- [ ] `CreateMeetingRequest` 타입을 정의한다.
-- [ ] `UpdateMeetingRequest` 타입을 정의한다.
-- [ ] `Meeting` 저장 schema를 정의한다.
-- [ ] `CreateMeetingRequest` schema를 정의한다.
-- [ ] `UpdateMeetingRequest` schema를 정의한다.
-- [ ] UUID `id` route parameter schema를 정의한다.
-- [ ] `meetingDate` query parameter schema를 정의한다.
-- [ ] `year`, `month` query parameter schema를 정의한다.
+- [ ] `src/entities/meeting/model/schema.ts` 파일을 만든다.
+- [ ] 저장된 회의 상세 응답 타입 `MeetingDetail`을 정의한다.
+- [ ] 날짜별 회의 목록 응답 타입 `MeetingListItem`을 정의한다.
+- [ ] 월별 캘린더 날짜 응답 타입 `MeetingDateSummary`를 정의한다.
+- [ ] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
+- [ ] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
+- [ ] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
+- [ ] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
+- [ ] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
+- [ ] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
+- [ ] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
 
 #### Repository
 
-- [ ] `createMeeting(input)`을 구현한다.
-- [ ] `readMeeting(id)`를 구현한다.
-- [ ] `updateMeeting(id, input)`을 구현한다.
-- [ ] `deleteMeeting(id)`를 구현한다.
-- [ ] `listMeetingDates(year, month)`를 구현한다.
-- [ ] `listMeetingsByDate(date)`를 구현한다.
-- [ ] `createdAt`에서 `meetingDate`를 생성해 저장한다.
-- [ ] 수정 저장 시 `createdAt`과 `meetingDate`를 유지한다.
-- [ ] 수정 저장 시 `updatedAt`을 갱신한다.
+- [ ] `src/entities/meeting/server/repository.ts` 파일을 만든다.
+- [ ] Repository 파일 상단에 `import 'server-only';`를 추가한다.
+- [ ] Repository 내부에서 `@neondatabase/serverless`의 `neon`을 import한다.
+- [ ] Repository 내부에서 `neonConfig.databaseUrl`로 SQL client를 생성한다.
+- [ ] Route Handler와 Service에서는 `@neondatabase/serverless`를 직접 import하지 않는다.
+- [ ] DB 조회 결과 row를 API/도메인 타입의 `camelCase` 객체로 변환하는 mapper를 사용한다.
+- [ ] `createMeeting(input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 받아 `meetings`에 insert한다.
+- [ ] `createMeeting(input)`은 서버 현재 시각으로 `created_at`, `updated_at`을 만들고, `created_at` 기준 `meeting_date`를 계산해 저장한다.
+- [ ] `createMeeting(input)`은 DB가 생성한 `id`, `meetingDate`, `createdAt`, `updatedAt`만 반환한다.
+- [ ] `getMeetingById(id)`는 `id`로 회의 상세 row를 조회한다.
+- [ ] `getMeetingById(id)`는 회의가 없으면 `null`을 반환한다.
+- [ ] `updateMeeting(id, input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 갱신한다.
+- [ ] `updateMeeting(id, input)`은 `created_at`과 `meeting_date`를 변경하지 않는다.
+- [ ] `updateMeeting(id, input)`은 서버 현재 시각으로 `updated_at`만 갱신한다.
+- [ ] `updateMeeting(id, input)`은 회의가 없으면 `null`을 반환한다.
+- [ ] `deleteMeeting(id)`는 `id`로 회의 레코드를 hard delete한다.
+- [ ] `deleteMeeting(id)`는 삭제된 row가 없으면 `false`, 있으면 `true`를 반환한다.
+- [ ] `listMeetingDates(year, month)`는 월 시작일과 다음 달 시작일을 계산해 `meeting_date` range query를 실행한다.
+- [ ] `listMeetingDates(year, month)`는 회의가 있는 날짜만 `YYYY-MM-DD` 배열로 반환한다.
+- [ ] `listMeetingsByDate(date)`는 특정 `meeting_date`의 회의 목록을 `updated_at desc`로 반환한다.
+- [ ] `listMeetingsByDate(date)`는 상세 본문 필드인 `originTranscript`, `transcript`, `summary`, `keyPoints`를 조회하지 않는다.
 
 ### 7-4. 대표 조회 규칙
 
@@ -405,27 +422,50 @@ order by updated_at desc
 where id = meeting_id
 ```
 
-### 7-5. 테스트 체크리스트
+#### Unit Test
 
-- [ ] UUID `id` 검증을 테스트한다.
-- [ ] `meetingDate` 생성 규칙을 테스트한다.
-- [ ] 신규 회의 저장 repository를 테스트한다.
-- [ ] 회의 상세 조회 repository를 테스트한다.
-- [ ] 회의 수정 저장 repository를 테스트한다.
-- [ ] 회의 삭제 repository를 테스트한다.
-- [ ] 월별 회의 날짜 조회 repository를 테스트한다.
-- [ ] 날짜별 회의 목록 조회 repository를 테스트한다.
-- [ ] 회의가 없을 때 빈 배열을 반환하는지 테스트한다.
-- [ ] 회의가 없을 때 not found 에러를 반환하는지 테스트한다.
+- [ ] 회의 생성 요청 schema 검증을 테스트한다.
+- [ ] 회의 수정 요청 schema 검증을 테스트한다.
+- [ ] UUID route params schema 검증을 테스트한다.
+- [ ] 날짜별 조회 query schema 검증을 테스트한다.
+- [ ] 월별 조회 query schema 검증을 테스트한다.
+- [ ] DB row를 `camelCase` 응답 객체로 변환하는 mapper를 테스트한다.
+- [ ] `createdAt`에서 `meetingDate`를 생성하는 규칙을 테스트한다.
+
+#### DB 동작 확인
+
+- [ ] 테스트용 회의 데이터를 저장하고 생성된 `id`, `meetingDate`, `createdAt`, `updatedAt`을 확인한다.
+- [ ] 저장한 회의를 `id`로 다시 조회할 수 있는지 확인한다.
+- [ ] 존재하지 않는 `id`로 조회했을 때 값이 없다고 처리되는지 확인한다.
+- [ ] 저장한 회의의 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 수정할 수 있는지 확인한다.
+- [ ] 수정 후 `createdAt`과 `meetingDate`는 유지되고 `updatedAt`만 바뀌는지 확인한다.
+- [ ] 존재하지 않는 `id`로 수정했을 때 값이 없다고 처리되는지 확인한다.
+- [ ] 특정 날짜의 회의 목록에 저장한 회의가 포함되는지 확인한다.
+- [ ] 회의가 없는 날짜를 조회하면 빈 배열로 처리되는지 확인한다.
+- [ ] 특정 연월의 회의 날짜 목록에 저장한 회의 날짜가 포함되는지 확인한다.
+- [ ] 회의가 없는 연월을 조회하면 빈 배열로 처리되는지 확인한다.
+- [ ] 저장한 회의를 삭제할 수 있는지 확인한다.
+- [ ] 삭제한 회의를 다시 조회했을 때 값이 없다고 처리되는지 확인한다.
 
 ### 7-6. 완료 기준 체크리스트
 
-- [ ] 신규 회의 레코드를 저장할 수 있다.
-- [ ] UUID `id`로 회의 상세를 읽을 수 있다.
+- [ ] Neon에 `meetings` 테이블이 생성되어 있다.
+- [ ] `meeting_date` 조회에 필요한 인덱스가 생성되어 있다.
+- [ ] 회의 생성/수정 요청 데이터를 검증할 수 있다.
+- [ ] 회의 조회용 `id`, `date`, `year`, `month` 값을 검증할 수 있다.
+- [ ] DB의 `snake_case` 필드를 API 응답용 `camelCase` 필드로 변환할 수 있다.
+- [ ] 테스트용 회의 데이터를 저장할 수 있다.
+- [ ] 저장된 회의를 UUID `id`로 다시 조회할 수 있다.
+- [ ] 존재하지 않는 UUID `id` 조회를 값 없음 상태로 처리할 수 있다.
 - [ ] 특정 날짜의 회의 목록을 조회할 수 있다.
+- [ ] 회의가 없는 날짜의 목록 조회를 빈 배열로 처리할 수 있다.
 - [ ] 특정 연월에서 회의가 존재하는 날짜 목록을 조회할 수 있다.
-- [ ] 기존 회의 레코드를 갱신할 수 있다.
-- [ ] 기존 회의 레코드를 삭제할 수 있다.
+- [ ] 회의가 없는 연월의 날짜 목록 조회를 빈 배열로 처리할 수 있다.
+- [ ] 저장된 회의 데이터를 수정할 수 있다.
+- [ ] 회의 수정 시 `createdAt`과 `meetingDate`는 유지되고 `updatedAt`만 갱신된다.
+- [ ] 존재하지 않는 UUID `id` 수정을 값 없음 상태로 처리할 수 있다.
+- [ ] 저장된 회의 데이터를 삭제할 수 있다.
+- [ ] 삭제된 회의를 다시 조회하면 값 없음 상태로 처리된다.
 
 ---
 
