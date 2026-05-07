@@ -371,17 +371,17 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 
 #### Meeting Model
 
-- [ ] `src/entities/meeting/model/types.ts` 파일에 회의 응답 타입을 정의한다.
+- [x] `src/entities/meeting/model/types.ts` 파일에 회의 응답 타입을 정의한다.
 - [ ] `src/entities/meeting/model/schema.ts` 파일에 회의 요청 및 parameter 검증 schema를 정의한다.
-- [ ] 저장된 회의 상세 응답 타입 `MeetingDetail`을 정의한다.
-- [ ] 날짜별 회의 목록 응답 타입 `MeetingListItem`을 정의한다.
-- [ ] 날짜별 회의 목록 응답 타입 `GetMeetingsByDateResponse`를 정의한다.
-- [ ] 월별 캘린더 날짜 응답 타입 `GetMeetingDatesResponse`를 정의한다.
-- [ ] 회의 생성 응답 타입 `CreateMeetingResponse`를 정의한다.
-- [ ] 회의 수정 응답 타입 `UpdateMeetingResponse`를 정의한다.
-- [ ] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
-- [ ] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
-- [ ] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
+- [x] 저장된 회의 상세 응답 타입 `MeetingDetail`을 정의한다.
+- [x] 날짜별 회의 목록 응답 타입 `MeetingListItem`을 정의한다.
+- [x] 날짜별 회의 목록 응답 타입 `GetMeetingsByDateResponse`를 정의한다.
+- [x] 월별 캘린더 날짜 응답 타입 `GetMeetingDatesResponse`를 정의한다.
+- [x] 회의 생성 응답 타입 `CreateMeetingResponse`를 정의한다.
+- [x] 회의 수정 응답 타입 `UpdateMeetingResponse`를 정의한다.
+- [x] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
+- [x] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
+- [x] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
 - [ ] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
 - [ ] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
 - [ ] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
