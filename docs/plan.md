@@ -371,17 +371,21 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 
 #### Meeting Model
 
-- [ ] `src/entities/meeting/model/schema.ts` 파일을 만든다.
-- [ ] 저장된 회의 상세 응답 타입 `MeetingDetail`을 정의한다.
-- [ ] 날짜별 회의 목록 응답 타입 `MeetingListItem`을 정의한다.
-- [ ] 월별 캘린더 날짜 응답 타입 `MeetingDateSummary`를 정의한다.
-- [ ] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
-- [ ] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
-- [ ] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
-- [ ] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
-- [ ] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
-- [ ] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
-- [ ] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
+- [x] `src/entities/meeting/model/types.ts` 파일에 회의 응답 타입을 정의한다.
+- [x] `src/entities/meeting/model/schema.ts` 파일에 회의 요청 및 parameter 검증 schema를 정의한다.
+- [x] 저장된 회의 상세 응답 타입 `MeetingDetail`을 정의한다.
+- [x] 날짜별 회의 목록 응답 타입 `MeetingListItem`을 정의한다.
+- [x] 날짜별 회의 목록 응답 타입 `GetMeetingsByDateResponse`를 정의한다.
+- [x] 월별 캘린더 날짜 응답 타입 `GetMeetingDatesResponse`를 정의한다.
+- [x] 회의 생성 응답 타입 `CreateMeetingResponse`를 정의한다.
+- [x] 회의 수정 응답 타입 `UpdateMeetingResponse`를 정의한다.
+- [x] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
+- [x] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
+- [x] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
+- [x] `/api/meetings/{id}`에서 사용할 UUID route params schema를 정의한다.
+- [x] `GET /api/meetings?date=YYYY-MM-DD`에서 사용할 날짜 query schema를 정의한다.
+- [x] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
+- [x] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
 
 #### Repository
 
@@ -393,7 +397,7 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [ ] DB 조회 결과 row를 API/도메인 타입의 `camelCase` 객체로 변환하는 mapper를 사용한다.
 - [ ] `createMeeting(input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 받아 `meetings`에 insert한다.
 - [ ] `createMeeting(input)`은 서버 현재 시각으로 `created_at`, `updated_at`을 만들고, `created_at` 기준 `meeting_date`를 계산해 저장한다.
-- [ ] `createMeeting(input)`은 DB가 생성한 `id`, `meetingDate`, `createdAt`, `updatedAt`만 반환한다.
+- [ ] `createMeeting(input)`은 저장 후 후속 조회에 필요한 `id`, `meetingDate`만 반환한다.
 - [ ] `getMeetingById(id)`는 `id`로 회의 상세 row를 조회한다.
 - [ ] `getMeetingById(id)`는 회의가 없으면 `null`을 반환한다.
 - [ ] `updateMeeting(id, input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 갱신한다.
@@ -424,12 +428,9 @@ where id = meeting_id
 
 #### Unit Test
 
-- [ ] 회의 생성 요청 schema 검증을 테스트한다.
-- [ ] 회의 수정 요청 schema 검증을 테스트한다.
-- [ ] UUID route params schema 검증을 테스트한다.
-- [ ] 날짜별 조회 query schema 검증을 테스트한다.
-- [ ] 월별 조회 query schema 검증을 테스트한다.
-- [ ] DB row를 `camelCase` 응답 객체로 변환하는 mapper를 테스트한다.
+- [x] 날짜 query schema가 `YYYY-MM-DD` 형식과 실제 존재 날짜를 검증하는지 테스트한다.
+- [x] 월별 조회 query schema가 `YYYY`, `MM` 형식과 `01`-`12` 범위를 검증하는지 테스트한다.
+- [x] DB row를 `camelCase` 응답 객체로 변환하는 mapper를 테스트한다.
 - [ ] `createdAt`에서 `meetingDate`를 생성하는 규칙을 테스트한다.
 
 #### DB 동작 확인
@@ -520,11 +521,8 @@ DELETE /api/meetings/{id}
 - [ ] `DELETE /api/meetings/{id}` Route Handler를 구현한다.
 - [ ] 신규 저장 응답에 `id`를 반환한다.
 - [ ] 신규 저장 응답에 `meetingDate`를 반환한다.
-- [ ] 신규 저장 응답에 `createdAt`을 반환한다.
-- [ ] 신규 저장 응답에 `updatedAt`을 반환한다.
 - [ ] 수정 저장 응답에 `id`를 반환한다.
 - [ ] 수정 저장 응답에 `meetingDate`를 반환한다.
-- [ ] 수정 저장 응답에 `updatedAt`을 반환한다.
 - [ ] 삭제 성공 시 `204 No Content`를 반환한다.
 - [ ] 모든 보호 API에서 `requireAuth`를 호출한다.
 
@@ -667,7 +665,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 #### Meeting Save
 
 - [ ] 요약 성공 후 `POST /api/meetings` mutation을 호출한다.
-- [ ] 저장 응답의 `id`, `meetingDate`, `createdAt`, `updatedAt`을 상태에 반영한다.
+- [ ] 저장 응답의 `id`, `meetingDate`를 사용해 히스토리 화면으로 이동하거나 후속 조회를 수행한다.
 - [ ] 회의 저장 성공 시 draft를 제거한다.
 - [ ] 회의 저장 성공 시 summary snapshot을 제거한다.
 - [ ] 회의 저장 실패 시 draft를 유지한다.
@@ -808,7 +806,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 저장된 회의 재요약 mutation을 구현한다.
 - [ ] 재요약 요청 직전 summary snapshot을 저장한다.
 - [ ] 재요약 성공 후 `PUT /api/meetings/{id}` mutation을 호출한다.
-- [ ] 수정 저장 성공 시 `updatedAt`을 화면에 반영한다.
+- [ ] 수정 저장 성공 시 응답의 `id`, `meetingDate`를 사용해 관련 query를 갱신한다.
 - [ ] 수정 저장 성공 시 meeting detail query를 invalidate한다.
 - [ ] 수정 저장 성공 시 meetings by date query를 invalidate한다.
 
