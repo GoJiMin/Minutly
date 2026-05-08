@@ -18,17 +18,16 @@ export function createMeetingTitlePrefix(meetingDate: string) {
   return `[${meetingDate}. ${weekday}] - `;
 }
 
-export function getMonthStartDate(meetingDate: string) {
-  const [year, month] = meetingDate.split('-');
-
+export function getMonthStartDate(year: string, month: string) {
   return `${year}-${month}-01`;
 }
 
-export function getNextMonthStartDate(meetingDate: string) {
-  const [year, month] = meetingDate.split('-').map(Number);
+export function getNextMonthStartDate(year: string, month: string) {
+  const currentYear = Number(year);
+  const currentMonth = Number(month);
 
-  const nextYear = month === 12 ? year + 1 : year;
-  const nextMonth = month === 12 ? 1 : month + 1;
+  const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+  const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
 
   return `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
 }

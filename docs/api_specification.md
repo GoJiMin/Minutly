@@ -69,7 +69,7 @@ type ErrorResponse = {
 | Field    | Type   | 설명                                                                    |
 | -------- | ------ | ----------------------------------------------------------------------- |
 | `title`  | string | 에러를 식별하기 위한 코드. 예: `INTERNAL_SERVER_ERROR`, `TOKEN_EXPIRED` |
-| `detail` | string | 에러 코드를 간결하게 설명하는 메시지                                      |
+| `detail` | string | 에러 코드를 간결하게 설명하는 메시지                                    |
 | `status` | number | 원래 의도한 HTTP 상태 코드. body에도 함께 포함한다.                     |
 
 ### 3-5. 주요 HTTP 상태 코드
@@ -91,17 +91,17 @@ type ErrorResponse = {
 
 각 API의 Error 표에는 API별 검증 에러를 중심으로 표기하며, 요청 본문 해석 실패는 이 공통 에러 규칙을 따른다.
 
-| Status | Title             | 사용 조건                                                              | Detail                         |
-| ------ | ----------------- | ---------------------------------------------------------------------- | ------------------------------ |
+| Status | Title             | 사용 조건                                                                 | Detail                         |
+| ------ | ----------------- | ------------------------------------------------------------------------- | ------------------------------ |
 | 400    | `INVALID_REQUEST` | 요청 본문을 JSON으로 해석할 수 없거나 기본 요청 형식이 올바르지 않은 경우 | 요청 형식이 올바르지 않습니다. |
 
 ### 3-7. 인증 에러 코드
 
 인증 관련 401 응답은 클라이언트 제어에 필요한 최소한의 코드만 구분한다.
 
-| Status | Title           | 사용 조건                                                                 | Detail                      |
-| ------ | --------------- | ------------------------------------------------------------------------- | --------------------------- |
-| 401    | `UNAUTHORIZED`  | 인증 정보가 없거나 유효하지 않은 경우, 또는 refresh token 검증에 실패한 경우 | 인증이 필요합니다.          |
+| Status | Title           | 사용 조건                                                                      | Detail                      |
+| ------ | --------------- | ------------------------------------------------------------------------------ | --------------------------- |
+| 401    | `UNAUTHORIZED`  | 인증 정보가 없거나 유효하지 않은 경우, 또는 refresh token 검증에 실패한 경우   | 인증이 필요합니다.          |
 | 401    | `TOKEN_EXPIRED` | 보호된 API에서 access token이 없거나 만료되었고 refresh token 쿠키가 있는 경우 | 인증 정보가 만료되었습니다. |
 
 - `TOKEN_EXPIRED`는 사용자가 볼 상세 사유가 아니라 클라이언트가 `/api/auth/refresh`를 호출할지 판단하는 제어 신호다.
@@ -218,10 +218,10 @@ access token이 만료된 경우 refresh token을 검증해 새로운 access tok
 
 ### Error
 
-| Status | Title                   | Detail                            |
-| ------ | ----------------------- | --------------------------------- |
-| 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                |
-| 500    | `AUTH_REFRESH_FAILED`   | 토큰 갱신 중 문제가 발생했습니다. |
+| Status | Title                 | Detail                            |
+| ------ | --------------------- | --------------------------------- |
+| 401    | `UNAUTHORIZED`        | 인증이 필요합니다.                |
+| 500    | `AUTH_REFRESH_FAILED` | 토큰 갱신 중 문제가 발생했습니다. |
 
 ---
 
@@ -258,8 +258,8 @@ POST /api/auth/logout
 
 ### Error
 
-| Status | Title                | Detail                              |
-| ------ | -------------------- | ----------------------------------- |
+| Status | Title                | Detail                                |
+| ------ | -------------------- | ------------------------------------- |
 | 500    | `AUTH_LOGOUT_FAILED` | 로그아웃 처리 중 문제가 발생했습니다. |
 
 ---
@@ -287,9 +287,9 @@ GET /api/auth/check
 
 ### Error
 
-| Status | Title          | Detail             |
-| ------ | -------------- | ------------------ |
-| 401    | `UNAUTHORIZED` | 인증이 필요합니다. |
+| Status | Title           | Detail                      |
+| ------ | --------------- | --------------------------- |
+| 401    | `UNAUTHORIZED`  | 인증이 필요합니다.          |
 | 401    | `TOKEN_EXPIRED` | 인증 정보가 만료되었습니다. |
 
 ---
@@ -458,8 +458,6 @@ type CreateMeetingRequest = {
 type CreateMeetingResponse = {
   id: string;
   meetingDate: string;
-  createdAt: string;
-  updatedAt: string;
 };
 ```
 
@@ -468,9 +466,7 @@ type CreateMeetingResponse = {
 ```json
 {
   "id": "9d8c0b40-66b4-4e19-a8a2-69d7b4d4b3c2",
-  "meetingDate": "2026-04-26",
-  "createdAt": "2026-04-26T14:00:00+09:00",
-  "updatedAt": "2026-04-26T14:00:00+09:00"
+  "meetingDate": "2026-04-26"
 }
 ```
 
@@ -481,7 +477,7 @@ type CreateMeetingResponse = {
 - `meetingDate`는 `createdAt`을 `Asia/Seoul` 시간대로 해석해 생성한다.
 - `id`는 DB에서 생성하는 UUID를 사용한다.
 - 저장 API는 조회 API가 아니므로 요청 본문에 포함된 전체 회의 데이터를 응답으로 다시 반환하지 않는다.
-- 응답에는 저장 성공 후 클라이언트가 후속 처리를 수행하는 데 필요한 생성 메타데이터만 포함한다.
+- 응답에는 저장된 회의를 다시 조회하거나 히스토리 화면으로 이동하는 데 필요한 `id`, `meetingDate`만 포함한다.
 - 저장 성공 후 클라이언트는 관련 draft를 제거할 수 있다.
 
 ### Error
@@ -537,22 +533,12 @@ type UpdateMeetingRequest = {
   summary: string;
   keyPoints: string[];
 };
-
-type UpdateMeetingResponse = {
-  id: string;
-  meetingDate: string;
-  updatedAt: string;
-};
 ```
 
 ### Response
 
-```json
-{
-  "id": "9d8c0b40-66b4-4e19-a8a2-69d7b4d4b3c2",
-  "meetingDate": "2026-04-26",
-  "updatedAt": "2026-04-26T14:18:32+09:00"
-}
+```http
+204 No Content
 ```
 
 ### 처리 규칙
@@ -562,8 +548,8 @@ type UpdateMeetingResponse = {
 - 수정 저장 시 `createdAt`은 기존 값을 유지한다.
 - 수정 저장 시 `meetingDate`는 기존 값을 유지한다.
 - 수정 저장 시 `updatedAt`은 서버 현재 시간으로 갱신한다.
-- 수정 저장 API는 조회 API가 아니므로 요청 본문에 포함된 전체 회의 데이터를 응답으로 다시 반환하지 않는다.
-- 응답에는 저장 성공 후 클라이언트가 후속 처리를 수행하는 데 필요한 수정 메타데이터만 포함한다.
+- 수정 저장 성공 시 응답 본문을 반환하지 않는다.
+- 클라이언트는 mutation에 사용한 `id`와 현재 화면 상태를 기준으로 관련 query를 invalidate 후 재조회한다.
 
 ### Error
 
@@ -726,10 +712,7 @@ type GetMeetingsByDateQuery = {
 
 type MeetingListItem = {
   id: string;
-  meetingDate: string;
   title: string;
-  createdAt: string;
-  updatedAt: string;
 };
 
 type GetMeetingsByDateResponse = {
@@ -744,10 +727,7 @@ type GetMeetingsByDateResponse = {
   "meetings": [
     {
       "id": "9d8c0b40-66b4-4e19-a8a2-69d7b4d4b3c2",
-      "meetingDate": "2026-04-26",
-      "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의",
-      "createdAt": "2026-04-26T14:00:00+09:00",
-      "updatedAt": "2026-04-26T14:18:32+09:00"
+      "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의"
     }
   ]
 }
@@ -758,10 +738,10 @@ type GetMeetingsByDateResponse = {
 - 서버는 `date`를 검증한다.
 - DB는 `meeting_date = date` 조건으로 조회한다.
 - 해당 날짜에 회의가 없으면 빈 배열을 반환한다.
-- 목록은 `updatedAt` 내림차순으로 정렬한다.
+- 목록은 DB의 `created_at` 오름차순으로 정렬한다.
 - 목록 응답에는 상세 본문인 `originTranscript`, `transcript`, `summary`, `keyPoints`를 포함하지 않는다.
 - 목록 응답에는 summary preview도 포함하지 않는다.
-- 목록 항목에는 상세 조회/수정/삭제 요청에 필요한 `id`를 포함한다.
+- 목록 항목에는 상세 조회/수정/삭제 요청에 필요한 `id`와 화면 표시용 `title`만 포함한다.
 
 ### Error
 
