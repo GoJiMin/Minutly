@@ -428,8 +428,6 @@ where id = meeting_id
 
 - [x] 날짜 query schema가 `YYYY-MM-DD` 형식과 실제 존재 날짜를 검증하는지 테스트한다.
 - [x] 월별 조회 query schema가 `YYYY`, `MM` 형식과 `01`-`12` 범위를 검증하는지 테스트한다.
-- [ ] Neon DB 구현체가 DB row를 응답 타입으로 변환하는지 테스트한다.
-- [ ] `createdAt`에서 `meetingDate`를 생성하는 규칙을 테스트한다.
 
 #### DB 동작 확인
 
@@ -452,7 +450,7 @@ where id = meeting_id
 - [ ] `meeting_date` 조회에 필요한 인덱스가 생성되어 있다.
 - [ ] 회의 생성/수정 요청 데이터를 검증할 수 있다.
 - [ ] 회의 조회용 `id`, `date`, `year`, `month` 값을 검증할 수 있다.
-- [ ] DB의 `snake_case` 필드를 API 응답용 `camelCase` 필드로 변환할 수 있다.
+- [ ] 회의 상세 조회 결과를 `MeetingDate` 응답 형태로 반환할 수 있다.
 - [ ] 테스트용 회의 데이터를 저장할 수 있다.
 - [ ] 저장된 회의를 UUID `id`로 다시 조회할 수 있다.
 - [ ] 존재하지 않는 UUID `id` 조회는 `null`로 표현할 수 있다.
