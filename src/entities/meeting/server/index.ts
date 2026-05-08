@@ -23,3 +23,5 @@ export {
   meetingsByDateQuerySchema,
   updateMeetingRequestSchema,
 } from '../model/schema';
+
+export {NeonMeetingDb} from './neon-meeting-db';
