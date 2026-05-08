@@ -712,10 +712,7 @@ type GetMeetingsByDateQuery = {
 
 type MeetingListItem = {
   id: string;
-  meetingDate: string;
   title: string;
-  createdAt: string;
-  updatedAt: string;
 };
 
 type GetMeetingsByDateResponse = {
@@ -730,10 +727,7 @@ type GetMeetingsByDateResponse = {
   "meetings": [
     {
       "id": "9d8c0b40-66b4-4e19-a8a2-69d7b4d4b3c2",
-      "meetingDate": "2026-04-26",
-      "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의",
-      "createdAt": "2026-04-26T14:00:00+09:00",
-      "updatedAt": "2026-04-26T14:18:32+09:00"
+      "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의"
     }
   ]
 }
@@ -744,10 +738,10 @@ type GetMeetingsByDateResponse = {
 - 서버는 `date`를 검증한다.
 - DB는 `meeting_date = date` 조건으로 조회한다.
 - 해당 날짜에 회의가 없으면 빈 배열을 반환한다.
-- 목록은 `updatedAt` 내림차순으로 정렬한다.
+- 목록은 DB의 `created_at` 오름차순으로 정렬한다.
 - 목록 응답에는 상세 본문인 `originTranscript`, `transcript`, `summary`, `keyPoints`를 포함하지 않는다.
 - 목록 응답에는 summary preview도 포함하지 않는다.
-- 목록 항목에는 상세 조회/수정/삭제 요청에 필요한 `id`를 포함한다.
+- 목록 항목에는 상세 조회/수정/삭제 요청에 필요한 `id`와 화면 표시용 `title`만 포함한다.
 
 ### Error
 

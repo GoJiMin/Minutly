@@ -12,10 +12,7 @@ export type MeetingDetail = {
 
 export type MeetingListItem = {
   id: string;
-  meetingDate: string;
   title: string;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type GetMeetingsByDateResponse = {

@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS meetings (
 CREATE INDEX IF NOT EXISTS meetings_meeting_date_idx
   ON meetings (meeting_date);
 
-CREATE INDEX IF NOT EXISTS meetings_meeting_date_updated_at_idx
-  ON meetings (meeting_date, updated_at DESC);
+CREATE INDEX IF NOT EXISTS meetings_meeting_date_created_at_idx
+  ON meetings (meeting_date, created_at ASC);

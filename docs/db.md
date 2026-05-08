@@ -79,8 +79,8 @@ create table if not exists meetings (
 create index meetings_meeting_date_idx
   on meetings (meeting_date);
 
-create index meetings_meeting_date_updated_at_idx
-  on meetings (meeting_date, updated_at desc);
+create index meetings_meeting_date_created_at_idx
+  on meetings (meeting_date, created_at asc);
 ```
 
 ### 5-1. 인덱스 목적
@@ -88,8 +88,8 @@ create index meetings_meeting_date_updated_at_idx
 - `meetings_meeting_date_idx`
   - 특정 연월에서 회의가 있는 날짜를 조회할 때 사용한다.
   - `meeting_date >= month_start and meeting_date < next_month_start` 형태의 range query를 지원한다.
-- `meetings_meeting_date_updated_at_idx`
-  - 특정 날짜의 회의 목록을 조회하고 `updated_at desc`로 정렬할 때 사용한다.
+- `meetings_meeting_date_created_at_idx`
+  - 특정 날짜의 회의 목록을 조회하고 `created_at asc`로 정렬할 때 사용한다.
 - 상세 조회, 수정, 삭제는 primary key인 `id`로 처리한다.
 
 ---
@@ -140,12 +140,10 @@ where extract(year from meeting_date) = 2026
 
 ```sql
 select
-  meeting_date,
-  count(*) as meeting_count
+  distinct meeting_date::text as meeting_date
 from meetings
 where meeting_date >= date '2026-04-01'
   and meeting_date < date '2026-05-01'
-group by meeting_date
 order by meeting_date asc;
 ```
 
@@ -156,13 +154,10 @@ order by meeting_date asc;
 ```sql
 select
   id,
-  title,
-  meeting_date,
-  created_at,
-  updated_at
+  title
 from meetings
 where meeting_date = date '2026-04-02'
-order by updated_at desc;
+order by created_at asc;
 ```
 
 이 조회 결과는 히스토리 화면에서 선택한 날짜의 회의 목록을 표시하는 데 사용한다.
@@ -206,7 +201,7 @@ insert into meetings (
   $6,
   $7::jsonb
 )
-returning id, meeting_date;
+returning id, meeting_date::text as meeting_date;
 ```
 
 `$2`는 서버에서 `Asia/Seoul` 기준으로 계산한 `meeting_date`다.
@@ -261,7 +256,7 @@ GET /api/meetings?date=YYYY-MM-DD
 
 - 서버는 `date`를 검증한다.
 - DB는 `meeting_date = date` 조건으로 조회한다.
-- 목록은 `updated_at desc`로 정렬한다.
+- 목록은 `created_at asc`로 정렬한다.
 
 ### 8-3. 특정 회의 상세, 수정, 삭제
 
@@ -311,6 +306,6 @@ DB 컬럼은 `snake_case`, API 응답은 `camelCase`로 매핑한다.
 - `meetings.id`를 primary key로 사용한다.
 - `meetings.meeting_date`를 캘린더 조회 기준으로 사용한다.
 - 월별 조회는 `meeting_date`의 range query로 처리한다.
-- 같은 날짜의 회의 목록은 `updated_at desc`로 정렬한다.
+- 같은 날짜의 회의 목록은 `created_at asc`로 정렬한다.
 - 상세 조회, 수정, 삭제는 `id` 단독 식별을 기준으로 설계한다.
 - 회의 삭제는 row 삭제로 처리한다.

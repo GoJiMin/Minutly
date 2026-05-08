@@ -23,6 +23,3 @@ export {
   meetingsByDateQuerySchema,
   updateMeetingRequestSchema,
 } from '../model/schema';
-
-export type {MeetingDetailRow, MeetingListItemRow} from './db-row-mapper';
-export {mapMeetingDetailRow, mapMeetingListItemRow} from './db-row-mapper';
