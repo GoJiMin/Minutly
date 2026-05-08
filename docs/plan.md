@@ -98,7 +98,7 @@
 | Phase 0  | 프로젝트 초기 세팅                 | Next.js, TypeScript, FSD, 테스트, CI, Vercel/Neon 환경 준비              |
 | Phase 1  | 공통 기반 구현                     | 공통 타입, API 클라이언트, 에러 응답, 검증, 날짜, localStorage 유틸 구축 |
 | Phase 2  | 인증 구현                          | 로그인 정보 검증, 토큰 발급/갱신, Proxy 보호, API 인증 검증 구현         |
-| Phase 3  | Neon Postgres 저장소 구현          | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현                 |
+| Phase 3  | 회의 DB 접근 계층 구현             | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현                 |
 | Phase 4  | 핵심 API 구현                      | Speech token, summary, meetings API 구현                                 |
 | Phase 5  | 녹음 및 STT 구현                   | Azure Speech SDK 연결, 최근 10개 문장 미리보기, draft autosave 구현      |
 | Phase 6  | 전사 검토 및 요약 저장 플로우 구현 | transcript review, title 입력, 요약 생성, 회의 저장 구현                 |
@@ -342,7 +342,7 @@ GET  /api/auth/check
 
 ---
 
-## 7. Phase 3. Neon Postgres 저장소 구현
+## 7. Phase 3. 회의 DB 접근 계층 구현
 
 ### 7-1. 목표
 
@@ -386,18 +386,18 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [x] `GET /api/meetings/dates?year=YYYY&month=M`에서 사용할 월별 조회 query schema를 정의한다.
 - [x] DB row의 `snake_case` 필드를 API 응답의 `camelCase` 필드로 변환하는 mapper를 정의한다.
 
-#### Repository
+#### Meeting DB
 
-- [x] `src/entities/meeting/server/repository.ts` 파일에 `MeetingRepository` interface를 정의한다.
+- [x] `src/entities/meeting/server/meeting-db.ts` 파일에 `MeetingDb` interface를 정의한다.
 - [x] `createMeeting(input)`은 저장 후 후속 조회에 필요한 `id`, `meetingDate`만 반환하도록 정의한다.
 - [x] `getMeetingById(id)`는 회의 상세 또는 `null`을 반환하도록 정의한다.
 - [x] `updateMeeting(id, input)`은 성공 시 반환값 없이 종료하도록 정의한다.
 - [x] `deleteMeeting(id)`는 성공 시 반환값 없이 종료하도록 정의한다.
 - [x] `listMeetingDates(year, month)`는 회의가 있는 날짜만 `YYYY-MM-DD` 배열로 반환하도록 정의한다.
 - [x] `listMeetingsByDate(date)`는 날짜별 회의 목록을 반환하도록 정의한다.
-- [ ] 실제 저장소 구현체는 별도 파일에서 구현한다.
-- [ ] 실제 저장소 구현체 파일 상단에 `import 'server-only';`를 추가한다.
-- [ ] 실제 저장소 구현체 내부에서만 `@neondatabase/serverless`와 `neonConfig.databaseUrl`을 사용한다.
+- [ ] 실제 Neon DB 구현체는 별도 파일에서 구현한다.
+- [ ] 실제 Neon DB 구현체 파일 상단에 `import 'server-only';`를 추가한다.
+- [ ] 실제 Neon DB 구현체 내부에서만 `@neondatabase/serverless`와 `neonConfig.databaseUrl`을 사용한다.
 - [ ] Route Handler와 Service에서는 `@neondatabase/serverless`를 직접 import하지 않는다.
 - [ ] DB 조회 결과 row를 API/도메인 타입의 `camelCase` 객체로 변환하는 mapper를 사용한다.
 - [ ] `createMeeting(input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 받아 `meetings`에 insert한다.
@@ -958,7 +958,7 @@ Phase 10은 테스트를 한 번에 작성하는 단계가 아니라, 이미 작
 1. 프로젝트 초기 세팅 및 테스트/CI/Vercel/Neon 기반 구축
 2. 공통 기반 구현
 3. 인증 구현
-4. Neon Postgres 저장소 구현
+4. 회의 DB 접근 계층 구현
 5. 핵심 API 구현
 6. 녹음 및 STT 구현
 7. 전사 검토 및 요약 저장 플로우 구현
