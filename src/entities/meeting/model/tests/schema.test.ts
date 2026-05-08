@@ -20,8 +20,20 @@ describe('@/src/entities/meeting/model/schema.ts', () => {
       expect(result.success).toBe(false);
     });
 
+    it('조회 가능한 날짜는 검증에 성공한다.', () => {
+      const result = meetingsByDateQuerySchema.safeParse({date: '2026-05-08'});
+
+      expect(result.success).toBe(true);
+    });
+
+    it('조회 가능 시작일 이전 날짜는 검증에 실패한다.', () => {
+      const result = meetingsByDateQuerySchema.safeParse({date: '2026-05-07'});
+
+      expect(result.success).toBe(false);
+    });
+
     it('윤년의 2월 29일은 검증에 성공한다.', () => {
-      const result = meetingsByDateQuerySchema.safeParse({date: '2024-02-29'});
+      const result = meetingsByDateQuerySchema.safeParse({date: '2028-02-29'});
 
       expect(result.success).toBe(true);
     });
@@ -38,6 +50,12 @@ describe('@/src/entities/meeting/model/schema.ts', () => {
       const result = meetingDatesQuerySchema.safeParse({year: '2026', month: '05'});
 
       expect(result.success).toBe(true);
+    });
+
+    it('조회 가능 시작월 이전 연월은 검증에 실패한다.', () => {
+      const result = meetingDatesQuerySchema.safeParse({year: '2026', month: '04'});
+
+      expect(result.success).toBe(false);
     });
 
     it('월 형식이 두자리가 아닌 경우 검증에 실패한다.', () => {
