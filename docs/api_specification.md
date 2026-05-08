@@ -533,20 +533,12 @@ type UpdateMeetingRequest = {
   summary: string;
   keyPoints: string[];
 };
-
-type UpdateMeetingResponse = {
-  id: string;
-  meetingDate: string;
-};
 ```
 
 ### Response
 
-```json
-{
-  "id": "9d8c0b40-66b4-4e19-a8a2-69d7b4d4b3c2",
-  "meetingDate": "2026-04-26"
-}
+```http
+204 No Content
 ```
 
 ### 처리 규칙
@@ -556,8 +548,8 @@ type UpdateMeetingResponse = {
 - 수정 저장 시 `createdAt`은 기존 값을 유지한다.
 - 수정 저장 시 `meetingDate`는 기존 값을 유지한다.
 - 수정 저장 시 `updatedAt`은 서버 현재 시간으로 갱신한다.
-- 수정 저장 API는 조회 API가 아니므로 요청 본문에 포함된 전체 회의 데이터를 응답으로 다시 반환하지 않는다.
-- 응답에는 캐시 무효화와 후속 조회에 필요한 `id`, `meetingDate`만 포함한다.
+- 수정 저장 성공 시 응답 본문을 반환하지 않는다.
+- 클라이언트는 mutation에 사용한 `id`와 현재 화면 상태를 기준으로 관련 query를 invalidate 후 재조회한다.
 
 ### Error
 

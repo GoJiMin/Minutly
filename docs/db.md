@@ -44,16 +44,14 @@ PRD의 저장 방향은 "회의록 1건을 하나의 영속 데이터 단위로 
 ## 4. DDL 초안
 
 ```sql
-create extension if not exists pgcrypto;
-
-create table meetings (
+create table if not exists meetings (
   id uuid primary key default gen_random_uuid(),
 
   title text not null,
   meeting_date date not null,
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
+  created_at timestamptz not null,
+  updated_at timestamptz not null,
 
   origin_transcript text not null,
   transcript text not null,
@@ -69,6 +67,7 @@ create table meetings (
 
 - `meeting_date`는 `created_at`을 서비스 기준 시간대인 `Asia/Seoul`로 해석한 날짜다.
 - 신규 회의 저장 시 서버는 요청 시점의 현재 시각을 기준으로 `created_at`, `updated_at`, `meeting_date`를 함께 생성한다.
+- `created_at`, `updated_at`은 DB의 `now()` 기본값을 사용하지 않고 애플리케이션 서버에서 같은 시각 값을 전달한다.
 - 예: `created_at = 2026-04-26T14:00:00+09:00`이면 `meeting_date = 2026-04-26`
 - `meeting_date`는 캘린더 조회용 값이므로 `year`, `month`, `day` 컬럼을 별도로 저장하지 않는다.
 
@@ -207,10 +206,11 @@ insert into meetings (
   $6,
   $7::jsonb
 )
-returning id, meeting_date, created_at, updated_at;
+returning id, meeting_date;
 ```
 
 `$2`는 서버에서 `Asia/Seoul` 기준으로 계산한 `meeting_date`다.
+저장 API의 응답에는 후속 조회와 캘린더 갱신에 필요한 `id`, `meeting_date`만 사용한다.
 
 ### 7-5. 회의 수정 및 재요약 저장
 
@@ -223,11 +223,11 @@ set
   summary = $5,
   key_points = $6::jsonb,
   updated_at = $7
-where id = $1
-returning id, meeting_date, updated_at;
+where id = $1;
 ```
 
 수정 저장 시 `created_at`과 `meeting_date`는 유지한다.
+수정 저장 API는 성공 시 응답 본문을 반환하지 않는다.
 
 ### 7-6. 회의 삭제
 

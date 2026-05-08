@@ -6,7 +6,6 @@ export type {
   GetMeetingDatesResponse,
   MeetingDetail,
   MeetingListItem,
-  UpdateMeetingResponse,
 } from '../model/types';
 
 export type {

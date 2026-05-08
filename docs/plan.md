@@ -378,7 +378,6 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 - [x] 날짜별 회의 목록 응답 타입 `GetMeetingsByDateResponse`를 정의한다.
 - [x] 월별 캘린더 날짜 응답 타입 `GetMeetingDatesResponse`를 정의한다.
 - [x] 회의 생성 응답 타입 `CreateMeetingResponse`를 정의한다.
-- [x] 회의 수정 응답 타입 `UpdateMeetingResponse`를 정의한다.
 - [x] 회의 생성 요청 schema `createMeetingRequestSchema`를 정의한다.
 - [x] 회의 수정 요청 schema `updateMeetingRequestSchema`를 정의한다.
 - [x] `CreateMeetingRequest`와 `UpdateMeetingRequest` 타입은 zod schema에서 `z.infer`로 생성한다.
@@ -389,25 +388,26 @@ Neon Postgres를 사용해 회의 데이터를 저장하고, `meetingDate` 기�
 
 #### Repository
 
-- [ ] `src/entities/meeting/server/repository.ts` 파일을 만든다.
-- [ ] Repository 파일 상단에 `import 'server-only';`를 추가한다.
-- [ ] Repository 내부에서 `@neondatabase/serverless`의 `neon`을 import한다.
-- [ ] Repository 내부에서 `neonConfig.databaseUrl`로 SQL client를 생성한다.
+- [x] `src/entities/meeting/server/repository.ts` 파일에 `MeetingRepository` interface를 정의한다.
+- [x] `createMeeting(input)`은 저장 후 후속 조회에 필요한 `id`, `meetingDate`만 반환하도록 정의한다.
+- [x] `getMeetingById(id)`는 회의 상세 또는 `null`을 반환하도록 정의한다.
+- [x] `updateMeeting(id, input)`은 성공 시 반환값 없이 종료하도록 정의한다.
+- [x] `deleteMeeting(id)`는 성공 시 반환값 없이 종료하도록 정의한다.
+- [x] `listMeetingDates(year, month)`는 회의가 있는 날짜만 `YYYY-MM-DD` 배열로 반환하도록 정의한다.
+- [x] `listMeetingsByDate(date)`는 날짜별 회의 목록을 반환하도록 정의한다.
+- [ ] 실제 저장소 구현체는 별도 파일에서 구현한다.
+- [ ] 실제 저장소 구현체 파일 상단에 `import 'server-only';`를 추가한다.
+- [ ] 실제 저장소 구현체 내부에서만 `@neondatabase/serverless`와 `neonConfig.databaseUrl`을 사용한다.
 - [ ] Route Handler와 Service에서는 `@neondatabase/serverless`를 직접 import하지 않는다.
 - [ ] DB 조회 결과 row를 API/도메인 타입의 `camelCase` 객체로 변환하는 mapper를 사용한다.
 - [ ] `createMeeting(input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 받아 `meetings`에 insert한다.
 - [ ] `createMeeting(input)`은 서버 현재 시각으로 `created_at`, `updated_at`을 만들고, `created_at` 기준 `meeting_date`를 계산해 저장한다.
-- [ ] `createMeeting(input)`은 저장 후 후속 조회에 필요한 `id`, `meetingDate`만 반환한다.
-- [ ] `getMeetingById(id)`는 `id`로 회의 상세 row를 조회한다.
-- [ ] `getMeetingById(id)`는 회의가 없으면 `null`을 반환한다.
 - [ ] `updateMeeting(id, input)`은 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 갱신한다.
 - [ ] `updateMeeting(id, input)`은 `created_at`과 `meeting_date`를 변경하지 않는다.
 - [ ] `updateMeeting(id, input)`은 서버 현재 시각으로 `updated_at`만 갱신한다.
-- [ ] `updateMeeting(id, input)`은 회의가 없으면 `null`을 반환한다.
 - [ ] `deleteMeeting(id)`는 `id`로 회의 레코드를 hard delete한다.
-- [ ] `deleteMeeting(id)`는 삭제된 row가 없으면 `false`, 있으면 `true`를 반환한다.
+- [ ] 수정/삭제 대상 회의가 없는 경우는 Route Handler에서 에러 응답으로 처리한다.
 - [ ] `listMeetingDates(year, month)`는 월 시작일과 다음 달 시작일을 계산해 `meeting_date` range query를 실행한다.
-- [ ] `listMeetingDates(year, month)`는 회의가 있는 날짜만 `YYYY-MM-DD` 배열로 반환한다.
 - [ ] `listMeetingsByDate(date)`는 특정 `meeting_date`의 회의 목록을 `updated_at desc`로 반환한다.
 - [ ] `listMeetingsByDate(date)`는 상세 본문 필드인 `originTranscript`, `transcript`, `summary`, `keyPoints`를 조회하지 않는다.
 
@@ -457,16 +457,16 @@ where id = meeting_id
 - [ ] DB의 `snake_case` 필드를 API 응답용 `camelCase` 필드로 변환할 수 있다.
 - [ ] 테스트용 회의 데이터를 저장할 수 있다.
 - [ ] 저장된 회의를 UUID `id`로 다시 조회할 수 있다.
-- [ ] 존재하지 않는 UUID `id` 조회를 값 없음 상태로 처리할 수 있다.
+- [ ] 존재하지 않는 UUID `id` 조회는 `null`로 표현할 수 있다.
 - [ ] 특정 날짜의 회의 목록을 조회할 수 있다.
 - [ ] 회의가 없는 날짜의 목록 조회를 빈 배열로 처리할 수 있다.
 - [ ] 특정 연월에서 회의가 존재하는 날짜 목록을 조회할 수 있다.
 - [ ] 회의가 없는 연월의 날짜 목록 조회를 빈 배열로 처리할 수 있다.
 - [ ] 저장된 회의 데이터를 수정할 수 있다.
 - [ ] 회의 수정 시 `createdAt`과 `meetingDate`는 유지되고 `updatedAt`만 갱신된다.
-- [ ] 존재하지 않는 UUID `id` 수정을 값 없음 상태로 처리할 수 있다.
+- [ ] 존재하지 않는 UUID `id` 수정 요청은 이후 API 계층에서 에러 응답으로 변환할 수 있다.
 - [ ] 저장된 회의 데이터를 삭제할 수 있다.
-- [ ] 삭제된 회의를 다시 조회하면 값 없음 상태로 처리된다.
+- [ ] 삭제된 회의를 다시 조회하면 `null`로 표현된다.
 
 ---
 
@@ -521,8 +521,7 @@ DELETE /api/meetings/{id}
 - [ ] `DELETE /api/meetings/{id}` Route Handler를 구현한다.
 - [ ] 신규 저장 응답에 `id`를 반환한다.
 - [ ] 신규 저장 응답에 `meetingDate`를 반환한다.
-- [ ] 수정 저장 응답에 `id`를 반환한다.
-- [ ] 수정 저장 응답에 `meetingDate`를 반환한다.
+- [ ] 수정 저장 성공 시 `204 No Content`를 반환한다.
 - [ ] 삭제 성공 시 `204 No Content`를 반환한다.
 - [ ] 모든 보호 API에서 `requireAuth`를 호출한다.
 
@@ -806,7 +805,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] 저장된 회의 재요약 mutation을 구현한다.
 - [ ] 재요약 요청 직전 summary snapshot을 저장한다.
 - [ ] 재요약 성공 후 `PUT /api/meetings/{id}` mutation을 호출한다.
-- [ ] 수정 저장 성공 시 응답의 `id`, `meetingDate`를 사용해 관련 query를 갱신한다.
+- [ ] 수정 저장 성공 시 mutation에 전달한 `id`와 현재 화면 상태를 기준으로 관련 query를 갱신한다.
 - [ ] 수정 저장 성공 시 meeting detail query를 invalidate한다.
 - [ ] 수정 저장 성공 시 meetings by date query를 invalidate한다.
 

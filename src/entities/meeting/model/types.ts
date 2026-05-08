@@ -32,8 +32,3 @@ export type CreateMeetingResponse = {
   id: string;
   meetingDate: string;
 };
-
-export type UpdateMeetingResponse = {
-  id: string;
-  meetingDate: string;
-};
