@@ -44,16 +44,14 @@ PRD의 저장 방향은 "회의록 1건을 하나의 영속 데이터 단위로 
 ## 4. DDL 초안
 
 ```sql
-create extension if not exists pgcrypto;
-
-create table meetings (
+create table if not exists meetings (
   id uuid primary key default gen_random_uuid(),
 
   title text not null,
   meeting_date date not null,
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
+  created_at timestamptz not null,
+  updated_at timestamptz not null,
 
   origin_transcript text not null,
   transcript text not null,
@@ -69,6 +67,7 @@ create table meetings (
 
 - `meeting_date`는 `created_at`을 서비스 기준 시간대인 `Asia/Seoul`로 해석한 날짜다.
 - 신규 회의 저장 시 서버는 요청 시점의 현재 시각을 기준으로 `created_at`, `updated_at`, `meeting_date`를 함께 생성한다.
+- `created_at`, `updated_at`은 DB의 `now()` 기본값을 사용하지 않고 애플리케이션 서버에서 같은 시각 값을 전달한다.
 - 예: `created_at = 2026-04-26T14:00:00+09:00`이면 `meeting_date = 2026-04-26`
 - `meeting_date`는 캘린더 조회용 값이므로 `year`, `month`, `day` 컬럼을 별도로 저장하지 않는다.
 
@@ -80,8 +79,8 @@ create table meetings (
 create index meetings_meeting_date_idx
   on meetings (meeting_date);
 
-create index meetings_meeting_date_updated_at_idx
-  on meetings (meeting_date, updated_at desc);
+create index meetings_meeting_date_created_at_idx
+  on meetings (meeting_date, created_at asc);
 ```
 
 ### 5-1. 인덱스 목적
@@ -89,8 +88,8 @@ create index meetings_meeting_date_updated_at_idx
 - `meetings_meeting_date_idx`
   - 특정 연월에서 회의가 있는 날짜를 조회할 때 사용한다.
   - `meeting_date >= month_start and meeting_date < next_month_start` 형태의 range query를 지원한다.
-- `meetings_meeting_date_updated_at_idx`
-  - 특정 날짜의 회의 목록을 조회하고 `updated_at desc`로 정렬할 때 사용한다.
+- `meetings_meeting_date_created_at_idx`
+  - 특정 날짜의 회의 목록을 조회하고 `created_at asc`로 정렬할 때 사용한다.
 - 상세 조회, 수정, 삭제는 primary key인 `id`로 처리한다.
 
 ---
@@ -141,12 +140,10 @@ where extract(year from meeting_date) = 2026
 
 ```sql
 select
-  meeting_date,
-  count(*) as meeting_count
+  distinct meeting_date::text as meeting_date
 from meetings
 where meeting_date >= date '2026-04-01'
   and meeting_date < date '2026-05-01'
-group by meeting_date
 order by meeting_date asc;
 ```
 
@@ -157,13 +154,10 @@ order by meeting_date asc;
 ```sql
 select
   id,
-  title,
-  meeting_date,
-  created_at,
-  updated_at
+  title
 from meetings
 where meeting_date = date '2026-04-02'
-order by updated_at desc;
+order by created_at asc;
 ```
 
 이 조회 결과는 히스토리 화면에서 선택한 날짜의 회의 목록을 표시하는 데 사용한다.
@@ -207,10 +201,11 @@ insert into meetings (
   $6,
   $7::jsonb
 )
-returning id, meeting_date, created_at, updated_at;
+returning id, meeting_date::text as meeting_date;
 ```
 
 `$2`는 서버에서 `Asia/Seoul` 기준으로 계산한 `meeting_date`다.
+저장 API의 응답에는 후속 조회와 캘린더 갱신에 필요한 `id`, `meeting_date`만 사용한다.
 
 ### 7-5. 회의 수정 및 재요약 저장
 
@@ -223,11 +218,11 @@ set
   summary = $5,
   key_points = $6::jsonb,
   updated_at = $7
-where id = $1
-returning id, meeting_date, updated_at;
+where id = $1;
 ```
 
 수정 저장 시 `created_at`과 `meeting_date`는 유지한다.
+수정 저장 API는 성공 시 응답 본문을 반환하지 않는다.
 
 ### 7-6. 회의 삭제
 
@@ -261,7 +256,7 @@ GET /api/meetings?date=YYYY-MM-DD
 
 - 서버는 `date`를 검증한다.
 - DB는 `meeting_date = date` 조건으로 조회한다.
-- 목록은 `updated_at desc`로 정렬한다.
+- 목록은 `created_at asc`로 정렬한다.
 
 ### 8-3. 특정 회의 상세, 수정, 삭제
 
@@ -311,6 +306,6 @@ DB 컬럼은 `snake_case`, API 응답은 `camelCase`로 매핑한다.
 - `meetings.id`를 primary key로 사용한다.
 - `meetings.meeting_date`를 캘린더 조회 기준으로 사용한다.
 - 월별 조회는 `meeting_date`의 range query로 처리한다.
-- 같은 날짜의 회의 목록은 `updated_at desc`로 정렬한다.
+- 같은 날짜의 회의 목록은 `created_at asc`로 정렬한다.
 - 상세 조회, 수정, 삭제는 `id` 단독 식별을 기준으로 설계한다.
 - 회의 삭제는 row 삭제로 처리한다.

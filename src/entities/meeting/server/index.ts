@@ -6,7 +6,6 @@ export type {
   GetMeetingDatesResponse,
   MeetingDetail,
   MeetingListItem,
-  UpdateMeetingResponse,
 } from '../model/types';
 
 export type {
@@ -25,5 +24,4 @@ export {
   updateMeetingRequestSchema,
 } from '../model/schema';
 
-export type {MeetingDetailRow, MeetingListItemRow} from './db-row-mapper';
-export {mapMeetingDetailRow, mapMeetingListItemRow} from './db-row-mapper';
+export {NeonMeetingDb} from './neon-meeting-db';

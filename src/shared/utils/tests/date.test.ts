@@ -22,18 +22,18 @@ describe('@/src/shared/utils/date.ts', () => {
   });
 
   describe('getMonthStartDate', () => {
-    it('회의 날짜가 속한 월의 시작일을 반환한다.', () => {
-      expect(getMonthStartDate('2026-05-14')).toBe('2026-05-01');
+    it('전달한 연월의 시작일을 반환한다.', () => {
+      expect(getMonthStartDate('2026', '05')).toBe('2026-05-01');
     });
   });
 
   describe('getNextMonthStartDate', () => {
-    it('회의 날짜가 속한 월의 다음 달 시작일을 반환한다.', () => {
-      expect(getNextMonthStartDate('2026-05-14')).toBe('2026-06-01');
+    it('전달한 연월의 다음 달 시작일을 반환한다.', () => {
+      expect(getNextMonthStartDate('2026', '05')).toBe('2026-06-01');
     });
 
-    it('12월 회의 날짜는 다음 해 1월 시작일을 반환한다.', () => {
-      expect(getNextMonthStartDate('2026-12-14')).toBe('2027-01-01');
+    it('12월이면 다음 해 1월 시작일을 반환한다.', () => {
+      expect(getNextMonthStartDate('2026', '12')).toBe('2027-01-01');
     });
   });
 });
