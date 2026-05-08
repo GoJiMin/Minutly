@@ -21,15 +21,7 @@ export const meetingIdParamsSchema = z.object({
 });
 
 export const meetingsByDateQuerySchema = z.object({
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식이 올바르지 않습니다.')
-    .refine(value => {
-      const [year, month, day] = value.split('-').map(Number);
-      const date = new Date(Date.UTC(year, month - 1, day));
-
-      return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
-    }, '존재하지 않는 날짜입니다.'),
+  date: z.iso.date('날짜 형식이 올바르지 않습니다.'),
 });
 
 export const meetingDatesQuerySchema = z.object({
