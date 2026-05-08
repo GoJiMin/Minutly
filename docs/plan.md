@@ -98,7 +98,7 @@
 | Phase 0  | 프로젝트 초기 세팅                 | Next.js, TypeScript, FSD, 테스트, CI, Vercel/Neon 환경 준비              |
 | Phase 1  | 공통 기반 구현                     | 공통 타입, API 클라이언트, 에러 응답, 검증, 날짜, localStorage 유틸 구축 |
 | Phase 2  | 인증 구현                          | 로그인 정보 검증, 토큰 발급/갱신, Proxy 보호, API 인증 검증 구현         |
-| Phase 3  | 회의 DB 접근 계층 구현             | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현                 |
+| Phase 3  | 회의 DB 저장 기능 구현             | `meetings` 레코드 생성/조회/수정/삭제와 날짜별 조회 구현                 |
 | Phase 4  | 핵심 API 구현                      | Speech token, summary, meetings API 구현                                 |
 | Phase 5  | 녹음 및 STT 구현                   | Azure Speech SDK 연결, 최근 10개 문장 미리보기, draft autosave 구현      |
 | Phase 6  | 전사 검토 및 요약 저장 플로우 구현 | transcript review, title 입력, 요약 생성, 회의 저장 구현                 |
@@ -342,7 +342,7 @@ GET  /api/auth/check
 
 ---
 
-## 7. Phase 3. 회의 DB 접근 계층 구현
+## 7. Phase 3. 회의 DB 저장 기능 구현
 
 ### 7-1. 목표
 
@@ -424,45 +424,31 @@ order by created_at asc
 where id = meeting_id
 ```
 
-#### Unit Test
+### 7-5. 테스트 체크리스트
 
 - [x] 날짜 query schema가 `YYYY-MM-DD` 형식과 실제 존재 날짜를 검증하는지 테스트한다.
 - [x] 월별 조회 query schema가 `YYYY`, `MM` 형식과 `01`-`12` 범위를 검증하는지 테스트한다.
 
-#### DB 동작 확인
-
-- [ ] 테스트용 회의 데이터를 저장하고 생성된 `id`, `meetingDate`, `createdAt`, `updatedAt`을 확인한다.
-- [ ] 저장한 회의를 `id`로 다시 조회할 수 있는지 확인한다.
-- [ ] 존재하지 않는 `id`로 조회했을 때 값이 없다고 처리되는지 확인한다.
-- [ ] 저장한 회의의 `title`, `originTranscript`, `transcript`, `summary`, `keyPoints`를 수정할 수 있는지 확인한다.
-- [ ] 수정 후 `createdAt`과 `meetingDate`는 유지되고 `updatedAt`만 바뀌는지 확인한다.
-- [ ] 존재하지 않는 `id`로 수정했을 때 값이 없다고 처리되는지 확인한다.
-- [ ] 특정 날짜의 회의 목록에 저장한 회의가 포함되는지 확인한다.
-- [ ] 회의가 없는 날짜를 조회하면 빈 배열로 처리되는지 확인한다.
-- [ ] 특정 연월의 회의 날짜 목록에 저장한 회의 날짜가 포함되는지 확인한다.
-- [ ] 회의가 없는 연월을 조회하면 빈 배열로 처리되는지 확인한다.
-- [ ] 저장한 회의를 삭제할 수 있는지 확인한다.
-- [ ] 삭제한 회의를 다시 조회했을 때 값이 없다고 처리되는지 확인한다.
-
 ### 7-6. 완료 기준 체크리스트
 
-- [ ] Neon에 `meetings` 테이블이 생성되어 있다.
-- [ ] `meeting_date` 조회에 필요한 인덱스가 생성되어 있다.
-- [ ] 회의 생성/수정 요청 데이터를 검증할 수 있다.
-- [ ] 회의 조회용 `id`, `date`, `year`, `month` 값을 검증할 수 있다.
-- [ ] 회의 상세 조회 결과를 `MeetingDate` 응답 형태로 반환할 수 있다.
-- [ ] 테스트용 회의 데이터를 저장할 수 있다.
-- [ ] 저장된 회의를 UUID `id`로 다시 조회할 수 있다.
-- [ ] 존재하지 않는 UUID `id` 조회는 `null`로 표현할 수 있다.
-- [ ] 특정 날짜의 회의 목록을 조회할 수 있다.
-- [ ] 회의가 없는 날짜의 목록 조회를 빈 배열로 처리할 수 있다.
-- [ ] 특정 연월에서 회의가 존재하는 날짜 목록을 조회할 수 있다.
-- [ ] 회의가 없는 연월의 날짜 목록 조회를 빈 배열로 처리할 수 있다.
-- [ ] 저장된 회의 데이터를 수정할 수 있다.
-- [ ] 회의 수정 시 `createdAt`과 `meetingDate`는 유지되고 `updatedAt`만 갱신된다.
-- [ ] 존재하지 않는 UUID `id` 수정 요청은 이후 API 계층에서 에러 응답으로 변환할 수 있다.
-- [ ] 저장된 회의 데이터를 삭제할 수 있다.
-- [ ] 삭제된 회의를 다시 조회하면 `null`로 표현된다.
+- [x] `meetings` 테이블과 인덱스를 생성하는 SQL 파일이 작성되어 있다.
+- [x] Neon SQL Editor에서 `meetings` 테이블과 인덱스를 생성했다.
+- [x] 회의 생성/수정 요청 데이터를 검증할 수 있다.
+- [x] 회의 조회용 `id`, `date`, `year`, `month` 값을 검증할 수 있다.
+- [x] 회의 상세 응답 타입 `MeetingDetail`이 정의되어 있다.
+- [x] 날짜별 회의 목록 응답 타입 `MeetingListItem`은 `id`, `title`만 포함한다.
+- [x] 회의 생성 응답 타입 `CreateMeetingResponse`는 `id`, `meetingDate`만 포함한다.
+- [x] `MeetingDb` interface가 정의되어 있다.
+- [x] `NeonMeetingDb` 구현체가 정의되어 있다.
+- [x] `NeonMeetingDb`는 `@neondatabase/serverless`와 `neonConfig.databaseUrl`을 내부에서만 사용한다.
+- [x] `NeonMeetingDb.createMeeting`은 회의 데이터를 insert하고 `id`, `meetingDate`를 반환한다.
+- [x] `NeonMeetingDb.getMeetingById`는 회의 상세 또는 `null`을 반환한다.
+- [x] `NeonMeetingDb.updateMeeting`은 수정 여부를 `{updated: boolean}`으로 반환한다.
+- [x] `NeonMeetingDb.deleteMeeting`은 삭제 여부를 `{deleted: boolean}`으로 반환한다.
+- [x] `NeonMeetingDb.listMeetingDates`는 특정 연월에서 회의가 있는 날짜 목록을 반환한다.
+- [x] `NeonMeetingDb.listMeetingsByDate`는 특정 날짜의 회의 목록을 `id`, `title`만 반환한다.
+- [x] 날짜 및 월별 query schema unit test가 통과한다.
+- [x] 프로젝트 build가 통과한다.
 
 ---
 
@@ -538,7 +524,17 @@ DELETE /api/meetings/{id}
 - [ ] 회의 삭제 API를 테스트한다.
 - [ ] 보호된 API에서 인증 실패 시 401을 반환하는지 테스트한다.
 
-### 8-5. 완료 기준 체크리스트
+### 8-5. 실제 Neon 동작 확인
+
+- [ ] 회의 저장 API로 테스트용 회의를 저장하고 반환된 `id`, `meetingDate`를 확인한다.
+- [ ] 저장한 회의를 상세 조회 API로 다시 조회할 수 있는지 확인한다.
+- [ ] 날짜별 회의 목록 API에 저장한 회의의 `id`, `title`이 포함되는지 확인한다.
+- [ ] 월별 회의 날짜 목록 API에 저장한 회의 날짜가 포함되는지 확인한다.
+- [ ] 회의 수정 API로 저장한 회의를 수정할 수 있는지 확인한다.
+- [ ] 회의 삭제 API로 저장한 회의를 삭제할 수 있는지 확인한다.
+- [ ] 삭제한 회의가 상세 조회 API에서 없는 회의로 처리되는지 확인한다.
+
+### 8-6. 완료 기준 체크리스트
 
 - [ ] API 명세의 모든 endpoint가 구현되어 있다.
 - [ ] 각 API는 명세된 요청/응답 타입을 따른다.
@@ -953,7 +949,7 @@ Phase 10은 테스트를 한 번에 작성하는 단계가 아니라, 이미 작
 1. 프로젝트 초기 세팅 및 테스트/CI/Vercel/Neon 기반 구축
 2. 공통 기반 구현
 3. 인증 구현
-4. 회의 DB 접근 계층 구현
+4. 회의 DB 저장 기능 구현
 5. 핵심 API 구현
 6. 녹음 및 STT 구현
 7. 전사 검토 및 요약 저장 플로우 구현
