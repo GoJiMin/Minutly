@@ -475,8 +475,8 @@ DELETE /api/meetings/{id}
 
 #### Speech Token API
 
-- [ ] Speech token 응답 타입을 정의한다.
-- [ ] Azure Speech token 발급 어댑터를 구현한다.
+- [x] Speech token 응답 타입을 정의한다.
+- [x] Azure Speech token 발급 어댑터를 구현한다.
 - [ ] `POST /api/speech/token` Route Handler를 구현한다.
 - [ ] Speech token 응답에 `token`을 포함한다.
 - [ ] Speech token 응답에 `endpoint`를 포함한다.
