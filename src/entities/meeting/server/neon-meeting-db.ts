@@ -23,6 +23,12 @@ type MeetingDetailRow = {
   key_points: string[];
 };
 
+type TimestampValue = Date | string;
+
+function toIsoTimestamp(value: TimestampValue) {
+  return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
 export class NeonMeetingDb implements MeetingDb {
   private readonly sql = neon(neonConfig.databaseUrl);
   private readonly getNow: () => Date;
@@ -93,8 +99,8 @@ export class NeonMeetingDb implements MeetingDb {
       id: row.id,
       title: row.title,
       meetingDate: row.meeting_date,
-      createdAt: row.created_at.toISOString(),
-      updatedAt: row.updated_at.toISOString(),
+      createdAt: toIsoTimestamp(row.created_at),
+      updatedAt: toIsoTimestamp(row.updated_at),
       originTranscript: row.origin_transcript,
       transcript: row.transcript,
       summary: row.summary,
