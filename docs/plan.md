@@ -484,7 +484,7 @@ DELETE /api/meetings/{id}
 
 #### Summary API
 
-- [ ] `CreateSummaryRequest` 검증을 적용한다.
+- [x] `CreateSummaryRequest` 검증을 적용한다.
 - [ ] AI 요약 provider 호출 어댑터를 구현한다.
 - [ ] AI 응답에서 `summary`를 추출한다.
 - [ ] AI 응답에서 `keyPoints`를 추출한다.
