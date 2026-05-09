@@ -545,74 +545,169 @@ Phase 4의 Route Handler는 인증 쿠키, 외부 API, Neon Postgres를 함께 �
 
 ### 9-1. 목표
 
-브라우저에서 마이크 권한을 요청하고, Azure Speech SDK를 통해 실시간 전사를 수행한다.
+브라우저에서 마이크 권한을 요청하고, 사용자가 선택한 마이크 입력을 Azure Speech SDK에 연결해 실시간 전사를 수행한다.
 
 ### 9-2. 작업 체크리스트
 
-#### Speech Client
+#### Speech Token / Azure SDK
 
-- [ ] Speech token API 클라이언트 함수를 구현한다.
-- [ ] Azure Speech SDK 초기화 함수를 구현한다.
-- [ ] Azure Speech recognizer 생성 함수를 구현한다.
-- [ ] Azure Speech recognizer 정리 함수를 구현한다.
+- [ ] `/api/speech/token`을 호출해 `{ token, endpoint }`를 받는 클라이언트 함수를 구현한다.
+- [ ] Speech token 요청 실패 시 `RecordingErrorCode`를 `speech_token_failed`로 설정한다.
+- [ ] Azure Speech SDK를 브라우저에서만 로드한다.
+- [ ] Azure Speech SDK에 `token`, `endpoint`, `ko-KR` 언어 설정을 전달하는 함수를 구현한다.
+- [ ] 선택된 `deviceId`로 `AudioConfig.fromMicrophoneInput(deviceId)`를 생성한다.
+- [ ] Azure Speech recognizer를 생성하는 함수를 구현한다.
+- [ ] Azure Speech recognizer의 `recognized`, `canceled`, `sessionStopped` 이벤트를 등록한다.
+- [ ] 녹음 종료, 마이크 변경, STT 오류 발생 시 recognizer의 `stopContinuousRecognitionAsync`와 `close`를 호출한다.
 
-#### Recording Flow
+#### Microphone Permission / Device
 
-- [ ] 마이크 권한 요청 흐름을 구현한다.
-- [ ] 녹음 시작 액션을 구현한다.
-- [ ] 녹음 종료 액션을 구현한다.
-- [ ] 녹음 상태를 `recording`으로 전환하는 로직을 구현한다.
-- [ ] 녹음 종료 시 `transcript_review`로 전환하는 로직을 구현한다.
+- [ ] `navigator.mediaDevices`가 없으면 `RecordingErrorCode`를 `microphone_api_unavailable`로 설정한다.
+- [ ] 녹음 시작 버튼 클릭 시 `navigator.mediaDevices.getUserMedia({ audio: true })`를 호출한다.
+- [ ] 마이크 권한 거부 시 `RecordingErrorCode`를 `microphone_permission_denied`로 설정한다.
+- [ ] 마이크 권한 허용 후 `navigator.mediaDevices.enumerateDevices()`로 `audioinput` 장치 목록을 조회한다.
+- [ ] `audioinput` 장치가 0개이면 `RecordingErrorCode`를 `microphone_not_found`로 설정한다.
+- [ ] 기본 마이크는 첫 번째 `audioinput.deviceId`로 선택한다.
+- [ ] 사용자가 선택한 `deviceId`를 recording 상태에 저장한다.
+- [ ] 마이크 선택 `<select>`를 녹음 시작 전 화면에 표시한다.
+- [ ] 사용자가 마이크를 변경하면 선택된 `deviceId`를 갱신한다.
+- [ ] 녹음 중 마이크를 변경하면 기존 recognizer를 정리하고 새 `deviceId`로 recognizer를 다시 시작한다.
+- [ ] 녹음 중 마이크 변경으로 전사가 끊긴 위치에 `[녹음 중단 구간]` chunk를 추가한다.
+
+#### Recording Actions
+
+- [ ] 녹음 시작 버튼 클릭 시 마이크 권한 확인, 마이크 목록 조회, Speech token 요청, recognizer 시작을 순서대로 실행한다.
+- [ ] recognizer 시작 성공 후 `RecordingStatus`를 `recording`으로 설정한다.
+- [ ] 녹음 시작 성공 시 recording draft를 즉시 저장한다.
+- [ ] 녹음 종료 버튼 클릭 시 recognizer를 정리한다.
+- [ ] 녹음 종료 버튼 클릭 시 최신 transcript를 recording draft로 즉시 저장한다.
+- [ ] 녹음 종료 버튼 클릭 시 `RecordingStatus`를 `transcript_review`로 설정한다.
+- [ ] 녹음 종료 버튼 클릭 시 전체 transcript chunk를 review transcript 문자열로 변환한다.
+- [ ] 녹음 중에는 녹음 시작 버튼을 비활성화한다.
+- [ ] 녹음 중에는 녹음 종료 버튼을 활성화한다.
 
 #### Transcript Chunks
 
-- [ ] Azure 최종 인식 완료 이벤트 핸들러를 구현한다.
-- [ ] 인식된 문장을 전체 transcript chunk에 추가한다.
-- [ ] 최근 10개 문장 preview chunk에 추가한다.
-- [ ] preview chunk가 10개를 초과하면 가장 오래된 문장을 제거한다.
-- [ ] 전체 transcript chunk를 review transcript로 변환하는 함수를 구현한다.
+- [ ] Azure `recognized` 이벤트에서 최종 인식 텍스트가 비어 있으면 chunk를 추가하지 않는다.
+- [ ] Azure `recognized` 이벤트에서 최종 인식 텍스트가 있으면 `TranscriptChunk.kind`가 `speech`인 chunk를 추가한다.
+- [ ] 추가된 chunk는 `id`, `text`, `kind`, `createdAt` 값을 포함한다.
+- [ ] 전체 transcript chunk 배열에 새 chunk를 누적한다.
+- [ ] preview chunk 배열에 새 chunk를 추가한다.
+- [ ] preview chunk가 10개를 초과하면 가장 오래된 chunk를 제거한다.
+- [ ] `[녹음 중단 구간]`은 `TranscriptChunk.kind`가 `interruption`인 chunk로 저장한다.
+- [ ] review transcript 문자열은 전체 transcript chunk를 생성 순서대로 이어 붙여 만든다.
 
 #### Recording Draft
 
-- [ ] 녹음 중 draft 타입을 정의한다.
-- [ ] 녹음 중 draft schema를 정의한다.
-- [ ] 녹음 중 draft 저장 유틸을 구현한다.
-- [ ] 녹음 중 draft 복원 유틸을 구현한다.
-- [ ] 녹음 중 draft 삭제 유틸을 구현한다.
+- [ ] recording draft localStorage key를 `minutly:recording-draft:v1`로 정의한다.
+- [ ] recording draft 타입을 정의한다.
+- [ ] recording draft schema를 정의한다.
+- [ ] recording draft에 `version`, `status`, `chunks`, `previewChunks`, `selectedDeviceId`, `startedAt`, `updatedAt`을 저장한다.
+- [ ] recording draft 저장 유틸을 구현한다.
+- [ ] recording draft 복원 유틸을 구현한다.
+- [ ] recording draft 삭제 유틸을 구현한다.
+- [ ] 녹음 중 60초마다 recording draft를 저장한다.
+- [ ] transcript chunk가 1개 이상인 상태에서 새로고침 후 재진입하면 draft 복구 안내를 표시한다.
+- [ ] 사용자가 draft 복구를 선택하면 `chunks`, `previewChunks`, `selectedDeviceId`를 recording 상태에 반영한다.
+- [ ] 사용자가 draft 삭제를 선택하면 `minutly:recording-draft:v1`을 삭제한다.
+
+#### Recording Screen UI
+
+- [ ] 메인 화면에 현재 `RecordingStatus` 텍스트를 표시한다.
+- [ ] 메인 화면에 마이크 선택 `<select>`를 표시한다.
+- [ ] 메인 화면에 녹음 시작 버튼을 표시한다.
+- [ ] 메인 화면에 녹음 종료 버튼을 표시한다.
+- [ ] 녹음 중에는 최근 10개 preview chunk를 생성 순서대로 표시한다.
+- [ ] preview chunk가 없고 녹음 중이면 대기 문구를 표시한다.
+- [ ] 마이크 권한 거부 시 브라우저 권한 허용 안내를 표시한다.
+- [ ] 마이크 장치가 없으면 사용 가능한 마이크가 없다는 안내를 표시한다.
+- [ ] STT 중단 시 다시 녹음 시작 버튼을 표시한다.
+- [ ] draft가 있으면 임시 저장된 전사 복구 버튼과 삭제 버튼을 표시한다.
 
 #### Recording Error
 
-- [ ] STT 오류 발생 시 `error` 상태로 전환한다.
-- [ ] STT 오류 발생 시 현재 transcript를 즉시 draft로 저장한다.
-- [ ] 다시 녹음 시작 액션을 구현한다.
-- [ ] 다시 녹음 시작 시 `[녹음 중단 구간]` chunk를 추가한다.
+- [ ] Azure `canceled` 이벤트 발생 시 `RecordingErrorCode`를 `speech_recognition_canceled`로 설정한다.
+- [ ] Azure `sessionStopped` 이벤트가 사용자의 녹음 종료 없이 발생하면 `RecordingErrorCode`를 `speech_session_stopped`로 설정한다.
+- [ ] STT 오류 발생 시 recognizer를 정리한다.
+- [ ] STT 오류 발생 시 현재 transcript를 recording draft로 즉시 저장한다.
+- [ ] STT 오류 발생 시 `RecordingStatus`를 `error`로 설정한다.
+- [ ] 다시 녹음 시작 버튼 클릭 시 `[녹음 중단 구간]` chunk를 추가한다.
+- [ ] 다시 녹음 시작 버튼 클릭 시 기존 transcript chunk 뒤에 새 인식 결과를 이어서 추가한다.
+- [ ] 다시 녹음 시작 버튼 클릭 시 기존 preview chunk를 유지하고 10개 제한을 다시 적용한다.
 
-### 9-3. 상태
+### 9-3. 주요 타입
 
 ```ts
 type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing' | 'completed' | 'error';
+
+type RecordingErrorCode =
+  | 'microphone_api_unavailable'
+  | 'microphone_permission_denied'
+  | 'microphone_not_found'
+  | 'speech_token_failed'
+  | 'speech_recognition_canceled'
+  | 'speech_session_stopped';
+
+type TranscriptChunk = {
+  id: string;
+  text: string;
+  kind: 'speech' | 'interruption';
+  createdAt: string;
+};
+
+type RecordingDraft = {
+  version: 1;
+  status: Extract<RecordingStatus, 'recording' | 'transcript_review' | 'error'>;
+  chunks: TranscriptChunk[];
+  previewChunks: TranscriptChunk[];
+  selectedDeviceId: string | null;
+  startedAt: string;
+  updatedAt: string;
+};
 ```
 
 ### 9-4. 테스트 체크리스트
 
 - [ ] Speech token API 클라이언트 함수를 테스트한다.
-- [ ] Azure 최종 인식 완료 이벤트 처리 로직을 테스트한다.
-- [ ] 전체 transcript chunk 누적 로직을 테스트한다.
+- [ ] Speech token 요청 실패 시 `speech_token_failed`가 설정되는지 테스트한다.
+- [ ] 마이크 권한 거부 시 `microphone_permission_denied`가 설정되는지 테스트한다.
+- [ ] 마이크 장치가 없으면 `microphone_not_found`가 설정되는지 테스트한다.
+- [ ] 마이크 목록에서 첫 번째 `audioinput.deviceId`가 기본 선택되는지 테스트한다.
+- [ ] 사용자가 선택한 `deviceId`로 Azure `AudioConfig`가 생성되는지 테스트한다.
+- [ ] 녹음 중 마이크 변경 시 기존 recognizer 정리 함수가 호출되는지 테스트한다.
+- [ ] 녹음 중 마이크 변경 시 새 `deviceId`로 recognizer 시작 함수가 호출되는지 테스트한다.
+- [ ] Azure `recognized` 이벤트에서 빈 텍스트는 chunk로 추가되지 않는지 테스트한다.
+- [ ] Azure `recognized` 이벤트에서 최종 인식 텍스트가 speech chunk로 추가되는지 테스트한다.
+- [ ] 전체 transcript chunk 누적을 테스트한다.
 - [ ] 최근 10개 문장 preview 유지 로직을 테스트한다.
 - [ ] preview chunk가 10개를 초과하면 오래된 문장이 제거되는지 테스트한다.
 - [ ] 전체 transcript chunk를 review transcript로 변환하는 함수를 테스트한다.
 - [ ] 녹음 중 draft schema 검증을 테스트한다.
 - [ ] 녹음 중 draft 저장/복원/삭제 유틸을 테스트한다.
+- [ ] 녹음 시작 성공 시 draft가 즉시 저장되는지 테스트한다.
+- [ ] 녹음 중 60초마다 draft 저장 함수가 호출되는지 테스트한다.
+- [ ] 녹음 종료 시 draft 저장 함수가 호출되는지 테스트한다.
+- [ ] 새로고침 후 draft가 있으면 복구 버튼이 표시되는지 테스트한다.
 - [ ] STT 오류 발생 시 draft 저장 로직을 테스트한다.
+- [ ] Azure `canceled` 이벤트 발생 시 `speech_recognition_canceled`가 설정되는지 테스트한다.
+- [ ] Azure `sessionStopped` 이벤트가 사용자의 녹음 종료 없이 발생하면 `speech_session_stopped`가 설정되는지 테스트한다.
 - [ ] 다시 녹음 시작 시 `[녹음 중단 구간]`이 추가되는지 테스트한다.
 - [ ] 녹음 상태 전이를 테스트한다.
+- [ ] 권한 거부 안내가 화면에 표시되는지 테스트한다.
+- [ ] 마이크 장치 없음 안내가 화면에 표시되는지 테스트한다.
+- [ ] STT 중단 안내와 다시 녹음 시작 버튼이 화면에 표시되는지 테스트한다.
 
 ### 9-5. 완료 기준 체크리스트
 
 - [ ] 사용자가 녹음을 시작하고 종료할 수 있다.
+- [ ] 사용자가 녹음에 사용할 마이크를 선택할 수 있다.
+- [ ] 사용자가 녹음 중 마이크를 변경할 수 있다.
+- [ ] 마이크 권한 거부, 마이크 장치 없음, STT 중단 상태가 화면에 표시된다.
 - [ ] Azure STT 최종 인식 문장을 transcript로 누적할 수 있다.
 - [ ] 화면에는 최근 10개 문장만 표시된다.
-- [ ] 녹음 중 draft 데이터를 저장, 복원, 삭제할 수 있다.
+- [ ] 녹음 중 draft 데이터가 60초마다 저장된다.
+- [ ] 녹음 종료 시 최신 transcript가 draft로 저장된다.
+- [ ] 새로고침 후 recording draft를 복원하거나 삭제할 수 있다.
 - [ ] 녹음 중 오류가 발생하면 현재 데이터가 draft로 저장된다.
 - [ ] 다시 녹음을 시작하면 `[녹음 중단 구간]`이 transcript에 남는다.
 
