@@ -489,9 +489,7 @@ DELETE /api/meetings/{id}
 - [x] Gemini 기반 `GeminiSummaryProvider` 구현체를 작성한다.
 - [x] `SummaryService`에서 provider interface를 통해 요약을 생성한다.
 - [x] AI 응답을 JSON으로 파싱하고 `summary`, `keyPoints`를 검증한다.
-- [ ] `POST /api/summary` Route Handler를 구현한다.
-- [ ] 요약 실패 시 `SUMMARY_FAILED` 에러를 반환한다.
-- [ ] 요약 API에서 회의 저장을 수행하지 않도록 유지한다.
+- [x] `POST /api/summary` Route Handler를 구현한다.
 
 #### Meetings API
 
