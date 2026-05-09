@@ -559,14 +559,20 @@ type UpdateMeetingRequest = {
 
 ### Error
 
-| Status | Title                   | Detail                                |
-| ------ | ----------------------- | ------------------------------------- |
-| 400    | `INVALID_MEETING_ID`    | 회의 식별자는 UUID 형식이어야 합니다. |
-| 400    | `INVALID_MEETING`       | 회의 수정 데이터가 올바르지 않습니다. |
-| 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                    |
-| 401    | `TOKEN_EXPIRED`         | 인증 정보가 만료되었습니다.           |
-| 404    | `MEETING_NOT_FOUND`     | 회의 기록을 찾을 수 없습니다.         |
-| 500    | `MEETING_UPDATE_FAILED` | 회의 수정 저장에 실패했습니다.        |
+| Status | Title                            | Detail                                                      |
+| ------ | -------------------------------- | ----------------------------------------------------------- |
+| 400    | `INVALID_MEETING_ID`             | 회의 식별자는 UUID 형식이어야 합니다.                       |
+| 400    | `TITLE_REQUIRED`                 | 회의 제목을 입력해주세요.                                   |
+| 400    | `TITLE_TOO_LONG`                 | 회의 제목은 최대 100자 이하로 입력해주세요.                 |
+| 400    | `TRANSCRIPT_REQUIRED`            | 회의 내용을 입력해주세요.                                   |
+| 400    | `SUMMARY_REQUIRED`               | 회의 요약을 입력해주세요.                                   |
+| 400    | `KEY_POINTS_REQUIRED`            | 주요 사항을 1개 이상 입력해주세요.                          |
+| 400    | `KEY_POINTS_TOO_MANY`            | 주요 사항은 최대 20개까지 저장할 수 있습니다.               |
+| 400    | `INVALID_MEETING_UPDATE_REQUEST` | 회의 수정 요청이 올바르지 않습니다. 다시 확인해주세요.      |
+| 401    | `UNAUTHORIZED`                   | 인증이 필요합니다.                                          |
+| 401    | `TOKEN_EXPIRED`                  | 인증 정보가 만료되었습니다.                                 |
+| 404    | `MEETING_NOT_FOUND`              | 회의 기록을 찾을 수 없습니다.                               |
+| 500    | `MEETING_UPDATE_FAILED`          | 회의 수정 저장에 실패했습니다.                              |
 
 ---
 

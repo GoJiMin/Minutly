@@ -497,11 +497,11 @@ DELETE /api/meetings/{id}
 - [x] `GET /api/meetings/dates` Route Handler를 구현한다.
 - [x] `GET /api/meetings?date=...` Route Handler를 구현한다.
 - [x] `GET /api/meetings/{id}` Route Handler를 구현한다.
-- [ ] `PUT /api/meetings/{id}` Route Handler를 구현한다.
+- [x] `PUT /api/meetings/{id}` Route Handler를 구현한다.
 - [ ] `DELETE /api/meetings/{id}` Route Handler를 구현한다.
 - [x] 신규 저장 응답에 `id`를 반환한다.
 - [x] 신규 저장 응답에 `meetingDate`를 반환한다.
-- [ ] 수정 저장 성공 시 `204 No Content`를 반환한다.
+- [x] 수정 저장 성공 시 `204 No Content`를 반환한다.
 - [ ] 삭제 성공 시 `204 No Content`를 반환한다.
 - [ ] 모든 보호 API에서 `requireAuth`를 호출한다.
 
