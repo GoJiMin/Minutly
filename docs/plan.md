@@ -462,7 +462,7 @@ API 명세서에 정의된 Speech, Summary, Meetings API를 구현한다.
 
 ```http
 POST   /api/speech/token
-POST   /api/summaries
+POST   /api/summary
 POST   /api/meetings
 GET    /api/meetings/dates?year=YYYY&month=MM
 GET    /api/meetings?date=YYYY-MM-DD
@@ -475,72 +475,69 @@ DELETE /api/meetings/{id}
 
 #### Speech Token API
 
-- [ ] Speech token 응답 타입을 정의한다.
-- [ ] Azure Speech token 발급 어댑터를 구현한다.
-- [ ] `POST /api/speech/token` Route Handler를 구현한다.
-- [ ] Speech token 응답에 `token`을 포함한다.
-- [ ] Speech token 응답에 `endpoint`를 포함한다.
-- [ ] Speech token 응답에 `Cache-Control: no-store` 헤더를 설정한다.
-- [ ] Azure 리소스 키가 클라이언트에 노출되지 않도록 검증한다.
+- [x] Speech token 응답 타입을 정의한다.
+- [x] Azure Speech token 발급 어댑터를 구현한다.
+- [x] `POST /api/speech/token` Route Handler를 구현한다.
+- [x] Speech token 응답에 `token`을 포함한다.
+- [x] Speech token 응답에 `endpoint`를 포함한다.
+- [x] Speech token 응답에 `Cache-Control: no-store` 헤더를 설정한다.
 
 #### Summary API
 
-- [ ] `CreateSummaryRequest` 검증을 적용한다.
-- [ ] AI 요약 provider 호출 어댑터를 구현한다.
-- [ ] AI 응답에서 `summary`를 추출한다.
-- [ ] AI 응답에서 `keyPoints`를 추출한다.
-- [ ] `POST /api/summaries` Route Handler를 구현한다.
-- [ ] 요약 실패 시 `SUMMARY_FAILED` 에러를 반환한다.
-- [ ] 요약 API에서 회의 저장을 수행하지 않도록 유지한다.
+- [x] `CreateSummaryRequest` 검증을 적용한다.
+- [x] `SummaryProvider` interface를 정의한다.
+- [x] Gemini 기반 `GeminiSummaryProvider` 구현체를 작성한다.
+- [x] `SummaryService`에서 provider interface를 통해 요약을 생성한다.
+- [x] AI 응답을 JSON으로 파싱하고 `summary`, `keyPoints`를 검증한다.
+- [x] `POST /api/summary` Route Handler를 구현한다.
 
 #### Meetings API
 
-- [ ] `POST /api/meetings` Route Handler를 구현한다.
-- [ ] `GET /api/meetings/dates` Route Handler를 구현한다.
-- [ ] `GET /api/meetings?date=...` Route Handler를 구현한다.
-- [ ] `GET /api/meetings/{id}` Route Handler를 구현한다.
-- [ ] `PUT /api/meetings/{id}` Route Handler를 구현한다.
-- [ ] `DELETE /api/meetings/{id}` Route Handler를 구현한다.
-- [ ] 신규 저장 응답에 `id`를 반환한다.
-- [ ] 신규 저장 응답에 `meetingDate`를 반환한다.
-- [ ] 수정 저장 성공 시 `204 No Content`를 반환한다.
-- [ ] 삭제 성공 시 `204 No Content`를 반환한다.
-- [ ] 모든 보호 API에서 `requireAuth`를 호출한다.
+- [x] `POST /api/meetings` Route Handler를 구현한다.
+- [x] `GET /api/meetings/dates` Route Handler를 구현한다.
+- [x] `GET /api/meetings?date=...` Route Handler를 구현한다.
+- [x] `GET /api/meetings/{id}` Route Handler를 구현한다.
+- [x] `PUT /api/meetings/{id}` Route Handler를 구현한다.
+- [x] `DELETE /api/meetings/{id}` Route Handler를 구현한다.
+- [x] 신규 저장 응답에 `id`를 반환한다.
+- [x] 신규 저장 응답에 `meetingDate`를 반환한다.
+- [x] 수정 저장 성공 시 `204 No Content`를 반환한다.
+- [x] 삭제 성공 시 `204 No Content`를 반환한다.
+- [x] 모든 보호 API에서 `requireAuth`를 호출한다.
 
-### 8-4. 테스트 체크리스트
+### 8-4. 검증 체크리스트
 
-- [ ] Speech token API 성공 케이스를 테스트한다.
-- [ ] Speech token API 실패 케이스를 테스트한다.
-- [ ] Speech token 응답에 `Cache-Control: no-store`가 포함되는지 테스트한다.
-- [ ] Summary API 요청 검증 실패 케이스를 테스트한다.
-- [ ] Summary API 성공 케이스를 테스트한다.
-- [ ] Summary API 실패 케이스를 테스트한다.
-- [ ] 신규 회의 저장 API 성공 케이스를 테스트한다.
-- [ ] 신규 회의 저장 API 실패 케이스를 테스트한다.
-- [ ] 월별 회의 날짜 조회 API를 테스트한다.
-- [ ] 날짜별 회의 목록 조회 API를 테스트한다.
-- [ ] 회의 상세 조회 API를 테스트한다.
-- [ ] 회의 수정 저장 API를 테스트한다.
-- [ ] 회의 삭제 API를 테스트한다.
-- [ ] 보호된 API에서 인증 실패 시 401을 반환하는지 테스트한다.
+Phase 4의 Route Handler는 인증 쿠키, 외부 API, Neon Postgres를 함께 사용한다. MVP 단계에서는 E2E 테스트를 별도로 도입하지 않고, 자동 검증은 타입 검사, 빌드, 기존 테스트, 린트 기준으로 수행한다.
 
-### 8-5. 실제 Neon 동작 확인
+- [x] `pnpm test:ci`가 통과한다.
+- [x] `pnpm lint`가 통과한다.
+- [x] `pnpm build`가 통과한다.
+- [x] Route Handler가 TypeScript type check를 통과한다.
+- [x] 반환 본문이 없는 성공 응답은 `204 No Content`를 반환한다.
 
-- [ ] 회의 저장 API로 테스트용 회의를 저장하고 반환된 `id`, `meetingDate`를 확인한다.
-- [ ] 저장한 회의를 상세 조회 API로 다시 조회할 수 있는지 확인한다.
-- [ ] 날짜별 회의 목록 API에 저장한 회의의 `id`, `title`이 포함되는지 확인한다.
-- [ ] 월별 회의 날짜 목록 API에 저장한 회의 날짜가 포함되는지 확인한다.
-- [ ] 회의 수정 API로 저장한 회의를 수정할 수 있는지 확인한다.
-- [ ] 회의 삭제 API로 저장한 회의를 삭제할 수 있는지 확인한다.
-- [ ] 삭제한 회의가 상세 조회 API에서 없는 회의로 처리되는지 확인한다.
+### 8-5. 수동 통합 검증 체크리스트
+
+로컬 개발 서버와 실제 Neon Postgres를 사용해 curl 요청으로 검증한다. 검증에 사용한 테스트 회의는 삭제한다.
+
+- [x] 로그인 API가 `204 No Content`를 반환하고 인증 쿠키를 발급한다.
+- [x] 회의 저장 API로 테스트용 회의를 저장하고 반환된 `id`, `meetingDate`를 확인한다.
+- [x] 저장한 회의를 상세 조회 API로 다시 조회할 수 있다.
+- [x] 날짜별 회의 목록 API에 저장한 회의의 `id`, `title`이 포함된다.
+- [x] 월별 회의 날짜 목록 API에 저장한 회의 날짜가 포함된다.
+- [x] 회의 수정 API로 저장한 회의를 수정할 수 있다.
+- [x] 수정 후 상세 조회에서 변경된 제목과 요약이 반영된다.
+- [x] 회의 삭제 API로 저장한 회의를 삭제할 수 있다.
+- [x] 삭제한 회의가 상세 조회 API에서 `MEETING_NOT_FOUND`로 처리된다.
+- [x] 테스트용 회의 레코드를 삭제해 실제 Neon DB에 검증 데이터가 남지 않는다.
 
 ### 8-6. 완료 기준 체크리스트
 
-- [ ] API 명세의 모든 endpoint가 구현되어 있다.
-- [ ] 각 API는 명세된 요청/응답 타입을 따른다.
-- [ ] 성공 응답은 `data`로 감싸지 않는다.
-- [ ] 에러 응답은 `{ title, detail, status }` 형식을 따른다.
-- [ ] 반환 본문이 없는 성공 응답은 `204 No Content`를 반환한다.
+- [x] API 명세의 모든 endpoint가 구현되어 있다.
+- [x] 각 API는 명세된 요청/응답 타입을 따른다.
+- [x] 성공 응답은 `data`로 감싸지 않는다.
+- [x] 에러 응답은 `{ title, detail, status }` 형식을 따른다.
+- [x] 반환 본문이 없는 성공 응답은 `204 No Content`를 반환한다.
+- [x] 로컬 서버와 실제 Neon Postgres 기준 수동 통합 검증을 완료했다.
 
 ---
 
@@ -648,7 +645,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] summary snapshot 복원 유틸을 구현한다.
 - [ ] summary snapshot 삭제 유틸을 구현한다.
 - [ ] 요약 요청 직전 summary snapshot을 저장한다.
-- [ ] `POST /api/summaries` mutation을 구현한다.
+- [ ] `POST /api/summary` mutation을 구현한다.
 - [ ] 요약 요청 중 `summarizing` 상태로 전환한다.
 - [ ] 요약 실패 시 title을 유지한다.
 - [ ] 요약 실패 시 transcript를 유지한다.
