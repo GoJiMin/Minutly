@@ -1,11 +1,17 @@
-import {NextRequest, NextResponse} from 'next/server';
+import {type NextRequest, NextResponse} from 'next/server';
 import type {ZodError} from 'zod';
-import {createMeetingRequestSchema, type CreateMeetingResponse, NeonMeetingDb} from '@/entities/meeting/server';
+import {
+  meetingsByDateQuerySchema,
+  NeonMeetingDb,
+  createMeetingRequestSchema,
+  type CreateMeetingResponse,
+  type GetMeetingsByDateResponse,
+} from '@/entities/meeting/server';
 import type {ErrorResponse} from '@/shared/api';
-import {createErrorJsonResponse, validateRequestBody} from '@/shared/server';
+import {createErrorJsonResponse, validateQueryParams, validateRequestBody} from '@/shared/server';
 import {requireAuth} from '@/shared/server/auth';
 
-function createMeetingValidationError(error: ZodError): ErrorResponse {
+function createCreateMeetingValidationError(error: ZodError): ErrorResponse {
   const [firstIssue] = error.issues;
   const [issuePath] = firstIssue?.path ?? [];
 
@@ -64,6 +70,35 @@ function createMeetingValidationError(error: ZodError): ErrorResponse {
   }
 }
 
+function createMeetingsByDateValidationError(error: ZodError): ErrorResponse {
+  const [firstIssue] = error.issues;
+  const [issuePath] = firstIssue?.path ?? [];
+
+  switch (issuePath) {
+    case 'date':
+      if (firstIssue?.code === 'invalid_format') {
+        return {
+          title: 'INVALID_DATE',
+          detail: '날짜는 YYYY-MM-DD 형식으로 입력해주세요.',
+          status: 400,
+        };
+      }
+
+      return {
+        title: 'UNSUPPORTED_DATE',
+        detail: '2026년 5월 8일 이후의 회의만 조회할 수 있습니다.',
+        status: 400,
+      };
+
+    default:
+      return {
+        title: 'INVALID_MEETINGS_QUERY',
+        detail: '회의 목록 조회 요청이 올바르지 않습니다. 다시 확인해주세요.',
+        status: 400,
+      };
+  }
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse<CreateMeetingResponse | ErrorResponse>> {
   const requireAuthResult = await requireAuth();
 
@@ -71,7 +106,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreateMeeting
     return requireAuthResult.error;
   }
 
-  const validateResult = await validateRequestBody(req, createMeetingRequestSchema, createMeetingValidationError);
+  const validateResult = await validateRequestBody(req, createMeetingRequestSchema, createCreateMeetingValidationError);
 
   if (!validateResult.ok) {
     return validateResult.error;
@@ -96,6 +131,43 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreateMeeting
     return createErrorJsonResponse({
       title: 'MEETING_SAVE_FAILED',
       detail: '회의 저장에 실패했습니다.',
+      status: 500,
+    });
+  }
+}
+
+export async function GET(req: NextRequest): Promise<NextResponse<GetMeetingsByDateResponse | ErrorResponse>> {
+  const requireAuthResult = await requireAuth();
+
+  if (!requireAuthResult.ok) {
+    return requireAuthResult.error;
+  }
+
+  const validateResult = validateQueryParams(
+    req.nextUrl.searchParams,
+    meetingsByDateQuerySchema,
+    createMeetingsByDateValidationError,
+  );
+
+  if (!validateResult.ok) {
+    return validateResult.error;
+  }
+
+  const db = new NeonMeetingDb();
+
+  try {
+    const meetings = await db.listMeetingsByDate(validateResult.value.date);
+
+    return NextResponse.json({meetings}, {status: 200});
+  } catch (error) {
+    console.error('[meetings] failed to list meetings by date', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      date: validateResult.value.date,
+    });
+
+    return createErrorJsonResponse({
+      title: 'MEETINGS_READ_FAILED',
+      detail: '회의 목록을 불러오지 못했습니다.',
       status: 500,
     });
   }

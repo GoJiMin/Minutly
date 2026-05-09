@@ -2,7 +2,6 @@
 
 import {Controller, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import Image from 'next/image';
 import {LoginRequest, loginRequestSchema, useFetchLogin} from '@/entities/auth';
 import {
   Button,

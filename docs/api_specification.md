@@ -749,12 +749,14 @@ type GetMeetingsByDateResponse = {
 
 ### Error
 
-| Status | Title                  | Detail                           |
-| ------ | ---------------------- | -------------------------------- |
-| 400    | `INVALID_DATE`         | 날짜 형식이 올바르지 않습니다.   |
-| 401    | `UNAUTHORIZED`         | 인증이 필요합니다.               |
-| 401    | `TOKEN_EXPIRED`        | 인증 정보가 만료되었습니다.      |
-| 500    | `MEETINGS_READ_FAILED` | 회의 목록을 불러오지 못했습니다. |
+| Status | Title                    | Detail                                                      |
+| ------ | ------------------------ | ----------------------------------------------------------- |
+| 400    | `INVALID_DATE`           | 날짜는 YYYY-MM-DD 형식으로 입력해주세요.                    |
+| 400    | `UNSUPPORTED_DATE`       | 2026년 5월 8일 이후의 회의만 조회할 수 있습니다.            |
+| 400    | `INVALID_MEETINGS_QUERY` | 회의 목록 조회 요청이 올바르지 않습니다. 다시 확인해주세요. |
+| 401    | `UNAUTHORIZED`           | 인증이 필요합니다.                                          |
+| 401    | `TOKEN_EXPIRED`          | 인증 정보가 만료되었습니다.                                 |
+| 500    | `MEETINGS_READ_FAILED`   | 회의 목록을 불러오지 못했습니다.                            |
 
 ---
 
