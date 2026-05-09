@@ -20,8 +20,6 @@ export type GetMeetingsByDateResponse = {
 };
 
 export type GetMeetingDatesResponse = {
-  year: string;
-  month: string;
   dates: string[];
 };
 

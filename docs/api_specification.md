@@ -655,8 +655,6 @@ type GetMeetingDatesQuery = {
 };
 
 type GetMeetingDatesResponse = {
-  year: string;
-  month: string;
   dates: string[];
 };
 ```
@@ -665,8 +663,6 @@ type GetMeetingDatesResponse = {
 
 ```json
 {
-  "year": "2026",
-  "month": "04",
   "dates": ["2026-04-26", "2026-04-27"]
 }
 ```
@@ -684,12 +680,14 @@ type GetMeetingDatesResponse = {
 
 ### Error
 
-| Status | Title                       | Detail                                |
-| ------ | --------------------------- | ------------------------------------- |
-| 400    | `INVALID_YEAR_MONTH`        | 조회할 연월 형식이 올바르지 않습니다. |
-| 401    | `UNAUTHORIZED`              | 인증이 필요합니다.                    |
-| 401    | `TOKEN_EXPIRED`             | 인증 정보가 만료되었습니다.           |
-| 500    | `MEETING_DATES_READ_FAILED` | 회의 날짜 목록을 불러오지 못했습니다. |
+| Status | Title                       | Detail                                                |
+| ------ | --------------------------- | ----------------------------------------------------- |
+| 400    | `INVALID_YEAR`              | 조회할 연도는 YYYY 형식으로 입력해주세요.             |
+| 400    | `INVALID_MONTH`             | 조회할 월은 01부터 12까지의 MM 형식으로 입력해주세요. |
+| 400    | `UNSUPPORTED_YEAR_MONTH`    | 2026년 5월 이후의 회의 날짜만 조회할 수 있습니다.     |
+| 401    | `UNAUTHORIZED`              | 인증이 필요합니다.                                    |
+| 401    | `TOKEN_EXPIRED`             | 인증 정보가 만료되었습니다.                           |
+| 500    | `MEETING_DATES_READ_FAILED` | 회의 날짜 목록을 불러오지 못했습니다.                 |
 
 ---
 
