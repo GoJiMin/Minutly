@@ -10,4 +10,13 @@ export const createSummaryRequestSchema = z.object({
   transcript: z.string().trim().min(300, '요약할 회의 내용이 충분하지 않습니다.'),
 });
 
+export const summaryGenerationResultSchema = z.object({
+  summary: z.string().trim().min(1, 'AI 요약 응답에 summary가 없습니다.'),
+  keyPoints: z
+    .array(z.string().trim().min(1, 'AI 요약 응답의 주요 사항 형식이 올바르지 않습니다.'))
+    .min(1, 'AI 요약 응답에 주요 사항이 없습니다.')
+    .max(20, 'AI 요약 응답의 주요 사항이 너무 많습니다.'),
+});
+
 export type CreateSummaryRequest = z.infer<typeof createSummaryRequestSchema>;
+export type CreateSummaryResponse = z.infer<typeof summaryGenerationResultSchema>;

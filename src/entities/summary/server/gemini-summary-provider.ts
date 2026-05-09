@@ -1,9 +1,8 @@
 import 'server-only';
 
 import {GoogleGenAI} from '@google/genai';
-import {createSummaryResponseSchema} from '../model/types';
 import type {CreateSummaryResult, SummaryProvider} from './summary-provider';
-import type {CreateSummaryRequest} from '../model/schema';
+import {summaryGenerationResultSchema, type CreateSummaryRequest} from '../model/schema';
 import {aiConfig} from '@/shared/server';
 
 const GEMINI_SUMMARY_MODEL = 'gemini-2.5-flash';
@@ -95,7 +94,7 @@ ${input.transcript}
         throw new Error('EMPTY_SUMMARY_RESPONSE');
       }
 
-      const parsed = createSummaryResponseSchema.parse(JSON.parse(responseText));
+      const parsed = summaryGenerationResultSchema.parse(JSON.parse(responseText));
 
       return {ok: true, value: parsed};
     } catch (error) {

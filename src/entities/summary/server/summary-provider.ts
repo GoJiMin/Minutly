@@ -1,5 +1,6 @@
-import type {CreateSummaryRequest} from '../model/schema';
-import type {CreateSummaryResponse} from '../model/types';
+import 'server-only';
+
+import type {CreateSummaryRequest, CreateSummaryResponse} from '../model/schema';
 
 export type CreateSummaryResult = {ok: true; value: CreateSummaryResponse} | {ok: false};
 
