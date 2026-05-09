@@ -76,7 +76,7 @@ function createMeetingsByDateValidationError(error: ZodError): ErrorResponse {
 
   switch (issuePath) {
     case 'date':
-      if (firstIssue?.code === 'invalid_format') {
+      if (firstIssue?.code === 'invalid_type' || firstIssue?.code === 'invalid_format') {
         return {
           title: 'INVALID_DATE',
           detail: '날짜는 YYYY-MM-DD 형식으로 입력해주세요.',
