@@ -127,10 +127,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  {params}: RouteParams,
-): Promise<NextResponse<ErrorResponse | null>> {
+export async function PUT(req: NextRequest, {params}: RouteParams): Promise<NextResponse<ErrorResponse | null>> {
   const requireAuthResult = await requireAuth();
 
   if (!requireAuthResult.ok) {
@@ -187,6 +184,49 @@ export async function PUT(
     return createErrorJsonResponse({
       title: 'MEETING_UPDATE_FAILED',
       detail: '회의 수정 저장에 실패했습니다.',
+      status: 500,
+    });
+  }
+}
+
+export async function DELETE(_req: NextRequest, {params}: RouteParams): Promise<NextResponse<ErrorResponse | null>> {
+  const requireAuthResult = await requireAuth();
+
+  if (!requireAuthResult.ok) {
+    return requireAuthResult.error;
+  }
+
+  const routeParams = await params;
+  const validateResult = validateRouteParams(routeParams, meetingIdParamsSchema, createMeetingIdValidationError);
+
+  if (!validateResult.ok) {
+    return validateResult.error;
+  }
+
+  const {id} = validateResult.value;
+  const db = new NeonMeetingDb();
+
+  try {
+    const {deleted} = await db.deleteMeeting(id);
+
+    if (!deleted) {
+      return createErrorJsonResponse({
+        title: 'MEETING_NOT_FOUND',
+        detail: '회의 기록을 찾을 수 없습니다.',
+        status: 404,
+      });
+    }
+
+    return new NextResponse(null, {status: 204});
+  } catch (error) {
+    console.error('[meetings] failed to delete meeting', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      id,
+    });
+
+    return createErrorJsonResponse({
+      title: 'MEETING_DELETE_FAILED',
+      detail: '회의 삭제에 실패했습니다.',
       status: 500,
     });
   }
