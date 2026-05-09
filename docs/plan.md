@@ -462,7 +462,7 @@ API 명세서에 정의된 Speech, Summary, Meetings API를 구현한다.
 
 ```http
 POST   /api/speech/token
-POST   /api/summaries
+POST   /api/summary
 POST   /api/meetings
 GET    /api/meetings/dates?year=YYYY&month=MM
 GET    /api/meetings?date=YYYY-MM-DD
@@ -489,7 +489,7 @@ DELETE /api/meetings/{id}
 - [x] Gemini 기반 `GeminiSummaryProvider` 구현체를 작성한다.
 - [x] `SummaryService`에서 provider interface를 통해 요약을 생성한다.
 - [x] AI 응답을 JSON으로 파싱하고 `summary`, `keyPoints`를 검증한다.
-- [ ] `POST /api/summaries` Route Handler를 구현한다.
+- [ ] `POST /api/summary` Route Handler를 구현한다.
 - [ ] 요약 실패 시 `SUMMARY_FAILED` 에러를 반환한다.
 - [ ] 요약 API에서 회의 저장을 수행하지 않도록 유지한다.
 
@@ -648,7 +648,7 @@ type RecordingStatus = 'idle' | 'recording' | 'transcript_review' | 'summarizing
 - [ ] summary snapshot 복원 유틸을 구현한다.
 - [ ] summary snapshot 삭제 유틸을 구현한다.
 - [ ] 요약 요청 직전 summary snapshot을 저장한다.
-- [ ] `POST /api/summaries` mutation을 구현한다.
+- [ ] `POST /api/summary` mutation을 구현한다.
 - [ ] 요약 요청 중 `summarizing` 상태로 전환한다.
 - [ ] 요약 실패 시 title을 유지한다.
 - [ ] 요약 실패 시 transcript를 유지한다.

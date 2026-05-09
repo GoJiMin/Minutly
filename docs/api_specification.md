@@ -119,7 +119,7 @@ type ErrorResponse = {
 | POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
 | GET    | `/api/auth/check`                        | 현재 인증 상태 확인                      | 필요               |
 | POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
-| POST   | `/api/summaries`                         | transcript 기반 요약 생성                | 필요               |
+| POST   | `/api/summary`                         | transcript 기반 요약 생성                | 필요               |
 | POST   | `/api/meetings`                          | 신규 회의 저장                           | 필요               |
 | GET    | `/api/meetings/dates?year=YYYY&month=MM` | 특정 연월에서 회의가 있는 날짜 목록 조회 | 필요               |
 | GET    | `/api/meetings?date=YYYY-MM-DD`          | 특정 날짜의 회의 목록 조회               | 필요               |
@@ -357,7 +357,7 @@ Cache-Control: no-store
 ## 7-1. 요약 생성
 
 ```http
-POST /api/summaries
+POST /api/summary
 ```
 
 ### 목적
@@ -863,7 +863,7 @@ await fetch(`/api/meetings?date=${meeting.meetingDate}`);
 POST   /api/auth/logout
 GET    /api/auth/check
 POST   /api/speech/token
-POST   /api/summaries
+POST   /api/summary
 POST   /api/meetings
 GET    /api/meetings/dates?year=YYYY&month=MM
 GET    /api/meetings?date=YYYY-MM-DD
