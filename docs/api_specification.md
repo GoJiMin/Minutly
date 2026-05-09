@@ -119,7 +119,7 @@ type ErrorResponse = {
 | POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
 | GET    | `/api/auth/check`                        | 현재 인증 상태 확인                      | 필요               |
 | POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
-| POST   | `/api/summary`                         | transcript 기반 요약 생성                | 필요               |
+| POST   | `/api/summary`                           | transcript 기반 요약 생성                | 필요               |
 | POST   | `/api/meetings`                          | 신규 회의 저장                           | 필요               |
 | GET    | `/api/meetings/dates?year=YYYY&month=MM` | 특정 연월에서 회의가 있는 날짜 목록 조회 | 필요               |
 | GET    | `/api/meetings?date=YYYY-MM-DD`          | 특정 날짜의 회의 목록 조회               | 필요               |
@@ -410,13 +410,15 @@ type CreateSummaryResponse = {
 
 ### Error
 
-| Status | Title                | Detail                                |
-| ------ | -------------------- | ------------------------------------- |
-| 400    | `INVALID_TRANSCRIPT` | 요약할 회의 내용이 충분하지 않습니다. |
-| 400    | `INVALID_TITLE`      | 회의 제목을 입력해주세요.             |
-| 401    | `UNAUTHORIZED`       | 인증이 필요합니다.                    |
-| 401    | `TOKEN_EXPIRED`      | 인증 정보가 만료되었습니다.           |
-| 500    | `SUMMARY_FAILED`     | 요약 생성에 실패했습니다.             |
+| Status | Title                     | Detail                                            |
+| ------ | ------------------------- | ------------------------------------------------- |
+| 400    | `TITLE_REQUIRED`          | 회의 제목을 입력해주세요.                         |
+| 400    | `TITLE_TOO_LONG`          | 회의 제목은 최대 100자 이하로 입력해주세요.       |
+| 400    | `TRANSCRIPT_TOO_SHORT`    | 요약할 회의 내용이 충분하지 않습니다.             |
+| 400    | `INVALID_SUMMARY_REQUEST` | 요약 요청이 올바르지 않습니다. 다시 확인해주세요. |
+| 401    | `UNAUTHORIZED`            | 인증이 필요합니다.                                |
+| 401    | `TOKEN_EXPIRED`           | 인증 정보가 만료되었습니다.                       |
+| 500    | `SUMMARY_FAILED`          | 요약 생성에 실패했습니다.                         |
 
 ---
 
