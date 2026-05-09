@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type {CreateSummaryResult, SummaryProvider} from './summary-provider';
-import {CreateSummaryRequest} from '../client';
+import type {CreateSummaryRequest} from '../model/schema';
 
 export class SummaryService {
   private readonly summaryProvider: SummaryProvider;
