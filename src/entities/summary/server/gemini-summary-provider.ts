@@ -24,10 +24,12 @@ Summarization rules:
 - Write the final output in Korean.
 - Base the summary only on the final transcript.
 - Write a detailed meeting-minutes summary, not a short abstract.
-- When the transcript contains enough substance, write at least 5 paragraphs.
-- When there are multiple topics, decisions, issues, risks, schedules, or follow-up items, write 6 to 10 paragraphs.
-- Each paragraph should contain 2 to 4 Korean sentences.
-- Each paragraph must cover a distinct discussion area.
+- Return the detailed summary as summaryParagraphs.
+- Each item in summaryParagraphs must be one Korean paragraph.
+- When the transcript contains enough substance, return at least 5 summaryParagraphs.
+- When there are multiple topics, decisions, issues, risks, schedules, or follow-up items, return 6 to 12 summaryParagraphs.
+- Each summaryParagraphs item should contain 2 to 4 Korean sentences.
+- Each summaryParagraphs item must cover a distinct discussion area.
 - Do not compress unrelated topics into one paragraph just to make the summary shorter.
 - Do not fabricate content to satisfy the paragraph count.
 - Include the meeting background, main discussion flow, important decisions, unresolved issues, risks, schedules, and follow-up direction only when they are present in the transcript.
@@ -68,10 +70,13 @@ ${input.transcript}
           responseJsonSchema: {
             type: 'object',
             properties: {
-              summary: {
-                type: 'string',
+              summaryParagraphs: {
+                type: 'array',
+                items: {type: 'string'},
+                minItems: 1,
+                maxItems: 12,
                 description:
-                  'A detailed Korean meeting-minutes summary based only on the provided transcript. It should be paragraph-based and detailed enough to review the meeting later.',
+                  'Detailed Korean meeting-minutes summary paragraphs based only on the provided transcript. Each item must be one paragraph and should be detailed enough to review the meeting later.',
               },
               keyPoints: {
                 type: 'array',
@@ -82,7 +87,7 @@ ${input.transcript}
                   'Important Korean key points based only on the provided transcript, focused on decisions, action items, issues, risks, schedules, and follow-up items.',
               },
             },
-            required: ['summary', 'keyPoints'],
+            required: ['summaryParagraphs', 'keyPoints'],
             additionalProperties: false,
           },
         },
@@ -96,7 +101,13 @@ ${input.transcript}
 
       const parsed = summaryGenerationResultSchema.parse(JSON.parse(responseText));
 
-      return {ok: true, value: parsed};
+      return {
+        ok: true,
+        value: {
+          summary: parsed.summaryParagraphs.join('\n\n'),
+          keyPoints: parsed.keyPoints,
+        },
+      };
     } catch (error) {
       console.error('[gemini-summary] summary generation failed', {
         message: error instanceof Error ? error.message : 'Unknown error',

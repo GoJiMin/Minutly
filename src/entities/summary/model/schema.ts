@@ -11,7 +11,10 @@ export const createSummaryRequestSchema = z.object({
 });
 
 export const summaryGenerationResultSchema = z.object({
-  summary: z.string().trim().min(1, 'AI 요약 응답에 summary가 없습니다.'),
+  summaryParagraphs: z
+    .array(z.string().trim().min(1, 'AI 요약 응답의 요약 단락 형식이 올바르지 않습니다.'))
+    .min(1, 'AI 요약 응답에 요약 단락이 없습니다.')
+    .max(12, 'AI 요약 응답의 요약 단락이 너무 많습니다.'),
   keyPoints: z
     .array(z.string().trim().min(1, 'AI 요약 응답의 주요 사항 형식이 올바르지 않습니다.'))
     .min(1, 'AI 요약 응답에 주요 사항이 없습니다.')
@@ -19,4 +22,7 @@ export const summaryGenerationResultSchema = z.object({
 });
 
 export type CreateSummaryRequest = z.infer<typeof createSummaryRequestSchema>;
-export type CreateSummaryResponse = z.infer<typeof summaryGenerationResultSchema>;
+export type CreateSummaryResponse = {
+  summary: string;
+  keyPoints: string[];
+};
