@@ -486,7 +486,7 @@ DELETE /api/meetings/{id}
 
 - [x] `CreateSummaryRequest` 검증을 적용한다.
 - [x] `SummaryProvider` interface를 정의한다.
-- [ ] Gemini 기반 `GeminiSummaryProvider` 구현체를 작성한다.
+- [x] Gemini 기반 `GeminiSummaryProvider` 구현체를 작성한다.
 - [ ] `SummaryService`에서 provider interface를 통해 요약을 생성한다.
 - [ ] `POST /api/summaries` Route Handler는 `SummaryService`만 호출한다.
 - [ ] AI 응답에서 `summary`를 추출한다.

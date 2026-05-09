@@ -1,6 +1,8 @@
-import {CreateSummaryRequest} from '../model/schema';
-import {CreateSummaryResponse} from '../model/types';
+import type {CreateSummaryRequest} from '../model/schema';
+import type {CreateSummaryResponse} from '../model/types';
+
+export type CreateSummaryResult = {ok: true; value: CreateSummaryResponse} | {ok: false};
 
 export interface SummaryProvider {
-  createSummary(input: CreateSummaryRequest): Promise<CreateSummaryResponse>;
+  createSummary(input: CreateSummaryRequest): Promise<CreateSummaryResult>;
 }
