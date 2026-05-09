@@ -561,7 +561,7 @@ type UpdateMeetingRequest = {
 
 | Status | Title                   | Detail                                |
 | ------ | ----------------------- | ------------------------------------- |
-| 400    | `INVALID_MEETING_ID`    | 회의 식별자 형식이 올바르지 않습니다. |
+| 400    | `INVALID_MEETING_ID`    | 회의 식별자는 UUID 형식이어야 합니다. |
 | 400    | `INVALID_MEETING`       | 회의 수정 데이터가 올바르지 않습니다. |
 | 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                    |
 | 401    | `TOKEN_EXPIRED`         | 인증 정보가 만료되었습니다.           |
@@ -611,7 +611,7 @@ type DeleteMeetingParams = {
 
 | Status | Title                   | Detail                                |
 | ------ | ----------------------- | ------------------------------------- |
-| 400    | `INVALID_MEETING_ID`    | 회의 식별자 형식이 올바르지 않습니다. |
+| 400    | `INVALID_MEETING_ID`    | 회의 식별자는 UUID 형식이어야 합니다. |
 | 401    | `UNAUTHORIZED`          | 인증이 필요합니다.                    |
 | 401    | `TOKEN_EXPIRED`         | 인증 정보가 만료되었습니다.           |
 | 404    | `MEETING_NOT_FOUND`     | 회의 기록을 찾을 수 없습니다.         |
@@ -823,7 +823,7 @@ type GetMeetingDetailResponse = MeetingDetail;
 
 | Status | Title                 | Detail                                |
 | ------ | --------------------- | ------------------------------------- |
-| 400    | `INVALID_MEETING_ID`  | 회의 식별자 형식이 올바르지 않습니다. |
+| 400    | `INVALID_MEETING_ID`  | 회의 식별자는 UUID 형식이어야 합니다. |
 | 401    | `UNAUTHORIZED`        | 인증이 필요합니다.                    |
 | 401    | `TOKEN_EXPIRED`       | 인증 정보가 만료되었습니다.           |
 | 404    | `MEETING_NOT_FOUND`   | 회의 기록을 찾을 수 없습니다.         |

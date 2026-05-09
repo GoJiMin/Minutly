@@ -21,7 +21,7 @@ export type CreateMeetingRequest = z.infer<typeof createMeetingRequestSchema>;
 export type UpdateMeetingRequest = z.infer<typeof updateMeetingRequestSchema>;
 
 export const meetingIdParamsSchema = z.object({
-  id: z.uuid('회의 식별자 형식이 올바르지 않습니다.'),
+  id: z.uuid('회의 식별자는 UUID 형식이어야 합니다.'),
 });
 
 export const meetingsByDateQuerySchema = z.object({
