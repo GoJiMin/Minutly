@@ -1,1 +1,1 @@
-export {useAzureSpeechTokenMutation} from './useAzureSpeechTokenMutation';
+export {useAzureSpeechRecognizer} from './useAzureSpeechRecognizer';
