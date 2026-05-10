@@ -551,7 +551,7 @@ Phase 4의 Route Handler는 인증 쿠키, 외부 API, Neon Postgres를 함께 �
 
 #### Speech Token / Azure SDK
 
-- [ ] `/api/speech/token`을 호출해 `{ token, endpoint }`를 받는 클라이언트 함수를 구현한다.
+- [x] `/api/speech/token`을 호출해 `{ token, endpoint }`를 받는 클라이언트 함수를 구현한다.
 - [ ] Speech token 요청 실패 시 `RecordingErrorCode`를 `speech_token_failed`로 설정한다.
 - [ ] Azure Speech SDK를 브라우저에서만 로드한다.
 - [ ] Azure Speech SDK에 `token`, `endpoint`, `ko-KR` 언어 설정을 전달하는 함수를 구현한다.
