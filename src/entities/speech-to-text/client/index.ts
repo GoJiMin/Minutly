@@ -6,3 +6,5 @@ export type {
   SpeechTranscriptChunk,
   TranscriptChunk,
 } from '../model/types';
+export {readRecordingDraft, saveRecordingDraft, removeRecordingDraft} from './recordingDraftStorage';
+export {transcriptChunks, useRecordingStore} from './recordingStore';
