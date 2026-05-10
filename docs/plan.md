@@ -557,7 +557,7 @@ Phase 4의 Route Handler는 인증 쿠키, 외부 API, Neon Postgres를 함께 �
 - [ ] Azure Speech SDK에 `token`, `endpoint`, `ko-KR` 언어 설정을 전달하는 함수를 구현한다.
 - [ ] 선택된 `deviceId`로 `AudioConfig.fromMicrophoneInput(deviceId)`를 생성한다.
 - [ ] Azure Speech recognizer를 생성하는 함수를 구현한다.
-- [ ] Azure Speech recognizer의 `recognized`, `canceled`, `sessionStopped` 이벤트를 등록한다.
+- [ ] Azure Speech recognizer의 `recognized`, `canceled`, `sessionStopped` 이벤트를 handler callback으로 연결하는 함수를 구현한다.
 - [ ] 녹음 종료, 마이크 변경, STT 오류 발생 시 recognizer의 `stopContinuousRecognitionAsync`와 `close`를 호출한다.
 
 #### Microphone Permission / Device
@@ -626,8 +626,9 @@ Phase 4의 Route Handler는 인증 쿠키, 외부 API, Neon Postgres를 함께 �
 
 #### Recording Error
 
-- [ ] Azure `canceled` 이벤트 발생 시 `RecordingErrorCode`를 `speech_recognition_canceled`로 설정한다.
-- [ ] Azure `sessionStopped` 이벤트가 사용자의 녹음 종료 없이 발생하면 `RecordingErrorCode`를 `speech_session_stopped`로 설정한다.
+- [ ] Azure `canceled` 이벤트에서 `CancellationReason.Error`가 발생하면 `RecordingErrorCode`를 `speech_recognition_error`로 설정한다.
+- [ ] Azure `sessionStopped` 이벤트가 사용자의 녹음 종료 없이 발생하면 `RecordingErrorCode`를 `speech_session_stopped_unexpectedly`로 설정한다.
+- [ ] Azure `canceled` 오류 후 이어지는 `sessionStopped` 이벤트는 기존 `RecordingErrorCode`를 덮어쓰지 않는다.
 - [ ] STT 오류 발생 시 recognizer를 정리한다.
 - [ ] STT 오류 발생 시 현재 transcript를 recording draft로 즉시 저장한다.
 - [ ] STT 오류 발생 시 `RecordingStatus`를 `error`로 설정한다.
@@ -645,8 +646,8 @@ type RecordingErrorCode =
   | 'microphone_permission_denied'
   | 'microphone_not_found'
   | 'speech_token_failed'
-  | 'speech_recognition_canceled'
-  | 'speech_session_stopped';
+  | 'speech_recognition_error'
+  | 'speech_session_stopped_unexpectedly';
 
 type TranscriptChunk = {
   id: string;
@@ -689,8 +690,9 @@ type RecordingDraft = {
 - [ ] 녹음 종료 시 draft 저장 함수가 호출되는지 테스트한다.
 - [ ] 새로고침 후 draft가 있으면 복구 버튼이 표시되는지 테스트한다.
 - [ ] STT 오류 발생 시 draft 저장 로직을 테스트한다.
-- [ ] Azure `canceled` 이벤트 발생 시 `speech_recognition_canceled`가 설정되는지 테스트한다.
-- [ ] Azure `sessionStopped` 이벤트가 사용자의 녹음 종료 없이 발생하면 `speech_session_stopped`가 설정되는지 테스트한다.
+- [ ] Azure `canceled` 이벤트에서 `CancellationReason.Error`가 발생하면 `speech_recognition_error`가 설정되는지 테스트한다.
+- [ ] Azure `sessionStopped` 이벤트가 사용자의 녹음 종료 없이 발생하면 `speech_session_stopped_unexpectedly`가 설정되는지 테스트한다.
+- [ ] Azure `canceled` 오류 후 이어지는 `sessionStopped` 이벤트가 기존 `RecordingErrorCode`를 덮어쓰지 않는지 테스트한다.
 - [ ] 다시 녹음 시작 시 `[녹음 중단 구간]`이 추가되는지 테스트한다.
 - [ ] 녹음 상태 전이를 테스트한다.
 - [ ] 권한 거부 안내가 화면에 표시되는지 테스트한다.
