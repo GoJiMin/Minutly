@@ -22,7 +22,7 @@ export function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col w-full h-full">
+      <body className="min-h-full flex flex-col w-full h-full bg-gray-100">
         <AppProvider>{children}</AppProvider>
       </body>
     </html>
