@@ -35,9 +35,8 @@ export type SpeechTranscriptChunk = {
 
 export type InterruptionTranscriptChunk = {
   id: string;
-  text: '[녹음 중단 구간]';
+  text: string;
   kind: 'interruption';
-  interruptedAt: string;
 };
 
 export type TranscriptChunk = SpeechTranscriptChunk | InterruptionTranscriptChunk;

@@ -23,19 +23,6 @@ type Action = {
   resetRecording: () => void;
 };
 
-type CreateTranscriptChunkProps = {text: string; kind: 'speech'; now: string} | {kind: 'interruption'; now: string};
-
-function createTranscriptChunk(props: CreateTranscriptChunkProps): TranscriptChunk {
-  const {now, kind} = props;
-  const id = `${now}-${transcriptChunks.length}`;
-
-  if (kind === 'speech') {
-    return {id, kind: 'speech', text: props.text};
-  } else {
-    return {id, kind: 'interruption', text: '[녹음 중단 구간]', interruptedAt: now};
-  }
-}
-
 export let transcriptChunks: TranscriptChunk[] = [];
 
 function appendPreviewChunk(previewChunks: TranscriptChunk[], chunk: TranscriptChunk) {
@@ -85,7 +72,7 @@ export const useRecordingStore = create<State & Action>(set => ({
   appendInterruptionChunk: () =>
     set(state => {
       const now = new Date().toISOString();
-      const chunk = createTranscriptChunk({kind: 'interruption', now});
+      const chunk = createTranscriptChunk({kind: 'interruption', now, startedAt: state.startedAt});
 
       transcriptChunks.push(chunk);
 
@@ -114,7 +101,7 @@ export const useRecordingStore = create<State & Action>(set => ({
     let previewChunks = draft.previewChunks;
 
     if (shouldAppendInterruption) {
-      const interruptionChunk = createTranscriptChunk({kind: 'interruption', now});
+      const interruptionChunk = createTranscriptChunk({kind: 'interruption', now, startedAt: draft.startedAt});
 
       transcriptChunks.push(interruptionChunk);
       previewChunks = appendPreviewChunk(previewChunks, interruptionChunk);
@@ -143,3 +130,51 @@ export const useRecordingStore = create<State & Action>(set => ({
       };
     }),
 }));
+
+type CreateTranscriptChunkProps =
+  | {text: string; kind: 'speech'; now: string}
+  | {kind: 'interruption'; now: string; startedAt: string | null};
+
+function getElapsedSeconds(startedAt: string | null, now: string) {
+  if (!startedAt) return null;
+
+  const elapsedMs = new Date(now).getTime() - new Date(startedAt).getTime();
+
+  if (Number.isFinite(elapsedMs) && elapsedMs > 0) {
+    return Math.floor(elapsedMs / 1000);
+  }
+
+  return null;
+}
+
+function formatElapsedTime(totalSeconds: number) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const hh = String(hours).padStart(2, '0');
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(seconds).padStart(2, '0');
+
+  return `${hh}:${mm}:${ss}`;
+}
+
+function createTranscriptChunk(props: CreateTranscriptChunkProps): TranscriptChunk {
+  const {now, kind} = props;
+  const id = `${now}-${transcriptChunks.length}`;
+
+  if (kind === 'speech') {
+    return {id, kind: 'speech', text: props.text};
+  }
+
+  const elapsedSeconds = getElapsedSeconds(props.startedAt, now);
+
+  let text: string;
+  if (elapsedSeconds == null) {
+    text = '[녹음 중단 구간] 녹음이 잠시 멈췄어요.';
+  } else {
+    text = `[녹음 중단 구간] ${formatElapsedTime(elapsedSeconds)} 지점에 녹음이 잠시 멈췄어요.`;
+  }
+
+  return {id, kind: 'interruption', text};
+}

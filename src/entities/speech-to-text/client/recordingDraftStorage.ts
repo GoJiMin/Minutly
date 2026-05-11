@@ -10,9 +10,8 @@ const transcriptChunkSchema = z.discriminatedUnion('kind', [
   }),
   z.object({
     id: z.string(),
-    text: z.literal('[녹음 중단 구간]'),
+    text: z.string(),
     kind: z.literal('interruption'),
-    interruptedAt: z.string(),
   }),
 ]);
 
