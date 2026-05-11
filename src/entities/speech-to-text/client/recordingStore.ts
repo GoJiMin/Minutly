@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import {RecordingDraft} from './recordingDraftStorage';
 import {MicrophoneDevice, RecordingErrorCode, RecordingStatus, TranscriptChunk} from '../model/types';
+import {formatDuration} from '@/shared/utils';
 
 type State = {
   status: RecordingStatus;
@@ -76,18 +77,22 @@ export const useRecordingStore = create<State & Action>(set => ({
         };
       }
 
-      const elapsedMs = Date.parse(now) - Date.parse(state.recordingStartedAt);
+      const recordingElapsedMs = getRecordingElapsedMs({
+        recordingElapsedMs: state.recordingElapsedMs,
+        recordingStartedAt: state.recordingStartedAt,
+        now,
+      });
 
       return {
         status: 'paused',
-        recordingElapsedMs: state.recordingElapsedMs + Math.max(0, elapsedMs),
+        recordingElapsedMs,
         recordingStartedAt: null,
         updatedAt: now,
       };
     }),
 
   resumeRecording: () =>
-    set(set => {
+    set(() => {
       const now = new Date().toISOString();
 
       return {
@@ -102,12 +107,11 @@ export const useRecordingStore = create<State & Action>(set => ({
     set(state => {
       const now = new Date().toISOString();
 
-      let recordingElapsedMs = state.recordingElapsedMs;
-
-      if (state.recordingStartedAt) {
-        const elapsedMs = Date.parse(now) - Date.parse(state.recordingStartedAt);
-        recordingElapsedMs += Math.max(0, elapsedMs);
-      }
+      const recordingElapsedMs = getRecordingElapsedMs({
+        recordingElapsedMs: state.recordingElapsedMs,
+        recordingStartedAt: state.recordingStartedAt,
+        now,
+      });
 
       return {
         status: 'transcript_review',
@@ -133,7 +137,14 @@ export const useRecordingStore = create<State & Action>(set => ({
   appendInterruptionChunk: () =>
     set(state => {
       const now = new Date().toISOString();
-      const chunk = createTranscriptChunk({kind: 'interruption', now, startedAt: state.startedAt});
+
+      const recordingElapsedMs = getRecordingElapsedMs({
+        recordingElapsedMs: state.recordingElapsedMs,
+        recordingStartedAt: state.recordingStartedAt,
+        now,
+      });
+
+      const chunk = createTranscriptChunk({kind: 'interruption', now, recordingElapsedMs});
 
       transcriptChunks.push(chunk);
 
@@ -162,7 +173,17 @@ export const useRecordingStore = create<State & Action>(set => ({
     let previewChunks = draft.previewChunks;
 
     if (shouldAppendInterruption) {
-      const interruptionChunk = createTranscriptChunk({kind: 'interruption', now, startedAt: draft.startedAt});
+      const recordingElapsedMs = getRecordingElapsedMs({
+        recordingElapsedMs: draft.recordingElapsedMs,
+        recordingStartedAt: draft.recordingStartedAt,
+        now: draft.updatedAt,
+      });
+
+      const interruptionChunk = createTranscriptChunk({
+        kind: 'interruption',
+        now,
+        recordingElapsedMs,
+      });
 
       transcriptChunks.push(interruptionChunk);
       previewChunks = appendPreviewChunk(previewChunks, interruptionChunk);
@@ -198,30 +219,24 @@ export const useRecordingStore = create<State & Action>(set => ({
 
 type CreateTranscriptChunkProps =
   | {text: string; kind: 'speech'; now: string}
-  | {kind: 'interruption'; now: string; startedAt: string | null};
+  | {kind: 'interruption'; now: string; recordingElapsedMs: number};
 
-function getElapsedSeconds(startedAt: string | null, now: string) {
-  if (!startedAt) return null;
-
-  const elapsedMs = new Date(now).getTime() - new Date(startedAt).getTime();
-
-  if (Number.isFinite(elapsedMs) && elapsedMs > 0) {
-    return Math.floor(elapsedMs / 1000);
+function getRecordingElapsedMs({
+  recordingElapsedMs,
+  recordingStartedAt,
+  now,
+}: {
+  recordingElapsedMs: number;
+  recordingStartedAt: string | null;
+  now: string;
+}) {
+  if (!recordingStartedAt) {
+    return recordingElapsedMs;
   }
 
-  return null;
-}
+  const elapsedMs = Date.parse(now) - Date.parse(recordingStartedAt);
 
-function formatElapsedTime(totalSeconds: number) {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  const hh = String(hours).padStart(2, '0');
-  const mm = String(minutes).padStart(2, '0');
-  const ss = String(seconds).padStart(2, '0');
-
-  return `${hh}:${mm}:${ss}`;
+  return recordingElapsedMs + Math.max(0, elapsedMs);
 }
 
 function createTranscriptChunk(props: CreateTranscriptChunkProps): TranscriptChunk {
@@ -232,13 +247,13 @@ function createTranscriptChunk(props: CreateTranscriptChunkProps): TranscriptChu
     return {id, kind: 'speech', text: props.text};
   }
 
-  const elapsedSeconds = getElapsedSeconds(props.startedAt, now);
+  const elapsedSeconds = Math.floor(props.recordingElapsedMs / 1000);
 
   let text: string;
   if (elapsedSeconds == null) {
     text = '[녹음 중단 구간] 녹음이 잠시 멈췄어요.';
   } else {
-    text = `[녹음 중단 구간] ${formatElapsedTime(elapsedSeconds)} 지점에 녹음이 잠시 멈췄어요.`;
+    text = `[녹음 중단 구간] ${formatDuration(props.recordingElapsedMs)} 지점에 녹음이 잠시 멈췄어요.`;
   }
 
   return {id, kind: 'interruption', text};
