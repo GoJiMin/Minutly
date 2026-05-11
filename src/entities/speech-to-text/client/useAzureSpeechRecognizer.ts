@@ -5,9 +5,18 @@ import {useAzureSpeechTokenMutation} from './useAzureSpeechTokenMutation';
 
 const RECOGNITION_LANGUAGE = 'ko-KR';
 
+type SpeechRecognitionCancelReason = 'error' | 'end_of_stream' | 'unknown';
+
+type SpeechRecognitionCancelInfo = {
+  reason: SpeechRecognitionCancelReason;
+  errorCode: string | null;
+  errorDetails: string | null;
+  sessionId: string;
+};
+
 type SpeechRecognizerEventHandlers = {
   onRecognized?: (text: string) => void;
-  onCanceled?: () => void;
+  onCanceled?: (event: SpeechRecognitionCancelInfo) => void;
   onSessionStopped?: () => void;
 };
 
@@ -32,6 +41,26 @@ export function useAzureSpeechRecognizer() {
     return new sdk.SpeechRecognizer(speechConfig, audioConfig);
   }
 
+  function mapCancelReason(reason: sdk.CancellationReason): SpeechRecognitionCancelReason {
+    switch (reason) {
+      case sdk.CancellationReason.Error:
+        return 'error';
+      case sdk.CancellationReason.EndOfStream:
+        return 'end_of_stream';
+      default:
+        return 'unknown';
+    }
+  }
+
+  function createCancelInfo(event: sdk.SpeechRecognitionCanceledEventArgs): SpeechRecognitionCancelInfo {
+    return {
+      reason: mapCancelReason(event.reason),
+      errorCode: event.errorCode == null ? null : sdk.CancellationErrorCode[event.errorCode],
+      errorDetails: event.errorDetails ?? null,
+      sessionId: event.sessionId,
+    };
+  }
+
   function registerSpeechRecognizerEvents(recognizer: sdk.SpeechRecognizer, handlers: SpeechRecognizerEventHandlers) {
     recognizer.recognized = (_sender, event) => {
       if (event.result.reason !== sdk.ResultReason.RecognizedSpeech) return;
@@ -43,8 +72,8 @@ export function useAzureSpeechRecognizer() {
       }
     };
 
-    recognizer.canceled = () => {
-      handlers.onCanceled?.();
+    recognizer.canceled = (_sender, event) => {
+      handlers.onCanceled?.(createCancelInfo(event));
     };
 
     recognizer.sessionStopped = () => {
@@ -52,8 +81,22 @@ export function useAzureSpeechRecognizer() {
     };
   }
 
+  function startContinuousRecognition(recognizer: sdk.SpeechRecognizer) {
+    return new Promise<void>((resolve, reject) => {
+      recognizer.startContinuousRecognitionAsync(resolve, reject);
+    });
+  }
+
+  function stopContinuousRecognition(recognizer: sdk.SpeechRecognizer) {
+    return new Promise<void>((resolve, reject) => {
+      recognizer.stopContinuousRecognitionAsync(resolve, reject);
+    });
+  }
+
   return {
     createSpeechRecognizer,
     registerSpeechRecognizerEvents,
+    startContinuousRecognition,
+    stopContinuousRecognition,
   };
 }
