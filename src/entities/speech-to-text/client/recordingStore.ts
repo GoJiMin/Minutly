@@ -9,10 +9,15 @@ type State = {
   selectedMicrophone: MicrophoneDevice | null;
   startedAt: string | null;
   updatedAt: string | null;
+  recordingElapsedMs: number;
+  recordingStartedAt: string | null;
 };
 
 type Action = {
   startRecording: () => void;
+  pauseRecording: () => void;
+  resumeRecording: () => void;
+  finishRecording: () => void;
   appendSpeechChunk: (text: string) => void;
   appendInterruptionChunk: () => void;
   markRecordingError: (errorCode: RecordingErrorCode) => void;
@@ -43,6 +48,8 @@ export const useRecordingStore = create<State & Action>(set => ({
   selectedMicrophone: null,
   startedAt: null,
   updatedAt: null,
+  recordingElapsedMs: 0,
+  recordingStartedAt: null,
 
   startRecording: () =>
     set(() => {
@@ -53,6 +60,60 @@ export const useRecordingStore = create<State & Action>(set => ({
         startedAt: now,
         updatedAt: now,
         errorCode: null,
+        recordingStartedAt: now,
+        recordingElapsedMs: 0,
+      };
+    }),
+
+  pauseRecording: () =>
+    set(state => {
+      const now = new Date().toISOString();
+
+      if (!state.recordingStartedAt) {
+        return {
+          status: 'paused',
+          updatedAt: now,
+        };
+      }
+
+      const elapsedMs = Date.parse(now) - Date.parse(state.recordingStartedAt);
+
+      return {
+        status: 'paused',
+        recordingElapsedMs: state.recordingElapsedMs + Math.max(0, elapsedMs),
+        recordingStartedAt: null,
+        updatedAt: now,
+      };
+    }),
+
+  resumeRecording: () =>
+    set(set => {
+      const now = new Date().toISOString();
+
+      return {
+        status: 'recording',
+        recordingStartedAt: now,
+        updatedAt: now,
+        errorCode: null,
+      };
+    }),
+
+  finishRecording: () =>
+    set(state => {
+      const now = new Date().toISOString();
+
+      let recordingElapsedMs = state.recordingElapsedMs;
+
+      if (state.recordingStartedAt) {
+        const elapsedMs = Date.parse(now) - Date.parse(state.recordingStartedAt);
+        recordingElapsedMs += Math.max(0, elapsedMs);
+      }
+
+      return {
+        status: 'transcript_review',
+        recordingElapsedMs,
+        recordingStartedAt: null,
+        updatedAt: now,
       };
     }),
 
@@ -113,6 +174,8 @@ export const useRecordingStore = create<State & Action>(set => ({
       selectedMicrophone: draft.selectedMicrophone,
       startedAt: draft.startedAt,
       updatedAt: shouldAppendInterruption ? now : draft.updatedAt,
+      recordingElapsedMs: draft.recordingElapsedMs,
+      recordingStartedAt: shouldAppendInterruption ? null : draft.recordingStartedAt,
     });
   },
 
@@ -127,6 +190,8 @@ export const useRecordingStore = create<State & Action>(set => ({
         selectedMicrophone: null,
         startedAt: null,
         updatedAt: null,
+        recordingElapsedMs: 0,
+        recordingStartedAt: null,
       };
     }),
 }));

@@ -27,6 +27,8 @@ const recordingDraftSchema = z.object({
     .nullable(),
   startedAt: z.string(),
   updatedAt: z.string(),
+  recordingElapsedMs: z.number().nonnegative(),
+  recordingStartedAt: z.string().nullable(),
 });
 
 export type RecordingDraft = z.infer<typeof recordingDraftSchema>;
@@ -46,6 +48,8 @@ function createRecordingDraftSnapshot(status: DraftStatus) {
     selectedMicrophone: state.selectedMicrophone,
     startedAt: state.startedAt,
     updatedAt: new Date().toISOString(),
+    recordingElapsedMs: state.recordingElapsedMs,
+    recordingStartedAt: state.recordingStartedAt,
   };
 }
 
