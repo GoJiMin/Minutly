@@ -18,6 +18,7 @@ export function useRecordingSessionController() {
   } = useAzureSpeechRecognizer();
 
   const {
+    status,
     startRecording,
     pauseRecording,
     resumeRecording,
@@ -28,6 +29,7 @@ export function useRecordingSessionController() {
     appendInterruptionChunk,
   } = useRecordingStore(
     useShallow(state => ({
+      status: state.status,
       markRecordingError: state.markRecordingError,
       selectedMicrophone: state.selectedMicrophone,
       appendSpeechChunk: state.appendSpeechChunk,
@@ -141,7 +143,14 @@ export function useRecordingSessionController() {
   function finishRecordingSession() {
     const recognizer = recognizerRef.current;
 
-    if (!recognizer) return;
+    if (!recognizer) {
+      if (status === 'paused') {
+        finishRecording();
+        saveRecordingDraft('transcript_review');
+      }
+
+      return;
+    }
 
     stopReasonRef.current = 'user_finish';
 
