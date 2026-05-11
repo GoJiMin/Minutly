@@ -2,6 +2,7 @@ import {Separator, Text} from '@/shared/components';
 import {RecordingSessionActionButtons} from './RecordingSessionActionButtons';
 import {formatKoreanDate} from '@/shared/utils';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
+import {RecordingSessionReviewActions} from './RecordingSessionReviewActions';
 
 export default function RecordingSessionControlsPanel() {
   const status = useRecordingStore(state => state.status);
@@ -16,6 +17,7 @@ export default function RecordingSessionControlsPanel() {
         <time className="text-2xl text-foreground">{formatKoreanDate(new Date())}</time>
         <div className="mt-4 text-7xl font-bold tabular-nums">00:00:00</div>
         {isRecordingControlVisible && <RecordingSessionActionButtons />}
+        {isTranscriptReviewVisible && <RecordingSessionReviewActions />}
       </div>
       {isRecordingControlVisible && (
         <>
