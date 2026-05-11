@@ -1,0 +1,153 @@
+'use client';
+
+import {useRef} from 'react';
+import {useShallow} from 'zustand/react/shallow';
+import {saveRecordingDraft, useAzureSpeechRecognizer, useRecordingStore} from '@/entities/speech-to-text/client';
+
+type RecordingSessionStopReason = 'user_pause' | 'user_finish' | 'recognition_failed' | null;
+
+export function useRecordingSessionController() {
+  const recognizerRef = useRef<Awaited<ReturnType<typeof createSpeechRecognizer>> | null>(null);
+  const stopReasonRef = useRef<RecordingSessionStopReason>(null);
+
+  const {
+    createSpeechRecognizer,
+    registerSpeechRecognizerEvents,
+    startContinuousRecognition,
+    stopContinuousRecognition,
+  } = useAzureSpeechRecognizer();
+
+  const {
+    startRecording,
+    markRecordingError,
+    selectedMicrophone,
+    appendSpeechChunk,
+    appendInterruptionChunk,
+    setRecordingStatus,
+  } = useRecordingStore(
+    useShallow(state => ({
+      markRecordingError: state.markRecordingError,
+      selectedMicrophone: state.selectedMicrophone,
+      appendSpeechChunk: state.appendSpeechChunk,
+      appendInterruptionChunk: state.appendInterruptionChunk,
+      setRecordingStatus: state.setRecordingStatus,
+      startRecording: state.startRecording,
+    })),
+  );
+
+  function markRecognitionStopFailed() {
+    stopReasonRef.current = null;
+    recognizerRef.current = null;
+
+    markRecordingError('speech_recognition_canceled');
+    saveRecordingDraft('error');
+  }
+
+  function bindRecordingRecognizerEvents(recognizer: Awaited<ReturnType<typeof createSpeechRecognizer>>) {
+    registerSpeechRecognizerEvents(recognizer, {
+      onRecognized: appendSpeechChunk,
+      onCanceled: cancelInfo => {
+        if (cancelInfo.reason === 'end_of_stream') return;
+
+        stopReasonRef.current = 'recognition_failed';
+
+        stopContinuousRecognition(recognizer).catch(markRecognitionStopFailed);
+      },
+      onSessionStopped: () => {
+        switch (stopReasonRef.current) {
+          case 'user_pause':
+            appendInterruptionChunk();
+            setRecordingStatus('paused');
+            saveRecordingDraft('paused');
+            break;
+
+          case 'user_finish':
+            setRecordingStatus('transcript_review');
+            saveRecordingDraft('transcript_review');
+            break;
+
+          case 'recognition_failed':
+            markRecordingError('speech_recognition_canceled');
+            saveRecordingDraft('error');
+            break;
+
+          case null:
+            markRecordingError('speech_session_stopped');
+            saveRecordingDraft('error');
+            break;
+        }
+
+        stopReasonRef.current = null;
+        recognizerRef.current = null;
+      },
+    });
+  }
+
+  async function startRecordingSession() {
+    try {
+      stopReasonRef.current = null;
+
+      const recognizer = await createSpeechRecognizer({deviceId: selectedMicrophone?.id});
+      recognizerRef.current = recognizer;
+
+      bindRecordingRecognizerEvents(recognizer);
+
+      await startContinuousRecognition(recognizer);
+
+      startRecording();
+      saveRecordingDraft('recording');
+    } catch {
+      stopReasonRef.current = null;
+      recognizerRef.current = null;
+
+      markRecordingError('speech_recognizer_start_failed');
+    }
+  }
+
+  async function resumeRecordingSession() {
+    try {
+      stopReasonRef.current = null;
+
+      const recognizer = await createSpeechRecognizer({deviceId: selectedMicrophone?.id});
+      recognizerRef.current = recognizer;
+      bindRecordingRecognizerEvents(recognizer);
+
+      await startContinuousRecognition(recognizer);
+
+      setRecordingStatus('recording');
+      saveRecordingDraft('recording');
+    } catch {
+      stopReasonRef.current = null;
+      recognizerRef.current = null;
+
+      markRecordingError('speech_recognizer_start_failed');
+    }
+  }
+
+  function pauseRecordingSession() {
+    const recognizer = recognizerRef.current;
+
+    if (!recognizer) return;
+
+    stopReasonRef.current = 'user_pause';
+
+    stopContinuousRecognition(recognizer).catch(markRecognitionStopFailed);
+  }
+
+  function finishRecordingSession() {
+    const recognizer = recognizerRef.current;
+
+    if (!recognizer) return;
+
+    stopReasonRef.current = 'user_finish';
+
+    stopContinuousRecognition(recognizer).catch(markRecognitionStopFailed);
+  }
+
+  return {
+    startRecordingSession,
+    resumeRecordingSession,
+    pauseRecordingSession,
+    finishRecordingSession,
+  };
+}
