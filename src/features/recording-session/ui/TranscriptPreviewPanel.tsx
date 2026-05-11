@@ -21,13 +21,14 @@ export default function TranscriptPreviewPanel() {
 }
 
 const ONBOARDING_STEPS = [
-  '녹음을 시작하면 회의 내용을 문장 단위로 인식합니다.',
-  '필요한 경우 사용할 마이크를 먼저 선택할 수 있습니다.',
-  '인식된 문장은 최근 기록에 최대 10개까지 표시됩니다.',
-  '중간에 쉬어야 한다면 녹음을 잠시 멈춘 뒤 다시 이어갈 수 있습니다.',
-  '녹음이 끝나면 기록을 검토한 뒤 회의 요약을 생성합니다.',
-  '완성된 회의록은 저장해 다시 확인할 수 있습니다.',
-  '완성된 회의록의 회의 내용을 수정해 회의 요약을 다시 생성할 수 있습니다.',
+  '녹음을 시작하면 회의 내용을 문장 단위로 인식해요.',
+  '원활한 녹음을 위해 마이크 권한을 허용해주세요.',
+  '필요한 경우 사용할 마이크를 먼저 선택할 수 있어요.',
+  '인식된 문장은 최근 기록에 최대 10개까지 표시돼요.',
+  '중간에 쉬어야 한다면 녹음을 잠시 멈춘 뒤 다시 이어갈 수 있어요.',
+  '녹음이 끝나면 기록을 검토한 뒤 회의 요약을 생성할 수 있어요.',
+  '완성된 회의록은 저장해 다시 확인할 수 있어요.',
+  '완성된 회의록의 회의 내용을 수정해 회의 요약을 다시 생성할 수 있어요.',
 ];
 
 function TranscriptPreviewContent() {
@@ -41,7 +42,7 @@ function TranscriptPreviewContent() {
   return (
     <div className="flex flex-1 bg-white py-4 px-8">
       {isBeforeRecording && (
-        <ol className="grid w-full flex-1 grid-rows-7">
+        <ol className="grid w-full flex-1 grid-rows-8">
           {ONBOARDING_STEPS.map((step, index) => (
             <li
               key={step}
