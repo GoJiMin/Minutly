@@ -19,19 +19,23 @@ export function useRecordingSessionController() {
 
   const {
     startRecording,
+    pauseRecording,
+    resumeRecording,
+    finishRecording,
     markRecordingError,
     selectedMicrophone,
     appendSpeechChunk,
     appendInterruptionChunk,
-    setRecordingStatus,
   } = useRecordingStore(
     useShallow(state => ({
       markRecordingError: state.markRecordingError,
       selectedMicrophone: state.selectedMicrophone,
       appendSpeechChunk: state.appendSpeechChunk,
       appendInterruptionChunk: state.appendInterruptionChunk,
-      setRecordingStatus: state.setRecordingStatus,
       startRecording: state.startRecording,
+      pauseRecording: state.pauseRecording,
+      resumeRecording: state.resumeRecording,
+      finishRecording: state.finishRecording,
     })),
   );
 
@@ -57,12 +61,12 @@ export function useRecordingSessionController() {
         switch (stopReasonRef.current) {
           case 'user_pause':
             appendInterruptionChunk();
-            setRecordingStatus('paused');
+            pauseRecording();
             saveRecordingDraft('paused');
             break;
 
           case 'user_finish':
-            setRecordingStatus('transcript_review');
+            finishRecording();
             saveRecordingDraft('transcript_review');
             break;
 
@@ -114,7 +118,7 @@ export function useRecordingSessionController() {
 
       await startContinuousRecognition(recognizer);
 
-      setRecordingStatus('recording');
+      resumeRecording();
       saveRecordingDraft('recording');
     } catch {
       stopReasonRef.current = null;
