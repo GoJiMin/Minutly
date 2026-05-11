@@ -1,5 +1,5 @@
-import {RecordingSessionSection} from '@/features/recording-session';
+import {RecordingSessionClientOnly} from '@/features/recording-session';
 
 export function MainPage() {
-  return <RecordingSessionSection />;
+  return <RecordingSessionClientOnly />;
 }

@@ -1,1 +1,1 @@
-export {RecordingSessionSection} from './ui/RecordingSessionSection';
+export {RecordingSessionClientOnly} from './ui/RecordingSessionClientOnly';
