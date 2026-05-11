@@ -1,12 +1,12 @@
 import {create} from 'zustand';
 import {RecordingDraft} from './recordingDraftStorage';
-import {RecordingErrorCode, RecordingStatus, TranscriptChunk} from '../model/types';
+import {MicrophoneDevice, RecordingErrorCode, RecordingStatus, TranscriptChunk} from '../model/types';
 
 type State = {
   status: RecordingStatus;
   errorCode: RecordingErrorCode | null;
   previewChunks: TranscriptChunk[];
-  selectedDeviceId: string | null;
+  selectedMicrophone: MicrophoneDevice | null;
   startedAt: string | null;
   updatedAt: string | null;
 };
@@ -16,8 +16,9 @@ type Action = {
   appendSpeechChunk: (text: string) => void;
   appendInterruptionChunk: () => void;
   markRecordingError: (errorCode: RecordingErrorCode) => void;
+  clearRecordingError: () => void;
   setRecordingStatus: (status: RecordingStatus) => void;
-  setSelectedDeviceId: (deviceId: string) => void;
+  setSelectedMicrophone: (deviceInfo: MicrophoneDevice | null) => void;
   restoreRecordingDraft: (draft: RecordingDraft) => void;
   resetRecording: () => void;
 };
@@ -52,7 +53,7 @@ export const useRecordingStore = create<State & Action>(set => ({
   status: 'idle',
   errorCode: null,
   previewChunks: [],
-  selectedDeviceId: null,
+  selectedMicrophone: null,
   startedAt: null,
   updatedAt: null,
 
@@ -95,13 +96,18 @@ export const useRecordingStore = create<State & Action>(set => ({
     }),
 
   markRecordingError: errorCode => set({status: 'error', errorCode}),
+  clearRecordingError: () =>
+    set(state => ({
+      status: state.status === 'error' ? 'idle' : state.status,
+      errorCode: null,
+    })),
 
   setRecordingStatus: status => set({status}),
 
-  setSelectedDeviceId: deviceId => set({selectedDeviceId: deviceId}),
+  setSelectedMicrophone: deviceInfo => set({selectedMicrophone: deviceInfo}),
 
   restoreRecordingDraft: draft => {
-    const shouldAppendInterruption = draft.status !== 'transcript_review';
+    const shouldAppendInterruption = draft.status === 'recording' || draft.status === 'error';
     const now = new Date().toISOString();
 
     transcriptChunks = draft.chunks;
@@ -117,7 +123,7 @@ export const useRecordingStore = create<State & Action>(set => ({
     set({
       status: shouldAppendInterruption ? 'error' : draft.status,
       previewChunks,
-      selectedDeviceId: draft.selectedDeviceId,
+      selectedMicrophone: draft.selectedMicrophone,
       startedAt: draft.startedAt,
       updatedAt: shouldAppendInterruption ? now : draft.updatedAt,
     });
@@ -131,7 +137,7 @@ export const useRecordingStore = create<State & Action>(set => ({
         status: 'idle',
         errorCode: null,
         previewChunks: [],
-        selectedDeviceId: null,
+        selectedMicrophone: null,
         startedAt: null,
         updatedAt: null,
       };

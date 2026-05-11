@@ -17,10 +17,15 @@ const transcriptChunkSchema = z.discriminatedUnion('kind', [
 ]);
 
 const recordingDraftSchema = z.object({
-  status: z.enum(['recording', 'transcript_review', 'error']),
+  status: z.enum(['recording', 'paused', 'transcript_review', 'error']),
   chunks: z.array(transcriptChunkSchema),
   previewChunks: z.array(transcriptChunkSchema),
-  selectedDeviceId: z.string().nullable(),
+  selectedMicrophone: z
+    .object({
+      id: z.string(),
+      label: z.string(),
+    })
+    .nullable(),
   startedAt: z.string(),
   updatedAt: z.string(),
 });
@@ -39,7 +44,7 @@ function createRecordingDraftSnapshot(status: DraftStatus) {
     status,
     chunks: transcriptChunks,
     previewChunks: state.previewChunks,
-    selectedDeviceId: state.selectedDeviceId,
+    selectedMicrophone: state.selectedMicrophone,
     startedAt: state.startedAt,
     updatedAt: new Date().toISOString(),
   };
