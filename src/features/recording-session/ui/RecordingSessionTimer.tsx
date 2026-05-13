@@ -12,6 +12,7 @@ export function RecordingSessionTimer() {
     })),
   );
 
+  const isError = status === 'error';
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -34,5 +35,9 @@ export function RecordingSessionTimer() {
     elapsedMs += Math.max(0, now - Date.parse(recordingStartedAt));
   }
 
-  return <div className="mt-4 text-7xl font-bold tabular-nums">{formatDuration(elapsedMs)}</div>;
+  return (
+    <div className={`mt-4 text-7xl font-bold tabular-nums ${isError ? 'text-destructive/80' : 'text-foreground'}`}>
+      {formatDuration(elapsedMs)}
+    </div>
+  );
 }
