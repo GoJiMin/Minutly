@@ -1,5 +1,5 @@
 import {RecordingSessionFeedbackPanel} from './feedback/RecordingSessionFeedbackPanel';
-import RecordingSessionControlsPanel from './RecordingSessionControlsPanel';
+import RecordingSessionControlsPanel from './controls/RecordingSessionControlsPanel';
 import {useRecordingDraftPersistence} from '../lib/useRecordingDraftPersistence';
 
 export default function RecordingSessionWorkspace() {

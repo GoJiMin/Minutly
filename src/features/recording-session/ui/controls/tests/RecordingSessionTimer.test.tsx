@@ -2,7 +2,7 @@ import {act, render, screen} from '@testing-library/react';
 import {RecordingSessionTimer} from '../RecordingSessionTimer';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
 
-describe('@/src/features/recording-session/ui/RecordingSessionTimer.tsx', () => {
+describe('@/src/features/recording-session/ui/controls/RecordingSessionTimer.tsx', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-05-12T00:00:00.000Z'));

@@ -1,5 +1,6 @@
+import {Mic} from 'lucide-react';
 import {useShallow} from 'zustand/react/shallow';
-import {useMicrophoneDevices} from '../lib/useMicrophoneDevices';
+import {useMicrophoneDevices} from '../../lib/useMicrophoneDevices';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
 import {
   Button,
@@ -11,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components';
-import {Mic} from 'lucide-react';
 
 const DEFAULT_MICROPHONE_SELECT_VALUE = '__default_microphone__';
 

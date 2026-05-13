@@ -1,5 +1,5 @@
 import {CirclePause, CirclePlay, CircleStop} from 'lucide-react';
-import {useRecordingSessionController} from '../lib/useRecordingSessionController';
+import {useRecordingSessionController} from '../../lib/useRecordingSessionController';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
 import {Button} from '@/shared/components';
 

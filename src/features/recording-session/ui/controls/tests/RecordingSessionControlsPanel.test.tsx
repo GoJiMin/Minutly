@@ -17,7 +17,7 @@ jest.mock('../../lib/useRecordingSessionController', () => ({
   }),
 }));
 
-describe('@/src/features/recording-session/ui/RecordingSessionControlsPanel.tsx', () => {
+describe('@/src/features/recording-session/ui/controls/RecordingSessionControlsPanel.tsx', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-05-12'));
