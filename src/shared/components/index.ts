@@ -7,3 +7,4 @@ export * from './skeleton';
 export * from './spinner';
 export * from './typography';
 export * from './toast';
+export * from './select';

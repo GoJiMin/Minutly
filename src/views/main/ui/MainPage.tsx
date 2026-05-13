@@ -1,7 +1,5 @@
+import {RecordingSessionClientOnly} from '@/features/recording-session';
+
 export function MainPage() {
-  return (
-    <section>
-      <h2>메인 페이지</h2>
-    </section>
-  );
+  return <RecordingSessionClientOnly />;
 }
