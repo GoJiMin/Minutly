@@ -1,6 +1,6 @@
-import {useRecordingDraftPersistence} from '../lib/useRecordingDraftPersistence';
+import {RecordingSessionFeedbackPanel} from './feedback/RecordingSessionFeedbackPanel';
 import RecordingSessionControlsPanel from './RecordingSessionControlsPanel';
-import TranscriptPreviewPanel from './TranscriptPreviewPanel';
+import {useRecordingDraftPersistence} from '../lib/useRecordingDraftPersistence';
 
 export default function RecordingSessionWorkspace() {
   useRecordingDraftPersistence();
@@ -8,7 +8,7 @@ export default function RecordingSessionWorkspace() {
   return (
     <section className="w-full h-full flex gap-10 p-10">
       <RecordingSessionControlsPanel />
-      <TranscriptPreviewPanel />
+      <RecordingSessionFeedbackPanel />
     </section>
   );
 }

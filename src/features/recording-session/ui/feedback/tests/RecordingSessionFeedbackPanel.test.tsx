@@ -1,7 +1,7 @@
 import {act, render, screen} from '@testing-library/react';
 import {PropsWithChildren} from 'react';
-import TranscriptPreviewPanel from '../TranscriptPreviewPanel';
 import {TranscriptChunk, useRecordingStore} from '@/entities/speech-to-text/client';
+import {RecordingSessionFeedbackPanel} from '../RecordingSessionFeedbackPanel';
 
 jest.mock('framer-motion', () => ({
   AnimatePresence: ({children}: PropsWithChildren) => <div>{children}</div>,
@@ -10,20 +10,20 @@ jest.mock('framer-motion', () => ({
   },
 }));
 
-describe('@/src/features/recording-session/ui/TranscriptPreviewPanel.tsx', () => {
+describe('@/src/features/recording-session/ui/feedback/RecordingSessionFeedbackPanel.tsx', () => {
   beforeEach(() => {
     useRecordingStore.getState().resetRecording();
   });
 
   it('녹음 시작 전 대기 상태일 경우 온보딩 메세지가 출력된다.', () => {
-    render(<TranscriptPreviewPanel />);
+    render(<RecordingSessionFeedbackPanel />);
 
     expect(screen.getByRole('heading', {level: 3})).toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(8);
   });
 
   it('녹음 상태에 진입해 인식된 문장이 없을 경우 화면에 아이콘을 표시한다.', () => {
-    render(<TranscriptPreviewPanel />);
+    render(<RecordingSessionFeedbackPanel />);
 
     const onBoardingMessage = '녹음을 시작하면 회의 내용을 문장 단위로 인식해요.';
     expect(screen.getByText(onBoardingMessage)).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('@/src/features/recording-session/ui/TranscriptPreviewPanel.tsx', () =>
   });
 
   it('녹음 상태에 진입해 인식된 문장이 있을 경우 화면에 미리보기를 표시한다.', () => {
-    render(<TranscriptPreviewPanel />);
+    render(<RecordingSessionFeedbackPanel />);
 
     const onBoardingMessage = '녹음을 시작하면 회의 내용을 문장 단위로 인식해요.';
     expect(screen.getByText(onBoardingMessage)).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('@/src/features/recording-session/ui/TranscriptPreviewPanel.tsx', () =>
       useRecordingStore.setState({status: 'paused', previewChunks: [chunk]});
     });
 
-    render(<TranscriptPreviewPanel />);
+    render(<RecordingSessionFeedbackPanel />);
 
     expect(screen.getByText(chunk.text)).toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
