@@ -1,19 +1,27 @@
-import {useRecordingStore} from '@/entities/speech-to-text/client';
+import userEvent from '@testing-library/user-event';
 import {act, render, screen} from '@testing-library/react';
 import RecordingSessionControlsPanel from '../RecordingSessionControlsPanel';
-import userEvent from '@testing-library/user-event';
+import {useRecordingStore} from '@/entities/speech-to-text/client';
 
 const startRecordingSession = jest.fn();
 const resumeRecordingSession = jest.fn();
 const pauseRecordingSession = jest.fn();
 const finishRecordingSession = jest.fn();
 
-jest.mock('../../lib/useRecordingSessionController', () => ({
+jest.mock('../../../lib/useRecordingSessionController', () => ({
   useRecordingSessionController: () => ({
     startRecordingSession,
     resumeRecordingSession,
     pauseRecordingSession,
     finishRecordingSession,
+  }),
+}));
+
+jest.mock('../../../lib/useMicrophoneDevices', () => ({
+  useMicrophoneDevices: () => ({
+    microphoneOptions: [],
+    needsMicrophoneAccess: false,
+    requestMicrophoneAccess: jest.fn(),
   }),
 }));
 
