@@ -4,14 +4,10 @@ import {useCallback, useEffect, useState} from 'react';
 import {useShallow} from 'zustand/react/shallow';
 import {MicrophoneDevice, useRecordingStore} from '@/entities/speech-to-text/client';
 
-const DEFAULT_MICROPHONE_ID = '';
-const DEFAULT_MICROPHONE_OPTION: MicrophoneDevice = {
-  id: DEFAULT_MICROPHONE_ID,
-  label: '브라우저 기본 마이크',
-};
-
 export function useMicrophoneDevices() {
-  const [microphoneOptions, setMicrophoneOptions] = useState([DEFAULT_MICROPHONE_OPTION]);
+  const [microphoneOptions, setMicrophoneOptions] = useState<MicrophoneDevice[]>([]);
+  const [needsMicrophoneAccess, setNeedsMicrophoneAccess] = useState(false);
+
   const {markRecordingError, clearRecordingError, setSelectedMicrophone} = useRecordingStore(
     useShallow(state => ({
       markRecordingError: state.markRecordingError,
@@ -76,15 +72,24 @@ export function useMicrophoneDevices() {
     }
   }
 
-  function createMicrophoneOptions(devices: MediaDeviceInfo[]) {
+  function createMicrophoneDeviceSnapshot(devices: MediaDeviceInfo[]) {
     let unnamedDeviceCount = 0;
-    const options = [DEFAULT_MICROPHONE_OPTION];
+    let hasAudioInput = false;
+    let hasResolvedDeviceLabel = false;
+
+    const nextMicrophoneOptions: MicrophoneDevice[] = [];
 
     for (const device of devices) {
       if (device.kind !== 'audioinput') continue;
 
+      hasAudioInput = true;
+
       const deviceId = device.deviceId.trim();
       const label = device.label.trim();
+
+      if (label.length > 0) {
+        hasResolvedDeviceLabel = true;
+      }
 
       if (deviceId.length === 0) continue;
 
@@ -92,13 +97,16 @@ export function useMicrophoneDevices() {
         unnamedDeviceCount++;
       }
 
-      options.push({
+      nextMicrophoneOptions.push({
         id: deviceId,
         label: label || `마이크 ${unnamedDeviceCount}`,
       });
     }
 
-    return options;
+    return {
+      nextMicrophoneOptions,
+      needsMicrophoneAccess: hasAudioInput && !hasResolvedDeviceLabel,
+    };
   }
 
   function reconcileSelectedMicrophone(
@@ -120,12 +128,14 @@ export function useMicrophoneDevices() {
 
     try {
       const devices = await mediaDevices.enumerateDevices();
-      const nextMicrophoneOptions = createMicrophoneOptions(devices);
+
+      const {nextMicrophoneOptions, needsMicrophoneAccess} = createMicrophoneDeviceSnapshot(devices);
 
       setMicrophoneOptions(nextMicrophoneOptions);
 
       const selectedMicrophone = useRecordingStore.getState().selectedMicrophone;
       setSelectedMicrophone(reconcileSelectedMicrophone(selectedMicrophone, nextMicrophoneOptions));
+      setNeedsMicrophoneAccess(needsMicrophoneAccess);
 
       return true;
     } catch {
@@ -147,6 +157,7 @@ export function useMicrophoneDevices() {
       refreshMicrophones();
     }
 
+    refreshMicrophones();
     mediaDevices.addEventListener('devicechange', handleDeviceChange);
 
     return () => {
@@ -156,6 +167,7 @@ export function useMicrophoneDevices() {
 
   return {
     microphoneOptions,
+    needsMicrophoneAccess,
     requestMicrophoneAccess,
   };
 }

@@ -1,8 +1,9 @@
 import {RecordingSessionTimer} from './RecordingSessionTimer';
 import {RecordingSessionActionButtons} from './RecordingSessionActionButtons';
 import {RecordingSessionReviewActions} from './RecordingSessionReviewActions';
+import SelectMicrophones from './SelectMicrophones';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
-import {Separator, Text} from '@/shared/components';
+import {Separator} from '@/shared/components';
 import {formatKoreanDate} from '@/shared/utils';
 
 export default function RecordingSessionControlsPanel() {
@@ -23,12 +24,7 @@ export default function RecordingSessionControlsPanel() {
       {isRecordingControlVisible && (
         <>
           <Separator />
-          <div className="flex flex-col gap-1">
-            <Text className="ml-2 text-muted-foreground">입력 마이크</Text>
-            <div className="border bg-white w-full h-12 rounded-lg flex items-center p-4 text-muted-foreground">
-              Macbook Pro Microphone
-            </div>
-          </div>
+          <SelectMicrophones />
         </>
       )}
     </section>
