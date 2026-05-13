@@ -13,12 +13,10 @@ export function RecordingSessionTimer() {
   );
 
   const isError = status === 'error';
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
     if (status !== 'recording') return;
-
-    setNow(Date.now());
 
     const intervalId = window.setInterval(() => {
       setNow(Date.now());
@@ -31,7 +29,7 @@ export function RecordingSessionTimer() {
 
   let elapsedMs = recordingElapsedMs;
 
-  if (status === 'recording' && recordingStartedAt) {
+  if (status === 'recording' && recordingStartedAt && now !== null) {
     elapsedMs += Math.max(0, now - Date.parse(recordingStartedAt));
   }
 
