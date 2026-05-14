@@ -29,6 +29,7 @@ const recordingDraftSchema = z.object({
   updatedAt: z.string(),
   recordingElapsedMs: z.number().nonnegative(),
   recordingStartedAt: z.string().nullable(),
+  interruptionCount: z.number().int().nonnegative(),
 });
 
 export type RecordingDraft = z.infer<typeof recordingDraftSchema>;
@@ -50,6 +51,7 @@ function createRecordingDraftSnapshot(status: DraftStatus) {
     updatedAt: new Date().toISOString(),
     recordingElapsedMs: state.recordingElapsedMs,
     recordingStartedAt: state.recordingStartedAt,
+    interruptionCount: state.interruptionCount,
   };
 }
 
