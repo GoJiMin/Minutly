@@ -180,6 +180,23 @@ describe('@/src/entities/speech-to-text/client/recordingStore.ts', () => {
       kind: 'interruption',
       text: '[녹음 중단 구간] 00:00:10 지점에 녹음이 잠시 멈췄어요.',
     });
+    expect(state.interruptionCount).toBe(1);
+  });
+
+  it('중단 구간을 확인하면 남은 중단 구간 수를 줄인다.', () => {
+    useRecordingStore.setState({interruptionCount: 2});
+
+    useRecordingStore.getState().confirmInterruptionChunk();
+
+    expect(useRecordingStore.getState().interruptionCount).toBe(1);
+  });
+
+  it('남은 중단 구간 수는 0보다 작아지지 않는다.', () => {
+    useRecordingStore.setState({interruptionCount: 0});
+
+    useRecordingStore.getState().confirmInterruptionChunk();
+
+    expect(useRecordingStore.getState().interruptionCount).toBe(0);
   });
 
   it('저장된 데이터가 녹음 중단 상태에서 저장됐다면 이전 기록을 그대로 복구한다.', () => {
@@ -198,6 +215,7 @@ describe('@/src/entities/speech-to-text/client/recordingStore.ts', () => {
       updatedAt: '2026-05-12T00:00:05.000Z',
       recordingElapsedMs: 5000,
       recordingStartedAt: null,
+      interruptionCount: 1,
     };
 
     useRecordingStore.getState().restoreRecordingDraft(draft);
@@ -211,6 +229,7 @@ describe('@/src/entities/speech-to-text/client/recordingStore.ts', () => {
     expect(state.updatedAt).toBe(draft.updatedAt);
     expect(state.recordingElapsedMs).toBe(5000);
     expect(state.recordingStartedAt).toBeNull();
+    expect(state.interruptionCount).toBe(1);
     expect(transcriptChunks).toEqual([speechChunk]);
   });
 
@@ -233,6 +252,7 @@ describe('@/src/entities/speech-to-text/client/recordingStore.ts', () => {
       updatedAt: '2026-05-12T00:00:10.000Z',
       recordingElapsedMs: 5000,
       recordingStartedAt: '2026-05-12T00:00:05.000Z',
+      interruptionCount: 1,
     };
 
     useRecordingStore.getState().restoreRecordingDraft(draft);
@@ -242,6 +262,7 @@ describe('@/src/entities/speech-to-text/client/recordingStore.ts', () => {
     expect(state.status).toBe('error');
     expect(state.updatedAt).toBe(RESTORED_AT);
     expect(state.recordingStartedAt).toBeNull();
+    expect(state.interruptionCount).toBe(2);
     expect(transcriptChunks).toHaveLength(2);
     expect(state.previewChunks).toHaveLength(2);
     expect(state.previewChunks.at(-1)).toMatchObject({

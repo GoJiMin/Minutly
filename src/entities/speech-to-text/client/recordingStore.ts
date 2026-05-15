@@ -22,6 +22,7 @@ type Action = {
   finishRecording: () => void;
   appendSpeechChunk: (text: string) => void;
   appendInterruptionChunk: () => void;
+  confirmInterruptionChunk: () => void;
   markRecordingError: (errorCode: RecordingErrorCode) => void;
   clearRecordingError: () => void;
   setRecordingStatus: (status: RecordingStatus) => void;
@@ -156,6 +157,11 @@ export const useRecordingStore = create<State & Action>(set => ({
         interruptionCount: state.interruptionCount + 1,
       };
     }),
+
+  confirmInterruptionChunk: () =>
+    set(state => ({
+      interruptionCount: Math.max(0, state.interruptionCount - 1),
+    })),
 
   markRecordingError: errorCode => set({status: 'error', errorCode}),
   clearRecordingError: () =>
