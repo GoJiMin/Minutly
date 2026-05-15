@@ -14,7 +14,7 @@ export function ReviewSubmitActions({isSubmitting, disabled, errorMessage}: Revi
         {errorMessage && <FieldError className="text-base" errors={[{message: errorMessage}]} />}
       </div>
 
-      <Button type="submit" disabled={disabled} className="h-11 min-w-36 rounded-lg gap-2 text-base">
+      <Button type="submit" disabled={disabled} className="h-12 min-w-44 rounded-lg gap-2 px-7 text-lg font-semibold">
         {isSubmitting ? (
           <>
             <Spinner />
@@ -22,7 +22,7 @@ export function ReviewSubmitActions({isSubmitting, disabled, errorMessage}: Revi
           </>
         ) : (
           <>
-            <Sparkles className="size-4" />
+            <Sparkles className="size-5" />
             요약 생성
           </>
         )}

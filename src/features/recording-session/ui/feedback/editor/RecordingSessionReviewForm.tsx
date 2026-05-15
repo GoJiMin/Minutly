@@ -75,7 +75,7 @@ export function RecordingSessionReviewForm() {
         )}
         <TranscriptEditorField containerRef={containerRef} />
       </div>
-      <div className="shrink-0 border-t bg-background px-6 py-4">
+      <div className="shrink-0 border-t bg-background px-7 py-5">
         <ReviewSubmitActions
           disabled={isSubmitDisabled}
           isSubmitting={form.formState.isSubmitting}
