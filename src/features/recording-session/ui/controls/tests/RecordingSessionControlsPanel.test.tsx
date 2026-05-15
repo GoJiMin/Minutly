@@ -167,12 +167,25 @@ describe('@/src/features/recording-session/ui/controls/RecordingSessionControlsP
       render(<RecordingSessionControlsPanel />);
 
       expect(screen.getByText('녹음이 종료됐어요')).toBeInTheDocument();
+      expect(screen.getByText('우측에서 내용을 확인하고 회의 요약을 생성할 수 있어요.')).toBeInTheDocument();
+      expect(screen.getByText('검토 상태')).toBeInTheDocument();
+      expect(screen.getByText('중단 구간')).toBeInTheDocument();
+      expect(screen.getByText('확인 완료')).toBeInTheDocument();
 
-      expect(screen.getByRole('button', {name: '요약 생성'})).toBeInTheDocument();
-      expect(screen.getByRole('button', {name: '내용 검토'})).toBeInTheDocument();
+      expect(screen.queryByRole('button', {name: '요약 생성'})).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', {name: '내용 검토'})).not.toBeInTheDocument();
       expect(screen.getByRole('button', {name: '새 녹음 시작'})).toBeInTheDocument();
 
       expect(screen.queryByText('입력 마이크')).not.toBeInTheDocument();
+    });
+
+    it('확인하지 않은 녹음 중단 구간이 있으면 남은 개수를 표시한다.', () => {
+      useRecordingStore.setState({interruptionCount: 2});
+
+      render(<RecordingSessionControlsPanel />);
+
+      expect(screen.getByText('중단 구간')).toBeInTheDocument();
+      expect(screen.getByText('2개 남음')).toBeInTheDocument();
     });
 
     it('새 녹음 시작 버튼을 클릭하면 현재 녹음 상태를 초기화한다.', async () => {
@@ -209,8 +222,5 @@ describe('@/src/features/recording-session/ui/controls/RecordingSessionControlsP
       expect(state.recordingElapsedMs).toBe(0);
       expect(state.recordingStartedAt).toBeNull();
     });
-
-    it.todo('요약 생성 버튼을 클릭하면 회의록 생성을 요청한다.');
-    it.todo('내용 검토 버튼을 클릭하면 기록된 내용 수정 화면을 표시한다.');
   });
 });
