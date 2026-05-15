@@ -42,7 +42,7 @@ export function RecordingSessionFeedbackPanel() {
           <Text variant="muted">녹음 중 인식된 문장을 바로 확인할 수 있어요.</Text>
         </header>
       )}
-      <div className={`flex min-h-0 flex-1 bg-white ${isFinishRecording ? 'px-6 py-5' : 'px-8 py-4'}`}>{content}</div>
+      <div className={`flex min-h-0 flex-1 bg-white ${isFinishRecording ? 'p-0' : 'px-8 py-4'}`}>{content}</div>
     </section>
   );
 }
