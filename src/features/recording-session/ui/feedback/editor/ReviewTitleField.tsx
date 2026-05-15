@@ -22,6 +22,7 @@ export function ReviewTitleField({control}: ReviewTitleFieldProps) {
             aria-invalid={fieldState.invalid}
             placeholder="회의 제목을 입력해주세요."
             autoComplete="off"
+            autoFocus
             className="h-12 rounded-lg border-border bg-muted/30 px-3 text-lg font-medium focus-visible:bg-white"
           />
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
