@@ -31,11 +31,17 @@ const reviewInterruptionEffect = StateEffect.define<string>();
 function moveRangesThroughDocumentChange(ranges: TranscriptInterruptionRange[], transaction: Transaction) {
   if (!transaction.docChanged) return ranges;
 
-  return ranges.map(range => ({
-    ...range,
-    from: transaction.changes.mapPos(range.from, 1),
-    to: transaction.changes.mapPos(range.to, -1),
-  }));
+  return ranges.map(range => {
+    const isCollapsed = range.from === range.to;
+    const from = transaction.changes.mapPos(range.from, isCollapsed ? -1 : 1);
+    const to = transaction.changes.mapPos(range.to, -1);
+
+    return {
+      ...range,
+      from,
+      to: Math.max(from, to),
+    };
+  });
 }
 
 function applyReviewEffects(ranges: TranscriptInterruptionRange[], transaction: Transaction) {
@@ -52,10 +58,6 @@ function applyReviewEffects(ranges: TranscriptInterruptionRange[], transaction: 
 
 function getInterruptionLineClassName(reviewed: boolean) {
   return reviewed ? 'cm-interruption-line cm-interruption-line-reviewed' : 'cm-interruption-line';
-}
-
-function getInterruptionTextClassName(reviewed: boolean) {
-  return reviewed ? 'cm-interruption-text cm-interruption-text-reviewed' : 'cm-interruption-text';
 }
 
 function createInterruptionDecorationSet(
@@ -75,10 +77,10 @@ function createInterruptionDecorationSet(
 
     decorations.push(lineDecoration);
 
-    if (from === to) continue;
+    if (interruption.reviewed || from === to) continue;
 
     const textDecoration = Decoration.mark({
-      class: getInterruptionTextClassName(interruption.reviewed),
+      class: 'cm-interruption-text',
     }).range(from, to);
 
     decorations.push(textDecoration);
