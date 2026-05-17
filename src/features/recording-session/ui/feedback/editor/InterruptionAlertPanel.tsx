@@ -44,39 +44,44 @@ export function InterruptionAlertPanel({interruptions, onMarkInterruptionReviewe
           위치로 이동해 중단된 구간을 확인해 주세요.
         </Text>
       </CardHeader>
-      <CardContent className="flex flex-wrap gap-2 px-3">
-        {pendingInterruptions.map(interruption => {
-          const isReviewed = reviewedInterruptionIds.has(interruption.id) || interruptionCount === 0;
+      <CardContent className="px-3">
+        <ul aria-label="확인할 녹음 중단 구간" className="flex flex-wrap gap-2">
+          {pendingInterruptions.map(interruption => {
+            const isReviewed = reviewedInterruptionIds.has(interruption.id) || interruptionCount === 0;
 
-          return (
-            <div
-              key={interruption.id}
-              className="inline-flex overflow-hidden rounded-md border border-border bg-background"
-            >
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="rounded-none px-3 text-foreground"
-                onClick={() => onMoveToInterruption(interruption.id)}
+            return (
+              <li
+                key={interruption.id}
+                className="inline-flex overflow-hidden rounded-md border border-border bg-background"
               >
-                <MapPin className="size-4" />
-                {interruption.order}번째
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="rounded-none border-l border-border px-3 text-muted-foreground hover:text-foreground disabled:bg-muted disabled:text-muted-foreground"
-                disabled={isReviewed}
-                onClick={() => confirmInterruption(interruption.id)}
-              >
-                <Check className="size-4" />
-                확인
-              </Button>
-            </div>
-          );
-        })}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`${interruption.order}번째 중단 구간으로 이동`}
+                  className="rounded-none px-3 text-foreground"
+                  onClick={() => onMoveToInterruption(interruption.id)}
+                >
+                  <MapPin className="size-4" />
+                  {interruption.order}번째
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`${interruption.order}번째 중단 구간 확인`}
+                  className="rounded-none border-l border-border px-3 text-muted-foreground hover:text-foreground disabled:bg-muted disabled:text-muted-foreground"
+                  disabled={isReviewed}
+                  onClick={() => confirmInterruption(interruption.id)}
+                >
+                  <Check className="size-4" />
+                  확인
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
       </CardContent>
     </Card>
   );
