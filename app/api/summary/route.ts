@@ -29,7 +29,6 @@ function createSummaryValidationError(error: ZodError): ErrorResponse {
         detail: '회의 제목을 입력해주세요.',
         status: 400,
       };
-    case 'originTranscript':
     case 'transcript':
       return {
         title: 'TRANSCRIPT_TOO_SHORT',
