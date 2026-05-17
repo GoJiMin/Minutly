@@ -2,6 +2,7 @@ import z from 'zod';
 import {useMemo} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {useShallow} from 'zustand/react/shallow';
 import {ReviewTitleField} from './ReviewTitleField';
 import {InterruptionAlertPanel} from './InterruptionAlertPanel';
 import {TranscriptEditorField} from './TranscriptEditorField';
@@ -19,7 +20,12 @@ const reviewFormSchema = createSummaryRequestSchema.pick({
 export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 export function RecordingSessionReviewForm() {
-  const interruptionCount = useRecordingStore(state => state.interruptionCount);
+  const {interruptionCount, startedAt} = useRecordingStore(
+    useShallow(state => ({
+      interruptionCount: state.interruptionCount,
+      startedAt: state.startedAt,
+    })),
+  );
 
   const {doc, interruptions} = useMemo(() => createTranscriptEditorDocument(transcriptChunks), []);
   const {containerRef, getTranscript, markInterruptionReviewed, moveToInterruption} = useTranscriptEditor({
@@ -27,11 +33,11 @@ export function RecordingSessionReviewForm() {
     interruptions,
   });
 
-  const today = toMeetingDate(new Date());
+  const titlePrefix = createMeetingTitlePrefix(toMeetingDate(startedAt ? new Date(startedAt) : new Date()));
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
     defaultValues: {
-      title: createMeetingTitlePrefix(today),
+      title: titlePrefix,
     },
   });
 
