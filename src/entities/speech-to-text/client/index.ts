@@ -9,3 +9,10 @@ export type {
 } from '../model/types';
 export {readRecordingDraft, saveRecordingDraft, removeRecordingDraft} from './recordingDraftStorage';
 export {transcriptChunks, useRecordingStore} from './recordingStore';
+
+export {
+  saveTranscriptReviewDraft,
+  readTranscriptReviewDraft,
+  removeTranscriptReviewDraft,
+} from './transcriptReviewDraftStorage';
+export type {TranscriptReviewDraft} from './transcriptReviewDraftStorage';

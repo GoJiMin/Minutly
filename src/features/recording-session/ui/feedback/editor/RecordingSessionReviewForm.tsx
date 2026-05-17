@@ -1,5 +1,5 @@
 import z from 'zod';
-import {useMemo} from 'react';
+import {useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useShallow} from 'zustand/react/shallow';
@@ -10,7 +10,12 @@ import {ReviewSubmitActions} from './ReviewSubmitActions';
 import {useTranscriptEditor} from '../../../lib/transcript-editor/useTranscriptEditor';
 import {createTranscriptEditorDocument} from '../../../lib/transcript-editor/createTranscriptEditorDocument';
 import {createSummaryRequestSchema} from '@/entities/summary/client';
-import {transcriptChunks, useRecordingStore} from '@/entities/speech-to-text/client';
+import {
+  readTranscriptReviewDraft,
+  saveTranscriptReviewDraft,
+  transcriptChunks,
+  useRecordingStore,
+} from '@/entities/speech-to-text/client';
 import {createMeetingTitlePrefix, toMeetingDate} from '@/shared/utils';
 
 const reviewFormSchema = createSummaryRequestSchema.pick({
@@ -27,17 +32,31 @@ export function RecordingSessionReviewForm() {
     })),
   );
 
-  const {doc, interruptions} = useMemo(() => createTranscriptEditorDocument(transcriptChunks), []);
+  let initialTitle: string;
+  let initialDoc: string;
+
+  const titlePrefix = createMeetingTitlePrefix(toMeetingDate(startedAt ? new Date(startedAt) : new Date()));
+  const {doc: originTranscript, interruptions} = useMemo(() => createTranscriptEditorDocument(transcriptChunks), []);
+
+  const [reviewDraft] = useState(() => readTranscriptReviewDraft());
+
+  if (reviewDraft) {
+    initialTitle = reviewDraft.title;
+    initialDoc = reviewDraft.transcript;
+  } else {
+    initialTitle = titlePrefix;
+    initialDoc = originTranscript;
+  }
+
   const {containerRef, getTranscript, markInterruptionReviewed, moveToInterruption} = useTranscriptEditor({
-    doc,
+    doc: initialDoc,
     interruptions,
   });
 
-  const titlePrefix = createMeetingTitlePrefix(toMeetingDate(startedAt ? new Date(startedAt) : new Date()));
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
     defaultValues: {
-      title: titlePrefix,
+      title: initialTitle,
     },
   });
 
@@ -46,7 +65,7 @@ export function RecordingSessionReviewForm() {
 
     const result = createSummaryRequestSchema.safeParse({
       title,
-      originTranscript: doc,
+      originTranscript,
       transcript,
     });
 
@@ -59,6 +78,8 @@ export function RecordingSessionReviewForm() {
 
       return;
     }
+
+    saveTranscriptReviewDraft({title, transcript});
 
     // TODO: 요약 생성
     console.log(result.data);
