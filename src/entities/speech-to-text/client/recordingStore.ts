@@ -12,6 +12,7 @@ type State = {
   updatedAt: string | null;
   recordingElapsedMs: number;
   recordingStartedAt: string | null;
+  interruptionCount: number;
 };
 
 type Action = {
@@ -21,6 +22,7 @@ type Action = {
   finishRecording: () => void;
   appendSpeechChunk: (text: string) => void;
   appendInterruptionChunk: () => void;
+  confirmInterruptionChunk: () => void;
   markRecordingError: (errorCode: RecordingErrorCode) => void;
   clearRecordingError: () => void;
   setRecordingStatus: (status: RecordingStatus) => void;
@@ -51,6 +53,7 @@ export const useRecordingStore = create<State & Action>(set => ({
   updatedAt: null,
   recordingElapsedMs: 0,
   recordingStartedAt: null,
+  interruptionCount: 0,
 
   startRecording: () =>
     set(() => {
@@ -151,8 +154,14 @@ export const useRecordingStore = create<State & Action>(set => ({
       return {
         previewChunks: appendPreviewChunk(state.previewChunks, chunk),
         updatedAt: now,
+        interruptionCount: state.interruptionCount + 1,
       };
     }),
+
+  confirmInterruptionChunk: () =>
+    set(state => ({
+      interruptionCount: Math.max(0, state.interruptionCount - 1),
+    })),
 
   markRecordingError: errorCode => set({status: 'error', errorCode}),
   clearRecordingError: () =>
@@ -171,6 +180,7 @@ export const useRecordingStore = create<State & Action>(set => ({
 
     transcriptChunks = draft.chunks;
     let previewChunks = draft.previewChunks;
+    const interruptionCount = shouldAppendInterruption ? draft.interruptionCount + 1 : draft.interruptionCount;
 
     if (shouldAppendInterruption) {
       const recordingElapsedMs = getRecordingElapsedMs({
@@ -197,6 +207,7 @@ export const useRecordingStore = create<State & Action>(set => ({
       updatedAt: shouldAppendInterruption ? now : draft.updatedAt,
       recordingElapsedMs: draft.recordingElapsedMs,
       recordingStartedAt: shouldAppendInterruption ? null : draft.recordingStartedAt,
+      interruptionCount,
     });
   },
 
@@ -213,6 +224,7 @@ export const useRecordingStore = create<State & Action>(set => ({
         updatedAt: null,
         recordingElapsedMs: 0,
         recordingStartedAt: null,
+        interruptionCount: 0,
       };
     }),
 }));
