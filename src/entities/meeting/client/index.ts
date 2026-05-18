@@ -21,3 +21,5 @@ export {
   meetingsByDateQuerySchema,
   updateMeetingRequestSchema,
 } from '../model/schema';
+
+export {useCreateMeetingMutation} from './useCreateMeetingMutation';
