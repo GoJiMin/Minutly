@@ -6,6 +6,7 @@ import {ReviewTitleField} from './ReviewTitleField';
 import {InterruptionAlertPanel} from './InterruptionAlertPanel';
 import {TranscriptEditorField} from './TranscriptEditorField';
 import {ReviewSubmitActions} from './ReviewSubmitActions';
+import {SummaryReviewDialog} from './SummaryReviewDialog';
 import {useTranscriptEditor} from '../../../lib/transcript-editor/useTranscriptEditor';
 import {useTranscriptReviewInitialState} from '@/features/recording-session/lib/transcript-editor/useTranscriptReviewInitialState';
 import {createSummaryRequestSchema, useCreateSummaryMutation} from '@/entities/summary/client';
@@ -123,6 +124,15 @@ export function RecordingSessionReviewForm() {
           onRequestRegenerate={requestSummaryRegeneration}
         />
       </div>
+      {summaryReview && (
+        <SummaryReviewDialog
+          isOpen={isSummaryReviewOpen}
+          summaryReview={summaryReview}
+          onClose={closeSummaryReview}
+          onRequestRegenerate={requestSummaryRegeneration}
+          onSave={saveSummaryReview}
+        />
+      )}
     </form>
   );
 }
