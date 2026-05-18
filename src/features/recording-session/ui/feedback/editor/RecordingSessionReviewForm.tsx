@@ -1,22 +1,16 @@
 import z from 'zod';
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {useShallow} from 'zustand/react/shallow';
 import {ReviewTitleField} from './ReviewTitleField';
 import {InterruptionAlertPanel} from './InterruptionAlertPanel';
 import {TranscriptEditorField} from './TranscriptEditorField';
 import {ReviewSubmitActions} from './ReviewSubmitActions';
 import {useTranscriptEditor} from '../../../lib/transcript-editor/useTranscriptEditor';
-import {createTranscriptEditorDocument} from '../../../lib/transcript-editor/createTranscriptEditorDocument';
-import {createSummaryRequestSchema} from '@/entities/summary/client';
-import {
-  readTranscriptReviewDraft,
-  saveTranscriptReviewDraft,
-  transcriptChunks,
-  useRecordingStore,
-} from '@/entities/speech-to-text/client';
-import {createMeetingTitlePrefix, toMeetingDate} from '@/shared/utils';
+import {useTranscriptReviewInitialState} from '@/features/recording-session/lib/transcript-editor/useTranscriptReviewInitialState';
+import {createSummaryRequestSchema, useCreateSummaryMutation} from '@/entities/summary/client';
+import {saveTranscriptReviewDraft, useRecordingStore} from '@/entities/speech-to-text/client';
+import {CreateMeetingRequest} from '@/entities/meeting/client';
 
 const reviewFormSchema = createSummaryRequestSchema.pick({
   title: true,
@@ -25,33 +19,15 @@ const reviewFormSchema = createSummaryRequestSchema.pick({
 export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 export function RecordingSessionReviewForm() {
-  const {interruptionCount, startedAt} = useRecordingStore(
-    useShallow(state => ({
-      interruptionCount: state.interruptionCount,
-      startedAt: state.startedAt,
-    })),
-  );
+  const [summaryReview, setSummaryReview] = useState<CreateMeetingRequest | null>(null);
 
-  let initialTitle: string;
-  let initialDoc: string;
-
-  const titlePrefix = createMeetingTitlePrefix(toMeetingDate(startedAt ? new Date(startedAt) : new Date()));
-  const {doc: originTranscript, interruptions} = useMemo(() => createTranscriptEditorDocument(transcriptChunks), []);
-
-  const [reviewDraft] = useState(() => readTranscriptReviewDraft());
-
-  if (reviewDraft) {
-    initialTitle = reviewDraft.title;
-    initialDoc = reviewDraft.transcript;
-  } else {
-    initialTitle = titlePrefix;
-    initialDoc = originTranscript;
-  }
-
+  const interruptionCount = useRecordingStore(state => state.interruptionCount);
+  const {initialTitle, initialDoc, interruptions, originTranscript} = useTranscriptReviewInitialState();
   const {containerRef, getTranscript, markInterruptionReviewed, moveToInterruption} = useTranscriptEditor({
     doc: initialDoc,
     interruptions,
   });
+  const {createSummary, isCreatingSummary} = useCreateSummaryMutation();
 
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
@@ -65,7 +41,6 @@ export function RecordingSessionReviewForm() {
 
     const result = createSummaryRequestSchema.safeParse({
       title,
-      originTranscript,
       transcript,
     });
 
@@ -79,13 +54,23 @@ export function RecordingSessionReviewForm() {
       return;
     }
 
-    saveTranscriptReviewDraft({title, transcript});
+    saveTranscriptReviewDraft(result.data);
 
-    // TODO: 요약 생성
-    console.log(result.data);
+    createSummary(result.data, {
+      onSuccess(summaryRequest) {
+        setSummaryReview({
+          title: result.data.title,
+          originTranscript,
+          transcript: result.data.transcript,
+          summary: summaryRequest.summary,
+          keyPoints: summaryRequest.keyPoints,
+        });
+      },
+    });
   }
 
-  const isSubmitDisabled = interruptionCount > 0 || form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting || isCreatingSummary;
+  const isSubmitDisabled = interruptionCount > 0 || isSubmitting;
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full min-h-0 flex-1 flex-col">
@@ -105,7 +90,7 @@ export function RecordingSessionReviewForm() {
       <div className="shrink-0 border-t bg-background px-7 py-5">
         <ReviewSubmitActions
           disabled={isSubmitDisabled}
-          isSubmitting={form.formState.isSubmitting}
+          isSubmitting={isSubmitting}
           errorMessage={form.formState.errors.root?.message}
         />
       </div>
