@@ -31,4 +31,15 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
   TRANSCRIPT_TOO_SHORT: '요약할 회의 내용이 충분하지 않습니다.',
   INVALID_SUMMARY_REQUEST: '요약 요청이 올바르지 않습니다. 다시 확인해주세요.',
   SUMMARY_FAILED: '요약 생성에 실패했습니다. 다시 시도해주세요.',
+
+  /**
+   * 회의 관련
+   */
+  // POST /api/meetings
+  TRANSCRIPT_REQUIRED: '회의 내용을 입력해주세요.',
+  SUMMARY_REQUIRED: '회의 요약을 입력해주세요.',
+  KEY_POINTS_REQUIRED: '주요 사항을 1개 이상 입력해주세요.',
+  KEY_POINTS_TOO_MANY: '주요 사항은 최대 20개까지 저장할 수 있습니다.',
+  INVALID_MEETING_REQUEST: '회의 저장 요청이 올바르지 않습니다. 다시 확인해주세요.',
+  MEETING_SAVE_FAILED: '회의 저장에 실패했습니다. 잠시 후 다시 시도해주세요.',
 } as const;
