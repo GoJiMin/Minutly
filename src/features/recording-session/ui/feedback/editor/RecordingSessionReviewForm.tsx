@@ -1,5 +1,4 @@
 import z from 'zod';
-import {useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {ReviewTitleField} from './ReviewTitleField';
@@ -8,10 +7,10 @@ import {TranscriptEditorField} from './TranscriptEditorField';
 import {ReviewSubmitActions} from './ReviewSubmitActions';
 import {SummaryReviewDialog} from './SummaryReviewDialog';
 import {useTranscriptEditor} from '../../../lib/transcript-editor/useTranscriptEditor';
-import {useTranscriptReviewInitialState} from '@/features/recording-session/lib/transcript-editor/useTranscriptReviewInitialState';
+import {useSummaryReviewDialogState} from '../../../lib/transcript-editor/useSummaryReviewDialogState';
+import {useTranscriptReviewInitialState} from '../../../lib/transcript-editor/useTranscriptReviewInitialState';
 import {createSummaryRequestSchema, useCreateSummaryMutation} from '@/entities/summary/client';
 import {saveTranscriptReviewDraft, useRecordingStore} from '@/entities/speech-to-text/client';
-import {CreateMeetingRequest} from '@/entities/meeting/client';
 
 const reviewFormSchema = createSummaryRequestSchema.pick({
   title: true,
@@ -20,13 +19,18 @@ const reviewFormSchema = createSummaryRequestSchema.pick({
 export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 export function RecordingSessionReviewForm() {
-  const [summaryReview, setSummaryReview] = useState<CreateMeetingRequest | null>(null);
-  const [isSummaryReviewOpen, setIsSummaryReviewOpen] = useState(false);
-
-  const isReviewLocked = summaryReview !== null;
-
   const interruptionCount = useRecordingStore(state => state.interruptionCount);
   const {initialTitle, initialDoc, interruptions, originTranscript} = useTranscriptReviewInitialState();
+  const {
+    summaryReview,
+    isSummaryReviewOpen,
+    isReviewLocked,
+    openSummaryReview,
+    closeSummaryReview,
+    showSummaryReview,
+    requestSummaryRegeneration,
+    saveSummaryReview,
+  } = useSummaryReviewDialogState();
   const {containerRef, getTranscript, markInterruptionReviewed, moveToInterruption} = useTranscriptEditor({
     doc: initialDoc,
     interruptions,
@@ -71,7 +75,7 @@ export function RecordingSessionReviewForm() {
 
     createSummary(result.data, {
       onSuccess(summaryRequest) {
-        setSummaryReview({
+        showSummaryReview({
           title: result.data.title,
           originTranscript,
           transcript: result.data.transcript,
@@ -81,23 +85,6 @@ export function RecordingSessionReviewForm() {
         openSummaryReview();
       },
     });
-  }
-
-  function openSummaryReview() {
-    setIsSummaryReviewOpen(true);
-  }
-
-  function closeSummaryReview() {
-    setIsSummaryReviewOpen(false);
-  }
-
-  function requestSummaryRegeneration() {
-    setSummaryReview(null);
-    setIsSummaryReviewOpen(false);
-  }
-
-  function saveSummaryReview() {
-    // TODO: 회의록 저장하기 연결 (POST /api/meetings)
   }
 
   return (
