@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {drawSelection, EditorView, keymap} from '@codemirror/view';
-import {EditorSelection, EditorState} from '@codemirror/state';
+import {Compartment, EditorSelection, EditorState} from '@codemirror/state';
 import {defaultKeymap, history, historyKeymap} from '@codemirror/commands';
 import {TranscriptInterruptionRange} from './types';
 import {
@@ -8,23 +8,29 @@ import {
   InterruptionTrackingExtension,
 } from './createInterruptionTrackingExtension';
 import {transcriptEditorTheme} from './transcriptEditorTheme';
+import {createEditorLockExtension, EditorLockExtension} from './createEditorLockExtension';
 
 type Props = {
   doc: string;
   interruptions: TranscriptInterruptionRange[];
+  readOnly: boolean;
 };
 
-export function useTranscriptEditor({doc, interruptions}: Props) {
+export function useTranscriptEditor({doc, interruptions, readOnly}: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const trackingRef = useRef<InterruptionTrackingExtension | null>(null);
+  const lockRef = useRef<EditorLockExtension | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     const tracking = createInterruptionTrackingExtension(interruptions);
+    const lock = createEditorLockExtension();
+
     trackingRef.current = tracking;
+    lockRef.current = lock;
 
     const view = new EditorView({
       parent: container,
@@ -36,6 +42,7 @@ export function useTranscriptEditor({doc, interruptions}: Props) {
           EditorView.lineWrapping,
           keymap.of([...defaultKeymap, ...historyKeymap]),
           tracking.extension,
+          lock.extension,
           transcriptEditorTheme,
         ],
       }),
@@ -47,8 +54,19 @@ export function useTranscriptEditor({doc, interruptions}: Props) {
       view.destroy();
       viewRef.current = null;
       trackingRef.current = null;
+      lockRef.current = null;
     };
   }, [doc, interruptions]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    const lock = lockRef.current;
+    if (!view || !lock) return;
+
+    view.dispatch({
+      effects: lock.createLockEffect(readOnly),
+    });
+  }, [readOnly]);
 
   function moveToInterruption(interruptionId: string) {
     const view = viewRef.current;
