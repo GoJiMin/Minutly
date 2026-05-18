@@ -5,7 +5,7 @@ import type {CreateSummaryResult, SummaryProvider} from './summary-provider';
 import {summaryGenerationResultSchema, type CreateSummaryRequest} from '../model/schema';
 import {aiConfig} from '@/shared/server';
 
-const GEMINI_SUMMARY_MODEL = 'gemini-2.5-flash';
+const GEMINI_SUMMARY_MODEL = 'gemini-3-flash-preview';
 
 const systemInstruction = `
 You are a meeting summarization engine.
@@ -31,20 +31,36 @@ Transcript metadata rules:
 Summarization rules:
 - Write the final output in Korean.
 - Base the summary only on the final transcript.
-- Write a detailed meeting-minutes summary, not a short abstract.
-- Return the detailed summary as summaryParagraphs.
-- Each item in summaryParagraphs must be one Korean paragraph.
-- When the transcript contains enough substance, return at least 5 summaryParagraphs.
-- When there are multiple topics, decisions, issues, risks, schedules, or follow-up items, return 6 to 12 summaryParagraphs.
-- Each summaryParagraphs item should contain 2 to 4 Korean sentences.
+- Write a meeting-minutes summary that is concise enough to review quickly, but detailed enough for the scale and substance of the meeting.
+- Do not write a short abstract, but also do not rewrite the conversation turn by turn.
+- Do not preserve every question, answer, clarification, or minor discussion step.
+- Group related exchanges into topic-level conclusions.
+- Focus summaryParagraphs on final decisions, important rationale, unresolved issues, risks, schedules, and follow-up direction.
+- Use keyPoints for detailed decisions, action items, risks, schedules, and follow-up items.
+
+- Choose the number of summaryParagraphs based on the amount of substantive meeting content:
+  - For a short or simple transcript, return 2 to 3 summaryParagraphs.
+  - For a normal multi-topic transcript, return 3 to 5 summaryParagraphs.
+  - For a long and dense meeting transcript, such as a one-hour meeting, return 5 to 8 summaryParagraphs.
+  - Return 9 to 12 summaryParagraphs only when the transcript is exceptionally long and contains many distinct discussion areas.
+
+- Each summaryParagraphs item must be one Korean paragraph.
+- Each summaryParagraphs item should contain 1 to 3 Korean sentences.
 - Each summaryParagraphs item must cover a distinct discussion area.
-- Do not compress unrelated topics into one paragraph just to make the summary shorter.
-- Do not fabricate content to satisfy the paragraph count.
-- Include the meeting background, main discussion flow, important decisions, unresolved issues, risks, schedules, and follow-up direction only when they are present in the transcript.
-- Remove filler speech, repetition, and small talk unless they affect a decision, issue, schedule, or action item.
+- Do not split one discussion area into multiple paragraphs just to increase the paragraph count.
+- Do not compress unrelated topics into one paragraph if doing so would lose important decisions, risks, schedules, or follow-up items.
+- Do not fabricate content to satisfy any paragraph count.
+- Remove filler speech, repetition, small talk, and implementation back-and-forth unless they affect a decision, issue, schedule, or action item.
+- If a discussion ended with a clear decision, summarize the decision and the key rationale instead of listing the entire path to that decision.
+
 - The keyPoints should focus on decisions, action items, important issues, risks, schedules, and follow-up items.
-- Aim for 7 to 20 keyPoints when supported by the transcript.
-- If fewer than 7 meaningful key points are supported, include only the supported points.
+- Choose the number of keyPoints based on the amount of meaningful decisions, action items, risks, schedules, and follow-up items.
+- For a short or focused transcript, return 4 to 8 keyPoints.
+- For a normal multi-topic transcript, return 6 to 12 keyPoints.
+- For a long, dense meeting transcript, return 10 to 20 keyPoints only when each item adds distinct value.
+- If fewer than 4 meaningful key points are supported, include only the supported points.
+- Prefer fewer, stronger keyPoints over many repetitive or overly granular keyPoints.
+- Do not split one decision into multiple keyPoints unless the transcript clearly contains separate actions, constraints, risks, or follow-up items.
 - Each keyPoint must be a standalone Korean sentence.
 - If something is uncertain, describe it as discussed or requiring confirmation instead of presenting it as confirmed.
 - Preserve important product names, person names, organization names, dates, numbers, and technical terms from the transcript.
@@ -84,7 +100,7 @@ ${input.transcript}
                 minItems: 1,
                 maxItems: 12,
                 description:
-                  'Detailed Korean meeting-minutes summary paragraphs based only on the provided transcript. Each item must be one paragraph and should be detailed enough to review the meeting later.',
+                  'Korean meeting-minutes summary paragraphs based only on the provided transcript. The length should scale with the amount of substantive meeting content: concise for short meetings and more detailed for long, dense meetings. Do not rewrite the conversation turn by turn.',
               },
               keyPoints: {
                 type: 'array',
@@ -92,7 +108,7 @@ ${input.transcript}
                 minItems: 1,
                 maxItems: 20,
                 description:
-                  'Important Korean key points based only on the provided transcript, focused on decisions, action items, issues, risks, schedules, and follow-up items.',
+                  'Important Korean key points based only on the provided transcript, focused on distinct decisions, action items, issues, risks, schedules, and follow-up items. The number of items should scale with meeting substance, and repetitive or overly granular points should be merged.',
               },
             },
             required: ['summaryParagraphs', 'keyPoints'],
