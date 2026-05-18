@@ -1,6 +1,8 @@
 import {render, screen, waitFor, within} from '@testing-library/react';
+import mockRouter from 'next-router-mock';
 import userEvent from '@testing-library/user-event';
 import {RecordingSessionReviewForm} from '../RecordingSessionReviewForm';
+import type {CreateMeetingResponse} from '@/entities/meeting/client';
 import {
   readTranscriptReviewDraft,
   removeTranscriptReviewDraft,
@@ -8,6 +10,7 @@ import {
   useRecordingStore,
 } from '@/entities/speech-to-text/client';
 import {fetchTranscriptSummary} from '@/entities/summary/api/summaryApi';
+import {fetchCreateMeeting} from '@/entities/meeting/api/meetingApi';
 import {withAllContext} from '@/shared/utils/withAllContext';
 
 const mockedGetTranscript = jest.fn();
@@ -15,6 +18,7 @@ const mockedMoveToInterruption = jest.fn();
 const mockedMarkInterruptionReviewed = jest.fn();
 
 jest.mock('@/entities/summary/api/summaryApi');
+jest.mock('@/entities/meeting/api/meetingApi');
 
 jest.mock('../../../../lib/transcript-editor/useTranscriptEditor', () => ({
   useTranscriptEditor: () => ({
@@ -26,6 +30,7 @@ jest.mock('../../../../lib/transcript-editor/useTranscriptEditor', () => ({
 }));
 
 const mockedFetchTranscriptSummary = jest.mocked(fetchTranscriptSummary);
+const mockedFetchCreateMeeting = jest.mocked(fetchCreateMeeting);
 const VALID_TRANSCRIPT =
   '오늘 회의에서는 요약 생성 흐름을 점검했다. 전사 검토 화면은 사용자가 수정한 내용을 안정적으로 유지해야 하므로 요약 생성 중에도 기존 화면을 유지하기로 했다. 요약 결과는 전사 에디터와 역할이 다르기 때문에 별도 다이얼로그에서 확인하기로 했다. 요약 요청 전에는 제목과 수정된 전사 내용을 review draft로 저장해 실패하거나 새로고침되어도 복구할 수 있게 한다. originTranscript는 기존 녹음 draft에 있으므로 review draft에는 중복 저장하지 않는다. 요약 요청에는 title과 transcript만 보내고, 최종 회의 저장 시점에 originTranscript를 함께 조립한다. 요약 생성 실패는 전역 토스트 흐름으로 처리한다.';
 
@@ -36,6 +41,7 @@ function renderReviewForm() {
 describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionReviewForm.tsx', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRouter.reset();
     useRecordingStore.getState().resetRecording();
     removeTranscriptReviewDraft();
   });
@@ -233,5 +239,61 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
 
     expect(screen.getByRole('button', {name: '요약 결과 확인하기'})).toBeInTheDocument();
     expect(titleInput).toHaveAttribute('readonly');
+  });
+
+  it('요약 결과 저장 중 다이얼로그를 유지하고 저장 성공 시 생성된 회의록 화면으로 이동한다.', async () => {
+    const user = userEvent.setup();
+    let resolveCreateMeeting!: (response: CreateMeetingResponse) => void;
+
+    mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
+    mockedFetchTranscriptSummary.mockResolvedValue({
+      summary: '저장할 회의 요약입니다.',
+      keyPoints: ['회의 저장 요청이 성공하면 기록 화면으로 이동한다.'],
+    });
+    mockedFetchCreateMeeting.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          resolveCreateMeeting = resolve;
+        }),
+    );
+
+    mockRouter.push('/');
+
+    renderReviewForm();
+
+    const titleInput = screen.getByRole('textbox', {name: '회의 제목'});
+    await user.clear(titleInput);
+    await user.type(titleInput, '회의 저장 테스트');
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
+
+    expect(await screen.findByText('저장할 회의 요약입니다.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', {name: '저장하기'}));
+
+    await screen.findByRole('button', {name: /저장 중/});
+
+    expect(screen.getByText('저장할 회의 요약입니다.')).toBeInTheDocument();
+    expect(screen.getByRole('button', {name: '닫기'})).toBeDisabled();
+    expect(screen.getByRole('button', {name: '수정 후 다시 생성하기'})).toBeDisabled();
+    expect(screen.getByRole('button', {name: /저장 중/})).toBeDisabled();
+    expect(mockedFetchCreateMeeting).toHaveBeenCalledWith(
+      {
+        title: '회의 저장 테스트',
+        originTranscript: '',
+        transcript: VALID_TRANSCRIPT,
+        summary: '저장할 회의 요약입니다.',
+        keyPoints: ['회의 저장 요청이 성공하면 기록 화면으로 이동한다.'],
+      },
+      expect.any(Object),
+    );
+
+    resolveCreateMeeting({
+      id: '5f5d8a97-022c-4ea9-bef6-c099a4df6fce',
+      meetingDate: '2026-05-17',
+    });
+
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe('/history?year=2026&month=05&meetingId=5f5d8a97-022c-4ea9-bef6-c099a4df6fce');
+    });
   });
 });
