@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {drawSelection, EditorView, keymap} from '@codemirror/view';
-import {Compartment, EditorSelection, EditorState} from '@codemirror/state';
+import {EditorSelection, EditorState} from '@codemirror/state';
 import {defaultKeymap, history, historyKeymap} from '@codemirror/commands';
 import {TranscriptInterruptionRange} from './types';
 import {
