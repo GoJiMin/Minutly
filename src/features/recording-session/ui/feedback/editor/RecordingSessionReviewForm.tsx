@@ -20,12 +20,16 @@ export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 export function RecordingSessionReviewForm() {
   const [summaryReview, setSummaryReview] = useState<CreateMeetingRequest | null>(null);
+  const [isSummaryReviewOpen, setIsSummaryReviewOpen] = useState(false);
+
+  const isReviewLocked = summaryReview !== null;
 
   const interruptionCount = useRecordingStore(state => state.interruptionCount);
   const {initialTitle, initialDoc, interruptions, originTranscript} = useTranscriptReviewInitialState();
   const {containerRef, getTranscript, markInterruptionReviewed, moveToInterruption} = useTranscriptEditor({
     doc: initialDoc,
     interruptions,
+    readOnly: isReviewLocked,
   });
   const {createSummary, isCreatingSummary} = useCreateSummaryMutation();
 
@@ -36,7 +40,15 @@ export function RecordingSessionReviewForm() {
     },
   });
 
+  const isSubmitting = form.formState.isSubmitting || isCreatingSummary;
+  const isSubmitDisabled = interruptionCount > 0 || isSubmitting;
+
   function onSubmit({title}: ReviewFormValues) {
+    if (summaryReview) {
+      openSummaryReview();
+      return;
+    }
+
     const transcript = getTranscript() ?? '';
 
     const result = createSummaryRequestSchema.safeParse({
@@ -65,17 +77,32 @@ export function RecordingSessionReviewForm() {
           summary: summaryRequest.summary,
           keyPoints: summaryRequest.keyPoints,
         });
+        openSummaryReview();
       },
     });
   }
 
-  const isSubmitting = form.formState.isSubmitting || isCreatingSummary;
-  const isSubmitDisabled = interruptionCount > 0 || isSubmitting;
+  function openSummaryReview() {
+    setIsSummaryReviewOpen(true);
+  }
+
+  function closeSummaryReview() {
+    setIsSummaryReviewOpen(false);
+  }
+
+  function requestSummaryRegeneration() {
+    setSummaryReview(null);
+    setIsSummaryReviewOpen(false);
+  }
+
+  function saveSummaryReview() {
+    // TODO: 회의록 저장하기 연결 (POST /api/meetings)
+  }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b bg-background px-6 py-5">
-        <ReviewTitleField control={form.control} />
+        <ReviewTitleField control={form.control} readOnly={isReviewLocked} />
       </div>
       <div className="min-h-0 flex flex-1 flex-col gap-3 bg-muted/70 px-6 py-4">
         {interruptionCount > 0 && (
@@ -91,7 +118,9 @@ export function RecordingSessionReviewForm() {
         <ReviewSubmitActions
           disabled={isSubmitDisabled}
           isSubmitting={isSubmitting}
+          isReviewLocked={isReviewLocked}
           errorMessage={form.formState.errors.root?.message}
+          onRequestRegenerate={requestSummaryRegeneration}
         />
       </div>
     </form>
