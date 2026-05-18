@@ -4,9 +4,10 @@ import {FileText} from 'lucide-react';
 
 const LOADING_MESSAGES = [
   '회의 내용을 꼼꼼히 읽어보는 중',
+  '전체적인 문맥을 파악하는 중',
   '중요한 키포인트를 쏙쏙 뽑아내는 중',
   '알기 쉽게 요약본을 작성하는 중',
-  '마무리 다듬는 중',
+  '최종 검토 및 다듬는 중',
 ];
 
 export function SummaryGenerationOverlay() {
@@ -15,7 +16,7 @@ export function SummaryGenerationOverlay() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMessageIndex(prev => Math.min(prev + 1, LOADING_MESSAGES.length - 1));
-    }, 1500);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
@@ -73,7 +74,7 @@ export function SummaryGenerationOverlay() {
             x: ['-100%', '300%'],
           }}
           transition={{
-            duration: 1.5,
+            duration: 2,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
