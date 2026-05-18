@@ -27,6 +27,7 @@ export function RecordingSessionReviewForm() {
     summaryReview,
     isSummaryReviewOpen,
     isReviewLocked,
+    isSavingSummaryReview,
     openSummaryReview,
     closeSummaryReview,
     showSummaryReview,
@@ -116,6 +117,7 @@ export function RecordingSessionReviewForm() {
       {summaryReview && (
         <SummaryReviewDialog
           isOpen={isSummaryReviewOpen}
+          isSaving={isSavingSummaryReview}
           summaryReview={summaryReview}
           onClose={closeSummaryReview}
           onRequestRegenerate={requestSummaryRegeneration}
