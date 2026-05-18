@@ -6,6 +6,7 @@ import {InterruptionAlertPanel} from './InterruptionAlertPanel';
 import {TranscriptEditorField} from './TranscriptEditorField';
 import {ReviewSubmitActions} from './ReviewSubmitActions';
 import {SummaryReviewDialog} from './SummaryReviewDialog';
+import {SummaryGenerationOverlay} from './SummaryGenerationOverlay';
 import {useTranscriptEditor} from '../../../lib/transcript-editor/useTranscriptEditor';
 import {useSummaryReviewDialogState} from '../../../lib/transcript-editor/useSummaryReviewDialogState';
 import {useTranscriptReviewInitialState} from '../../../lib/transcript-editor/useTranscriptReviewInitialState';
@@ -90,7 +91,7 @@ export function RecordingSessionReviewForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full min-h-0 flex-1 flex-col">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="relative flex h-full min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b bg-background px-6 py-5">
         <ReviewTitleField control={form.control} readOnly={isEditorReadOnly} />
       </div>
@@ -107,7 +108,6 @@ export function RecordingSessionReviewForm() {
       <div className="shrink-0 border-t bg-background px-7 py-5">
         <ReviewSubmitActions
           disabled={isSubmitDisabled}
-          isSubmitting={isSubmitting}
           isReviewLocked={isReviewLocked}
           errorMessage={form.formState.errors.root?.message}
           onRequestRegenerate={requestSummaryRegeneration}
@@ -122,6 +122,7 @@ export function RecordingSessionReviewForm() {
           onSave={saveSummaryReview}
         />
       )}
+      {isCreatingSummary && <SummaryGenerationOverlay />}
     </form>
   );
 }

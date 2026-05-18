@@ -1,8 +1,7 @@
 import {PencilLine, Sparkles} from 'lucide-react';
-import {Button, FieldError, Spinner} from '@/shared/components';
+import {Button, FieldError} from '@/shared/components';
 
 type ReviewSubmitActionsProps = {
-  isSubmitting: boolean;
   disabled: boolean;
   isReviewLocked: boolean;
   errorMessage?: string;
@@ -10,7 +9,6 @@ type ReviewSubmitActionsProps = {
 };
 
 export function ReviewSubmitActions({
-  isSubmitting,
   disabled,
   errorMessage,
   isReviewLocked,
@@ -35,17 +33,8 @@ export function ReviewSubmitActions({
         )}
 
         <Button type="submit" disabled={disabled} className="h-12 min-w-44 rounded-lg gap-2 px-7 text-lg font-semibold">
-          {isSubmitting ? (
-            <>
-              <Spinner />
-              요약 생성 중
-            </>
-          ) : (
-            <>
-              <Sparkles className="size-5" />
-              {isReviewLocked ? '요약 결과 확인하기' : '요약 생성하기'}
-            </>
-          )}
+          <Sparkles className="size-5" />
+          {isReviewLocked ? '요약 결과 확인하기' : '요약 생성하기'}
         </Button>
       </div>
     </div>
