@@ -20,6 +20,7 @@ export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 export function RecordingSessionReviewForm() {
   const interruptionCount = useRecordingStore(state => state.interruptionCount);
+  const {createSummary, isCreatingSummary} = useCreateSummaryMutation();
   const {initialTitle, initialDoc, interruptions, originTranscript} = useTranscriptReviewInitialState();
   const {
     summaryReview,
@@ -31,12 +32,13 @@ export function RecordingSessionReviewForm() {
     requestSummaryRegeneration,
     saveSummaryReview,
   } = useSummaryReviewDialogState();
+
+  const isEditorReadOnly = isReviewLocked || isCreatingSummary;
   const {containerRef, getTranscript, markInterruptionReviewed, moveToInterruption} = useTranscriptEditor({
     doc: initialDoc,
     interruptions,
-    readOnly: isReviewLocked,
+    readOnly: isEditorReadOnly,
   });
-  const {createSummary, isCreatingSummary} = useCreateSummaryMutation();
 
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
@@ -90,7 +92,7 @@ export function RecordingSessionReviewForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b bg-background px-6 py-5">
-        <ReviewTitleField control={form.control} readOnly={isReviewLocked} />
+        <ReviewTitleField control={form.control} readOnly={isEditorReadOnly} />
       </div>
       <div className="min-h-0 flex flex-1 flex-col gap-3 bg-muted/70 px-6 py-4">
         {interruptionCount > 0 && (
