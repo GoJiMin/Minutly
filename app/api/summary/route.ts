@@ -1,14 +1,14 @@
-import {NextRequest, NextResponse} from 'next/server';
+import {type NextRequest, NextResponse} from 'next/server';
 import type {ZodError} from 'zod';
 import {
   createSummaryRequestSchema,
-  type CreateSummaryResponse,
   GeminiSummaryProvider,
   SummaryService,
+  type CreateSummaryResponse,
 } from '@/entities/summary/server';
-import {requireAuth} from '@/shared/server/auth';
-import {createErrorJsonResponse, validateRequestBody} from '@/shared/server';
 import type {ErrorResponse} from '@/shared/api';
+import {createErrorJsonResponse, validateRequestBody} from '@/shared/server';
+import {requireAuth} from '@/shared/server/auth';
 
 function createSummaryValidationError(error: ZodError): ErrorResponse {
   const [firstIssue] = error.issues;
@@ -29,7 +29,6 @@ function createSummaryValidationError(error: ZodError): ErrorResponse {
         detail: '회의 제목을 입력해주세요.',
         status: 400,
       };
-    case 'originTranscript':
     case 'transcript':
       return {
         title: 'TRANSCRIPT_TOO_SHORT',

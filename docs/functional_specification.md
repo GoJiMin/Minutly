@@ -189,10 +189,10 @@
 3. 사용자는 오타, 누락 구간, 잘못 인식된 부분을 수정한다.
 4. 사용자는 제목 입력란에 회의 제목을 입력한다.
 5. 제목과 transcript가 모두 준비된 경우 사용자는 `요약 생성` 버튼을 누를 수 있다.
-6. 서비스는 요약 요청 직전에 현재 title, originTranscript, transcript를 복구용 draft snapshot으로 저장한다.
+6. 서비스는 요약 요청 직전에 현재 title, transcript를 복구용 draft snapshot으로 저장한다.
 7. 서비스는 수정된 transcript를 요약 AI에 전달한다.
 8. 요약 결과로 `총 회의 요약`, `주요 사항`을 생성한다.
-9. 요약 결과가 생성되면 title, transcript, summary, keyPoints를 포함한 최종 회의 데이터를 즉시 DB에 저장한다.
+9. 요약 결과가 생성되면 title, originTranscript, transcript, summary, keyPoints를 포함한 최종 회의 데이터를 즉시 DB에 저장한다.
 10. 저장이 성공하면 결과 화면으로 전환한다.
 
 ### 8-4. 기능 규칙
@@ -255,7 +255,7 @@
 
 - 임시 저장은 draft 용도이며 `localStorage`를 사용한다.
 - draft는 녹음 중 데이터 유실 방지와 요약 직전 편집 상태 복구를 모두 지원해야 한다.
-- 요약 직전 draft snapshot에는 최소 title, originTranscript, transcript, 현재 단계, 기존 회의 수정 여부를 판단할 수 있는 정보가 포함되어야 한다.
+- 요약 직전 draft snapshot에는 title, transcript가 포함되어야 한다.
 - 최종 저장은 Neon Postgres의 `meetings` 레코드를 사용한다.
 - 회의 1건당 DB 레코드 1개를 저장한다.
 - `id`는 날짜나 시간 문자열에 의존하지 않는 DB 레코드 고유 식별자다.
@@ -481,7 +481,7 @@
   - `임시 내용 복구`
   - `다시 시도`
   - `메인으로 이동`
-- `임시 내용 복구`를 선택하면 title, originTranscript, transcript를 복구하고 transcript review 화면으로 이동한다.
+- `임시 내용 복구`를 선택하면 title, transcript를 복구하고 transcript review 화면으로 이동한다.
 - 전체 화면 에러 복구는 녹음 중단 복구와 별도의 흐름으로 처리한다.
 - 전체 화면 에러가 발생했더라도 `[녹음 중단 구간]` 마커는 삽입하지 않는다.
 

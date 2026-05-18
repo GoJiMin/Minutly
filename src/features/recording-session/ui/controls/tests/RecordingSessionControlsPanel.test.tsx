@@ -1,7 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import {act, render, screen} from '@testing-library/react';
 import RecordingSessionControlsPanel from '../RecordingSessionControlsPanel';
-import {useRecordingStore} from '@/entities/speech-to-text/client';
+import {
+  readTranscriptReviewDraft,
+  removeTranscriptReviewDraft,
+  saveTranscriptReviewDraft,
+  useRecordingStore,
+} from '@/entities/speech-to-text/client';
 
 const startRecordingSession = jest.fn();
 const resumeRecordingSession = jest.fn();
@@ -32,6 +37,7 @@ describe('@/src/features/recording-session/ui/controls/RecordingSessionControlsP
     jest.clearAllMocks();
 
     useRecordingStore.getState().resetRecording();
+    removeTranscriptReviewDraft();
   });
 
   afterEach(() => {
@@ -204,6 +210,10 @@ describe('@/src/features/recording-session/ui/controls/RecordingSessionControlsP
           recordingStartedAt: null,
         });
       });
+      saveTranscriptReviewDraft({
+        title: '이전 검토 제목',
+        transcript: '이전 검토 전사 내용',
+      });
 
       const user = userEvent.setup({
         advanceTimers: jest.advanceTimersByTime,
@@ -221,6 +231,7 @@ describe('@/src/features/recording-session/ui/controls/RecordingSessionControlsP
       expect(state.updatedAt).toBeNull();
       expect(state.recordingElapsedMs).toBe(0);
       expect(state.recordingStartedAt).toBeNull();
+      expect(readTranscriptReviewDraft()).toBeNull();
     });
   });
 });

@@ -1,11 +1,21 @@
-import {useRecordingStore} from '@/entities/speech-to-text/client';
-import {render, screen, within} from '@testing-library/react';
-import {RecordingSessionReviewForm} from '../RecordingSessionReviewForm';
+import {render, screen, waitFor, within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {RecordingSessionReviewForm} from '../RecordingSessionReviewForm';
+import {
+  readTranscriptReviewDraft,
+  removeTranscriptReviewDraft,
+  saveTranscriptReviewDraft,
+  useRecordingStore,
+} from '@/entities/speech-to-text/client';
+import {fetchTranscriptSummary} from '@/entities/summary/api/summaryApi';
+import {withAllContext} from '@/shared/utils/withAllContext';
 
 const mockedGetTranscript = jest.fn();
 const mockedMoveToInterruption = jest.fn();
 const mockedMarkInterruptionReviewed = jest.fn();
+
+jest.mock('@/entities/summary/api/summaryApi');
+
 jest.mock('../../../../lib/transcript-editor/useTranscriptEditor', () => ({
   useTranscriptEditor: () => ({
     containerRef: {current: null},
@@ -15,18 +25,38 @@ jest.mock('../../../../lib/transcript-editor/useTranscriptEditor', () => ({
   }),
 }));
 
+const mockedFetchTranscriptSummary = jest.mocked(fetchTranscriptSummary);
+const VALID_TRANSCRIPT =
+  '오늘 회의에서는 요약 생성 흐름을 점검했다. 전사 검토 화면은 사용자가 수정한 내용을 안정적으로 유지해야 하므로 요약 생성 중에도 기존 화면을 유지하기로 했다. 요약 결과는 전사 에디터와 역할이 다르기 때문에 별도 다이얼로그에서 확인하기로 했다. 요약 요청 전에는 제목과 수정된 전사 내용을 review draft로 저장해 실패하거나 새로고침되어도 복구할 수 있게 한다. originTranscript는 기존 녹음 draft에 있으므로 review draft에는 중복 저장하지 않는다. 요약 요청에는 title과 transcript만 보내고, 최종 회의 저장 시점에 originTranscript를 함께 조립한다. 요약 생성 실패는 전역 토스트 흐름으로 처리한다.';
+
+function renderReviewForm() {
+  return render(withAllContext(<RecordingSessionReviewForm />));
+}
+
 describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionReviewForm.tsx', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useRecordingStore.getState().resetRecording();
+    removeTranscriptReviewDraft();
   });
 
   it('회의가 시작된 시각을 기준으로 회의 제목 기본값이 설정된다.', () => {
     useRecordingStore.setState({startedAt: new Date('2026-05-17').toISOString()});
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
     expect(screen.getByRole('textbox', {name: '회의 제목'})).toHaveValue('[2026-05-17. 일] - ');
+  });
+
+  it('검토 draft가 있다면 제목 기본값으로 사용한다.', () => {
+    saveTranscriptReviewDraft({
+      title: '저장된 검토 제목',
+      transcript: VALID_TRANSCRIPT,
+    });
+
+    renderReviewForm();
+
+    expect(screen.getByRole('textbox', {name: '회의 제목'})).toHaveValue('저장된 검토 제목');
   });
 
   it('녹음 중단 구간이 있다면 확인 패널이 표시된다.', () => {
@@ -34,7 +64,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     useRecordingStore.getState().appendInterruptionChunk();
     useRecordingStore.getState().appendInterruptionChunk();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
     expect(screen.getByText('녹음 중단 구간 3개')).toBeInTheDocument();
 
@@ -52,7 +82,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     useRecordingStore.getState().appendInterruptionChunk();
     useRecordingStore.getState().appendInterruptionChunk();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
     expect(screen.getByText('녹음 중단 구간 2개')).toBeInTheDocument();
 
@@ -72,7 +102,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
 
     useRecordingStore.getState().appendInterruptionChunk();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
     await user.click(screen.getByRole('button', {name: '1번째 중단 구간으로 이동'}));
 
@@ -84,7 +114,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
 
     useRecordingStore.getState().appendInterruptionChunk();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
     const interruptionCountText = screen.getByText('녹음 중단 구간 1개');
     expect(interruptionCountText).toBeInTheDocument();
@@ -97,9 +127,9 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
   it('녹음 중단 구간이 있을 경우 요약 생성 버튼을 비활성화한다.', () => {
     useRecordingStore.getState().appendInterruptionChunk();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
-    expect(screen.getByRole('button', {name: '요약 생성'})).toBeDisabled();
+    expect(screen.getByRole('button', {name: '요약 생성하기'})).toBeDisabled();
   });
 
   it('녹음 중단 구간을 모두 확인하면 요약 생성 버튼을 활성화한다.', async () => {
@@ -107,9 +137,9 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
 
     useRecordingStore.getState().appendInterruptionChunk();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
-    const submitButton = screen.getByRole('button', {name: '요약 생성'});
+    const submitButton = screen.getByRole('button', {name: '요약 생성하기'});
     expect(submitButton).toBeDisabled();
 
     await user.click(screen.getByRole('button', {name: '1번째 중단 구간 확인'}));
@@ -122,9 +152,9 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
 
     mockedGetTranscript.mockReturnValue('짧은 내용');
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
-    await user.click(screen.getByRole('button', {name: '요약 생성'}));
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
 
     expect(screen.getByText('요약할 회의 내용이 충분하지 않습니다.')).toBeInTheDocument();
   });
@@ -132,10 +162,10 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
   it('요약 생성 요청 시 입력한 제목을 검증해 에러 메세지를 표시한다.', async () => {
     const user = userEvent.setup();
 
-    render(<RecordingSessionReviewForm />);
+    renderReviewForm();
 
     const titleInput = screen.getByRole('textbox', {name: '회의 제목'});
-    const submitButton = screen.getByRole('button', {name: '요약 생성'});
+    const submitButton = screen.getByRole('button', {name: '요약 생성하기'});
 
     await user.clear(titleInput);
     await user.click(submitButton);
@@ -147,5 +177,61 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     expect(screen.getByText('회의 제목은 최대 100자 이하로 입력할 수 있습니다.')).toBeInTheDocument();
   });
 
-  it.todo('제목과 전사 내용이 정상적으로 입력된 경우 요약 생성을 요청한다.');
+  it('제목과 전사 내용이 정상적으로 입력된 경우 요약 생성을 요청하고 검토 draft를 저장한다.', async () => {
+    const user = userEvent.setup();
+
+    mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
+    mockedFetchTranscriptSummary.mockResolvedValue({
+      summary: '생성된 회의 요약입니다.',
+      keyPoints: ['요약 결과는 별도 다이얼로그에서 확인하기로 했다.'],
+    });
+
+    renderReviewForm();
+
+    const titleInput = screen.getByRole('textbox', {name: '회의 제목'});
+    await user.clear(titleInput);
+    await user.type(titleInput, '요약 생성 테스트 회의');
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
+
+    await waitFor(() => {
+      expect(mockedFetchTranscriptSummary).toHaveBeenCalledWith(
+        {
+          title: '요약 생성 테스트 회의',
+          transcript: VALID_TRANSCRIPT,
+        },
+        expect.any(Object),
+      );
+    });
+
+    expect(readTranscriptReviewDraft()).toEqual({
+      title: '요약 생성 테스트 회의',
+      transcript: VALID_TRANSCRIPT,
+    });
+  });
+
+  it('요약 생성에 성공하면 요약 결과 다이얼로그를 표시하고 검토 화면을 잠근다.', async () => {
+    const user = userEvent.setup();
+
+    mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
+    mockedFetchTranscriptSummary.mockResolvedValue({
+      summary: '생성된 회의 요약입니다.',
+      keyPoints: ['요약 결과는 별도 다이얼로그에서 확인하기로 했다.'],
+    });
+
+    renderReviewForm();
+
+    const titleInput = screen.getByRole('textbox', {name: '회의 제목'});
+    await user.clear(titleInput);
+    await user.type(titleInput, '요약 결과 확인 회의');
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
+
+    expect(await screen.findByText('생성된 회의 요약입니다.')).toBeInTheDocument();
+    expect(screen.getByText('요약 결과는 별도 다이얼로그에서 확인하기로 했다.')).toBeInTheDocument();
+    expect(titleInput).toHaveAttribute('readonly');
+
+    await user.click(screen.getByRole('button', {name: '닫기'}));
+
+    expect(screen.getByRole('button', {name: '요약 결과 확인하기'})).toBeInTheDocument();
+    expect(titleInput).toHaveAttribute('readonly');
+  });
 });

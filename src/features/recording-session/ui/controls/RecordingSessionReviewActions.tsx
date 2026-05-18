@@ -1,5 +1,5 @@
 import {RefreshCcw} from 'lucide-react';
-import {removeRecordingDraft, useRecordingStore} from '@/entities/speech-to-text/client';
+import {removeRecordingDraft, removeTranscriptReviewDraft, useRecordingStore} from '@/entities/speech-to-text/client';
 import {Button, Text} from '@/shared/components';
 
 export function RecordingSessionReviewActions() {
@@ -10,6 +10,7 @@ export function RecordingSessionReviewActions() {
   function handleStartNewRecording() {
     resetRecording();
     removeRecordingDraft();
+    removeTranscriptReviewDraft();
   }
   return (
     <div className="mt-6 flex w-full max-w-90 flex-col gap-3">

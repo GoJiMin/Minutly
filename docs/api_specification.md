@@ -369,7 +369,6 @@ POST /api/summary
 ```json
 {
   "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의",
-  "originTranscript": "Azure STT 원본 전사 텍스트",
   "transcript": "사용자가 수정한 최종 전사 텍스트"
 }
 ```
@@ -379,7 +378,6 @@ POST /api/summary
 ```ts
 type CreateSummaryRequest = {
   title: string;
-  originTranscript: string;
   transcript: string;
 };
 
