@@ -22,4 +22,6 @@ export {
   updateMeetingRequestSchema,
 } from '../model/schema';
 
+export {MEETING_HISTORY_START_DATE, MEETING_HISTORY_START_MONTH} from '../model/constants';
+
 export {useCreateMeetingMutation} from './useCreateMeetingMutation';

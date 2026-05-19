@@ -1,7 +1,5 @@
 import z from 'zod';
-
-const MIN_MEETING_QUERY_DATE = '2026-05-08';
-const MIN_MEETING_QUERY_MONTH = '2026-05';
+import {MEETING_HISTORY_START_DATE, MEETING_HISTORY_START_MONTH} from './constants';
 
 const meetingPayloadSchema = z.object({
   title: z.string().trim().min(1, '회의 제목을 입력해주세요.').max(100, '회의 제목은 100자 이하로 입력해주세요.'),
@@ -27,7 +25,7 @@ export const meetingIdParamsSchema = z.object({
 export const meetingsByDateQuerySchema = z.object({
   date: z.iso
     .date('날짜 형식이 올바르지 않습니다.')
-    .refine(value => value >= MIN_MEETING_QUERY_DATE, '조회할 수 없는 날짜입니다.'),
+    .refine(value => value >= MEETING_HISTORY_START_DATE, '조회할 수 없는 날짜입니다.'),
 });
 
 export const meetingDatesQuerySchema = z
@@ -41,7 +39,7 @@ export const meetingDatesQuerySchema = z
         return month >= 1 && month <= 12;
       }, '조회할 월은 01부터 12까지 입력해주세요.'),
   })
-  .refine(({year, month}) => `${year}-${month}` >= MIN_MEETING_QUERY_MONTH, '조회할 수 없는 연월입니다.');
+  .refine(({year, month}) => `${year}-${month}` >= MEETING_HISTORY_START_MONTH, '조회할 수 없는 연월입니다.');
 
 export type MeetingIdParams = z.infer<typeof meetingIdParamsSchema>;
 export type MeetingsByDateQuery = z.infer<typeof meetingsByDateQuerySchema>;
