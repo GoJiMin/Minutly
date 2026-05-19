@@ -1,15 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import {MeetingHistoryWorkspaceSkeleton} from './MeetingHistorySkeleton';
 
 const MeetingHistoryWorkspace = dynamic(() => import('./MeetingHistoryWorkspace'), {
   ssr: false,
-  loading: () => (
-    <div>
-      {/* TODO: 히스토리 스켈레톤 */}
-      loading
-    </div>
-  ),
+  loading: () => <MeetingHistoryWorkspaceSkeleton />,
 });
 
 export function MeetingHistoryClientOnly() {
