@@ -16,5 +16,7 @@ export const meetingQueryOptions = {
     queryKey: meetingQueryKeys.dates.month(year, month),
     queryFn: () => getMeetingDatesByMonth({year, month}),
     placeholderData: keepPreviousData,
+    staleTime: Infinity,
+    gcTime: Infinity,
   }),
 };
