@@ -24,4 +24,6 @@ export {
 
 export {MEETING_HISTORY_START_DATE, MEETING_HISTORY_START_MONTH} from '../model/constants';
 
+export {meetingQueryKeys, meetingQueryOptions} from './meeting-query';
+export {useMeetingDatesByMonthQuery} from './useMeetingDatesByMonthQuery';
 export {useCreateMeetingMutation} from './useCreateMeetingMutation';
