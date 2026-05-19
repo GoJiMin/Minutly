@@ -9,3 +9,5 @@ export * from './typography';
 export * from './toast';
 export * from './select';
 export * from './dialog';
+export * from './calendar';
+export * from './query-error-boundary';

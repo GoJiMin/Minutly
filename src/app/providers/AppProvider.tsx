@@ -3,13 +3,11 @@ import {Toaster as SonnerToaster} from 'sonner';
 import {ReactQueryProvider} from './ReactQueryProvider';
 import {GlobalErrorDetector} from './GlobalErrorDetector';
 import {UnexpectedErrorBoundary} from './UnexpectedErrorBoundary';
-import {AuthBootstrapper} from '@/features/auth';
 
 export function AppProvider({children}: PropsWithChildren) {
   return (
     <UnexpectedErrorBoundary>
       <ReactQueryProvider>
-        <AuthBootstrapper />
         <SonnerToaster
           position="top-center"
           style={{
