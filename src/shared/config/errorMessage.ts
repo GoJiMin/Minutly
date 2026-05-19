@@ -42,4 +42,16 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
   KEY_POINTS_TOO_MANY: '주요 사항은 최대 20개까지 저장할 수 있습니다.',
   INVALID_MEETING_REQUEST: '회의 저장 요청이 올바르지 않습니다. 다시 확인해주세요.',
   MEETING_SAVE_FAILED: '회의 저장에 실패했습니다. 잠시 후 다시 시도해주세요.',
+
+  // GET /api/meetings/dates
+  INVALID_YEAR: '조회할 연도 형식이 올바르지 않습니다.',
+  INVALID_MONTH: '조회할 월 형식이 올바르지 않습니다.',
+  UNSUPPORTED_YEAR_MONTH: '조회할 수 없는 연월입니다.',
+  MEETING_DATES_READ_FAILED: '회의 날짜 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+
+  // GET /api/meetings
+  INVALID_DATE: '날짜 형식이 올바르지 않습니다.',
+  UNSUPPORTED_DATE: '조회할 수 없는 날짜입니다.',
+  INVALID_MEETINGS_QUERY: '회의 목록 조회 요청이 올바르지 않습니다.',
+  MEETINGS_READ_FAILED: '회의 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
 } as const;
