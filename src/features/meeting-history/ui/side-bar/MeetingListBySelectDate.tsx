@@ -12,7 +12,11 @@ export function MeetingListBySelectedDate() {
     return <SelectDateEmptyState />;
   }
 
-  return <SelectedDateMeetingList date={date} />;
+  return (
+    <div className="min-h-0 w-full flex-1 flex flex-col items-center px-1">
+      <SelectedDateMeetingList date={date} />
+    </div>
+  );
 }
 
 function SelectDateEmptyState() {
