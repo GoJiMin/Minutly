@@ -1,8 +1,8 @@
 'use client';
 
-import {useEffect, useState} from 'react';
 import {useReducedMotion} from 'framer-motion';
 import Lottie from 'lottie-react';
+import meetingEmptyAnimation from '../../../../../public/animations/meeting-empty.json';
 import {useMeetingHistorySearchParams} from '../../lib/useMeetingHistorySearchParams';
 import {Text} from '@/shared/components';
 
@@ -18,46 +18,17 @@ export function MeetingHistoryDetailPanel() {
 
 function SelectMeetingEmptyState() {
   const shouldReduceMotion = useReducedMotion();
-  const [animationData, setAnimationData] = useState<unknown>();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadAnimation() {
-      try {
-        const response = await fetch('/animations/meeting-empty.json');
-
-        if (!response.ok) return;
-
-        const data: unknown = await response.json();
-
-        if (isMounted) {
-          setAnimationData(data);
-        }
-      } catch {
-        // Empty-state copy still guides the user if the decorative animation cannot load.
-      }
-    }
-
-    void loadAnimation();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-8 text-center">
       <div className="mb-7 flex flex-col items-center gap-5">
         <div aria-hidden className="h-62 w-96 max-w-full">
-          {animationData ? (
-            <Lottie
-              animationData={animationData}
-              loop={!shouldReduceMotion}
-              autoplay={!shouldReduceMotion}
-              className="h-full w-full"
-            />
-          ) : null}
+          <Lottie
+            animationData={meetingEmptyAnimation}
+            loop={!shouldReduceMotion}
+            autoplay={!shouldReduceMotion}
+            className="h-full w-full"
+          />
         </div>
 
         <div className="space-y-2">
