@@ -1,1 +1,1 @@
-export {MeetingHistoryWorkspace} from './ui/MeetingHistoryWorkspace';
+export {MeetingHistoryClientOnly} from './ui/MeetingHistoryClientOnly';
