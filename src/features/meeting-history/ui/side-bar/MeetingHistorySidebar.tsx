@@ -1,3 +1,9 @@
+import {MeetingCalendar} from './MeetingCalendar';
+
 export function MeetingHistorySidebar() {
-  return <aside></aside>;
+  return (
+    <aside>
+      <MeetingCalendar />
+    </aside>
+  );
 }
