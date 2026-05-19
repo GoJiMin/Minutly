@@ -1,3 +1,3 @@
 export function MeetingHistoryDetailPanel() {
-  return <section></section>;
+  return <section className="flex min-h-0 flex-1 flex-col rounded-xl border-2"></section>;
 }
