@@ -2,7 +2,7 @@ import {Separator, Skeleton} from '@/shared/components';
 
 export function MeetingCalendarSkeleton() {
   return (
-    <div aria-hidden className="w-85 bg-transparent p-3 [--cell-radius:var(--radius-4xl)] [--cell-size:--spacing(8)]">
+    <div aria-hidden className="w-92 bg-transparent p-3 [--cell-radius:var(--radius-4xl)] [--cell-size:--spacing(8)]">
       <div className="relative flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)">
         <Skeleton className="absolute left-0 size-(--cell-size) rounded-(--cell-radius)" />
         <Skeleton className="h-4 w-20 rounded-md" />
@@ -46,7 +46,7 @@ export function MeetingListSkeleton() {
 
 function MeetingHistorySidebarSkeleton() {
   return (
-    <aside className="w-96 h-full min-h-0 flex flex-col items-center gap-3">
+    <aside className="w-105 h-full min-h-0 flex flex-col items-center gap-3">
       <MeetingCalendarSkeleton />
       <Separator />
       <MeetingListSkeleton />

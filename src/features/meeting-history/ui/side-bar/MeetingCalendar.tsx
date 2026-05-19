@@ -21,7 +21,7 @@ export function MeetingCalendar() {
 
   return (
     <Calendar
-      className="w-85 bg-transparent"
+      className="w-92 bg-transparent"
       mode="single"
       month={calendarMonth}
       selected={selectedDate}
