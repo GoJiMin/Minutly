@@ -2,7 +2,7 @@
 
 import {Suspense} from 'react';
 import {MeetingCalendar} from './MeetingCalendar';
-import {MeetingListBySelectedDate} from './MeetingListBySelectDate';
+import {MeetingListBySelectedDate} from './MeetingListBySelectedDate';
 import {MeetingCalendarSkeleton, MeetingListSkeleton} from '../MeetingHistorySkeleton';
 import {useMeetingHistorySearchParams} from '../../lib/useMeetingHistorySearchParams';
 import {QueryErrorBoundary, QueryErrorFallback, Separator} from '@/shared/components';
