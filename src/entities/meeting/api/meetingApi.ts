@@ -1,5 +1,5 @@
-import type {CreateMeetingRequest, MeetingDatesQuery} from '../model/schema';
-import type {CreateMeetingResponse, GetMeetingDatesResponse} from '../model/types';
+import type {CreateMeetingRequest, MeetingDatesQuery, MeetingsByDateQuery} from '../model/schema';
+import type {CreateMeetingResponse, GetMeetingDatesResponse, GetMeetingsByDateResponse} from '../model/types';
 import {fetchGet, fetchPost} from '@/shared/api';
 
 export async function fetchCreateMeeting(payload: CreateMeetingRequest) {
@@ -16,6 +16,15 @@ export async function getMeetingDatesByMonth({year, month}: MeetingDatesQuery) {
     queryParams: {
       year,
       month,
+    },
+  });
+}
+
+export async function getMeetingsByDate({date}: MeetingsByDateQuery) {
+  return await fetchGet<GetMeetingsByDateResponse>({
+    endpoint: '/api/meetings',
+    queryParams: {
+      date,
     },
   });
 }

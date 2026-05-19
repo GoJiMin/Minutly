@@ -11,8 +11,12 @@ export function useCreateMeetingMutation() {
     onSuccess: ({meetingDate}) => {
       const [year, month] = meetingDate.split('-');
 
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: meetingQueryKeys.dates.month(year, month),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: meetingQueryKeys.list.byDate(meetingDate),
       });
     },
   });
