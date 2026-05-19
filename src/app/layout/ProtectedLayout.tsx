@@ -6,9 +6,9 @@ export function ProtectedLayout({children}: PropsWithChildren) {
   return (
     <>
       <AuthBootstrapper />
-      <div className="min-h-dvh flex flex-col">
+      <div className="h-dvh min-h-0 flex flex-col">
         <AppHeader />
-        <main className="flex-1">{children}</main>
+        <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
       </div>
     </>
   );

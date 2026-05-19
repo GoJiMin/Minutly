@@ -4,7 +4,7 @@ import {MeetingHistorySidebar} from './side-bar/MeetingHistorySidebar';
 
 export default function MeetingHistoryWorkspace() {
   return (
-    <section className="w-full h-full flex py-7 px-1">
+    <section className="w-full h-full min-h-0 flex overflow-hidden py-7 px-1">
       <MeetingHistorySidebar />
       <Separator orientation="vertical" />
       <MeetingHistoryDetailPanel />
