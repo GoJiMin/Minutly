@@ -66,4 +66,19 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
 
   // DELETE /api/meetings/[id]
   MEETING_DELETE_FAILED: '회의 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+
+  // GET /api/meetings/[id]/memos
+  MEETING_MEMOS_READ_FAILED: '메모를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+
+  // POST /api/meetings/[id]/memos
+  MEMO_CONTENT_REQUIRED: '메모 내용을 입력해주세요.',
+  MEMO_CONTENT_TOO_LONG: '메모 내용은 최대 500자 이하로 입력해주세요.',
+  MEETING_MEMOS_TOO_MANY: '메모는 회의당 최대 50개까지 저장할 수 있습니다.',
+  INVALID_MEETING_MEMO_REQUEST: '메모 저장 요청이 올바르지 않습니다. 다시 확인해주세요.',
+  MEETING_MEMO_SAVE_FAILED: '메모 저장에 실패했습니다. 잠시 후 다시 시도해주세요.',
+
+  // DELETE /api/meetings/[id]/memos/[memoId]
+  INVALID_MEETING_MEMO_ID: '메모 식별자가 올바르지 않습니다.',
+  MEETING_MEMO_NOT_FOUND: '메모를 찾을 수 없습니다.',
+  MEETING_MEMO_DELETE_FAILED: '메모 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.',
 } as const;
