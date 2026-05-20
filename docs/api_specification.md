@@ -16,7 +16,9 @@ API는 RESTful한 형태를 기본으로 하며, 인증이 필요한 API는 서�
 - 서버는 Azure Speech 리소스 키와 AI API 키를 환경 변수로만 관리한다.
 - 클라이언트에는 Azure 리소스 키와 AI API 키를 노출하지 않는다.
 - 회의 데이터는 Neon Postgres의 `meetings` 레코드로 저장한다.
+- 회의별 개인 메모는 Neon Postgres의 `meeting_memos` 레코드로 저장한다.
 - 회의 `id`는 UUID 형식의 전역 고유 식별자다.
+- 개인 메모 `id`는 증가 숫자 식별자다.
 - `meetingDate`는 캘린더 및 날짜별 조회에 사용하는 서비스 기준 날짜다.
 - `meetingDate`는 `createdAt`을 `Asia/Seoul` 시간대로 해석해 생성한다.
 - `createdAt`은 회의 생성 시각 전체를 나타내는 ISO 문자열로 저장한다.
@@ -112,20 +114,23 @@ type ErrorResponse = {
 
 ## 4. API 목록
 
-| Method | Endpoint                                 | 설명                                     | 인증               |
-| ------ | ---------------------------------------- | ---------------------------------------- | ------------------ |
-| POST   | `/api/auth/login`                        | 로그인 정보 검증 후 토큰 쿠키 발급       | 불필요             |
-| POST   | `/api/auth/refresh`                      | refresh token으로 access token 재발급    | refresh token 필요 |
-| POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
-| GET    | `/api/auth/check`                        | 현재 인증 상태 확인                      | 필요               |
-| POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
-| POST   | `/api/summary`                           | transcript로 요약 생성                   | 필요               |
-| POST   | `/api/meetings`                          | 신규 회의 저장                           | 필요               |
-| GET    | `/api/meetings/dates?year=YYYY&month=MM` | 특정 연월에서 회의가 있는 날짜 목록 조회 | 필요               |
-| GET    | `/api/meetings?date=YYYY-MM-DD`          | 특정 날짜의 회의 목록 조회               | 필요               |
-| GET    | `/api/meetings/{id}`                     | 특정 회의 상세 조회                      | 필요               |
-| PUT    | `/api/meetings/{id}`                     | 기존 회의 수정 저장                      | 필요               |
-| DELETE | `/api/meetings/{id}`                     | 기존 회의 삭제                           | 필요               |
+| Method | Endpoint                                   | 설명                                     | 인증               |
+| ------ | ------------------------------------------ | ---------------------------------------- | ------------------ |
+| POST   | `/api/auth/login`                          | 로그인 정보 검증 후 토큰 쿠키 발급       | 불필요             |
+| POST   | `/api/auth/refresh`                        | refresh token으로 access token 재발급    | refresh token 필요 |
+| POST   | `/api/auth/logout`                         | 인증 쿠키 제거                           | 불필요             |
+| GET    | `/api/auth/check`                          | 현재 인증 상태 확인                      | 필요               |
+| POST   | `/api/speech/token`                        | Azure Speech access token 발급           | 필요               |
+| POST   | `/api/summary`                             | transcript로 요약 생성                   | 필요               |
+| POST   | `/api/meetings`                            | 신규 회의 저장                           | 필요               |
+| GET    | `/api/meetings/dates?year=YYYY&month=MM`   | 특정 연월에서 회의가 있는 날짜 목록 조회 | 필요               |
+| GET    | `/api/meetings?date=YYYY-MM-DD`            | 특정 날짜의 회의 목록 조회               | 필요               |
+| GET    | `/api/meetings/{id}`                       | 특정 회의 상세 조회                      | 필요               |
+| PUT    | `/api/meetings/{id}`                       | 기존 회의 수정 저장                      | 필요               |
+| DELETE | `/api/meetings/{id}`                       | 기존 회의 삭제                           | 필요               |
+| GET    | `/api/meetings/{meetingId}/memos`          | 특정 회의의 개인 메모 목록 조회          | 필요               |
+| POST   | `/api/meetings/{meetingId}/memos`          | 특정 회의에 개인 메모 추가               | 필요               |
+| DELETE | `/api/meetings/{meetingId}/memos/{memoId}` | 특정 회의의 개인 메모 삭제               | 필요               |
 
 ---
 
@@ -620,9 +625,212 @@ type DeleteMeetingParams = {
 
 ---
 
-## 9. 히스토리 조회 API
+## 9. 회의 메모 API
 
-## 9-1. 특정 연월의 회의 날짜 목록 조회
+## 9-1. 개인 메모 목록 조회
+
+```http
+GET /api/meetings/{meetingId}/memos
+```
+
+### 목적
+
+사용자가 선택한 회의에 저장된 개인 메모 목록을 조회한다.
+
+### Path Parameter
+
+| Name        | Type   | 설명             |
+| ----------- | ------ | ---------------- |
+| `meetingId` | string | 회의 UUID 식별자 |
+
+### Type
+
+```ts
+type GetMeetingMemosParams = {
+  meetingId: string;
+};
+
+type MeetingMemo = {
+  id: number;
+  content: string;
+};
+
+type GetMeetingMemosResponse = {
+  memos: MeetingMemo[];
+};
+```
+
+### Response
+
+```json
+{
+  "memos": [
+    {
+      "id": 1,
+      "content": "다음 회의 전에 액션 아이템 담당자를 다시 확인하기"
+    }
+  ]
+}
+```
+
+### 처리 규칙
+
+- 서버는 path의 `meetingId`를 UUID로 검증한다.
+- 서버는 path의 `meetingId`로 회의 레코드 존재 여부를 확인한다.
+- 회의가 존재하지 않으면 404를 반환한다.
+- DB는 `meeting_memos.meeting_id = meetingId` 조건으로 조회한다.
+- 개인 메모는 `meeting_memos.id` 오름차순으로 정렬한다.
+- 해당 회의에 개인 메모가 없으면 빈 배열을 반환한다.
+- 응답 항목에는 `id`, `content`만 포함한다.
+
+### Error
+
+| Status | Title                       | Detail                                |
+| ------ | --------------------------- | ------------------------------------- |
+| 400    | `INVALID_MEETING_ID`        | 회의 식별자는 UUID 형식이어야 합니다. |
+| 401    | `UNAUTHORIZED`              | 인증이 필요합니다.                    |
+| 401    | `TOKEN_EXPIRED`             | 인증 정보가 만료되었습니다.           |
+| 404    | `MEETING_NOT_FOUND`         | 회의 기록을 찾을 수 없습니다.         |
+| 500    | `MEETING_MEMOS_READ_FAILED` | 메모를 불러오지 못했습니다.           |
+
+---
+
+## 9-2. 개인 메모 추가
+
+```http
+POST /api/meetings/{meetingId}/memos
+```
+
+### 목적
+
+사용자가 선택한 회의에 개인 메모 1개를 추가한다.
+
+### Path Parameter
+
+| Name        | Type   | 설명             |
+| ----------- | ------ | ---------------- |
+| `meetingId` | string | 회의 UUID 식별자 |
+
+### Request Body
+
+```json
+{
+  "content": "다음 회의 전에 액션 아이템 담당자를 다시 확인하기"
+}
+```
+
+### Type
+
+```ts
+type CreateMeetingMemoParams = {
+  meetingId: string;
+};
+
+type CreateMeetingMemoRequest = {
+  content: string;
+};
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+### 처리 규칙
+
+- 서버는 path의 `meetingId`를 UUID로 검증한다.
+- 서버는 요청 본문의 `content`를 문자열로 검증한다.
+- 서버는 `content`의 앞뒤 공백을 제거한 뒤 저장한다.
+- 공백 제거 후 `content`가 비어 있으면 400을 반환한다.
+- 공백 제거 후 `content`가 500자를 초과하면 400을 반환한다.
+- 서버는 path의 `meetingId`로 회의 레코드 존재 여부를 확인한다.
+- 회의가 존재하지 않으면 404를 반환한다.
+- 해당 회의의 개인 메모가 이미 50개이면 400을 반환한다.
+- 저장 성공 시 응답 본문을 반환하지 않는다.
+- 클라이언트는 낙관적 갱신으로 임시 메모를 목록 맨 아래에 표시할 수 있다.
+- 클라이언트는 저장 성공 후 개인 메모 목록 query를 무효화하고 다시 조회한다.
+- 클라이언트는 저장 실패 시 임시 메모를 제거하고 입력값을 복구한다.
+
+### Error
+
+| Status | Title                          | Detail                                                   |
+| ------ | ------------------------------ | -------------------------------------------------------- |
+| 400    | `INVALID_MEETING_ID`           | 회의 식별자는 UUID 형식이어야 합니다.                    |
+| 400    | `MEMO_CONTENT_REQUIRED`        | 메모 내용을 입력해주세요.                                |
+| 400    | `MEMO_CONTENT_TOO_LONG`        | 메모 내용은 최대 500자 이하로 입력해주세요.              |
+| 400    | `MEETING_MEMOS_TOO_MANY`       | 메모는 회의당 최대 50개까지 저장할 수 있습니다.          |
+| 400    | `INVALID_MEETING_MEMO_REQUEST` | 메모 저장 요청이 올바르지 않습니다. 다시 확인해주세요.   |
+| 401    | `UNAUTHORIZED`                 | 인증이 필요합니다.                                       |
+| 401    | `TOKEN_EXPIRED`                | 인증 정보가 만료되었습니다.                              |
+| 404    | `MEETING_NOT_FOUND`            | 회의 기록을 찾을 수 없습니다.                            |
+| 500    | `MEETING_MEMO_SAVE_FAILED`     | 메모 저장에 실패했습니다.                                |
+
+---
+
+## 9-3. 개인 메모 삭제
+
+```http
+DELETE /api/meetings/{meetingId}/memos/{memoId}
+```
+
+### 목적
+
+사용자가 선택한 회의의 개인 메모 1개를 삭제한다.
+
+### Path Parameter
+
+| Name        | Type   | 설명                |
+| ----------- | ------ | ------------------- |
+| `meetingId` | string | 회의 UUID 식별자    |
+| `memoId`    | number | 개인 메모 숫자 id   |
+
+### Type
+
+```ts
+type DeleteMeetingMemoParams = {
+  meetingId: string;
+  memoId: number;
+};
+```
+
+### Response
+
+```http
+204 No Content
+```
+
+### 처리 규칙
+
+- 서버는 path의 `meetingId`를 UUID로 검증한다.
+- 서버는 path의 `memoId`를 양의 정수로 검증한다.
+- 서버는 path의 `meetingId`로 회의 레코드 존재 여부를 확인한다.
+- 회의가 존재하지 않으면 404를 반환한다.
+- 서버는 `meetingId`와 `memoId`가 모두 일치하는 개인 메모를 삭제한다.
+- 삭제 대상 개인 메모가 존재하지 않으면 404를 반환한다.
+- 삭제 성공 시 응답 본문을 반환하지 않는다.
+- 클라이언트는 삭제 확인 창을 표시하지 않고 즉시 삭제 요청을 보낸다.
+- 클라이언트는 낙관적 갱신으로 대상 메모를 목록에서 먼저 제거할 수 있다.
+- 클라이언트는 삭제 성공 후 개인 메모 목록 query를 무효화하고 다시 조회한다.
+- 클라이언트는 삭제 실패 시 삭제 전 목록을 다시 보여준다.
+
+### Error
+
+| Status | Title                        | Detail                                    |
+| ------ | ---------------------------- | ----------------------------------------- |
+| 400    | `INVALID_MEETING_ID`         | 회의 식별자는 UUID 형식이어야 합니다.     |
+| 400    | `INVALID_MEETING_MEMO_ID`    | 메모 식별자는 양의 정수여야 합니다.       |
+| 401    | `UNAUTHORIZED`               | 인증이 필요합니다.                        |
+| 401    | `TOKEN_EXPIRED`              | 인증 정보가 만료되었습니다.               |
+| 404    | `MEETING_NOT_FOUND`          | 회의 기록을 찾을 수 없습니다.             |
+| 404    | `MEETING_MEMO_NOT_FOUND`     | 메모를 찾을 수 없습니다.                  |
+| 500    | `MEETING_MEMO_DELETE_FAILED` | 메모 삭제에 실패했습니다.                 |
+
+---
+
+## 10. 히스토리 조회 API
+
+## 10-1. 특정 연월의 회의 날짜 목록 조회
 
 ```http
 GET /api/meetings/dates?year=YYYY&month=MM
@@ -692,7 +900,7 @@ type GetMeetingDatesResponse = {
 
 ---
 
-## 9-2. 특정 날짜의 회의 목록 조회
+## 10-2. 특정 날짜의 회의 목록 조회
 
 ```http
 GET /api/meetings?date=YYYY-MM-DD
@@ -761,7 +969,7 @@ type GetMeetingsByDateResponse = {
 
 ---
 
-## 9-3. 회의 상세 조회
+## 10-3. 회의 상세 조회
 
 ```http
 GET /api/meetings/{id}
@@ -832,9 +1040,9 @@ type GetMeetingDetailResponse = MeetingDetail;
 
 ---
 
-## 10. 클라이언트 요청 규칙
+## 11. 클라이언트 요청 규칙
 
-### 10-1. 회의 식별자 규칙
+### 11-1. 회의 식별자 규칙
 
 회의 `id`는 UUID 형식의 전역 고유 식별자다.
 
@@ -856,7 +1064,14 @@ await fetch(`/api/meetings/${meeting.id}`);
 await fetch(`/api/meetings?date=${meeting.meetingDate}`);
 ```
 
-### 10-2. 보호된 API 요청
+개인 메모 요청에서는 회의 `id`와 개인 메모 숫자 `id`를 함께 사용한다.
+
+```ts
+await fetch(`/api/meetings/${meeting.id}/memos`);
+await fetch(`/api/meetings/${meeting.id}/memos/${memo.id}`, {method: 'DELETE'});
+```
+
+### 11-2. 보호된 API 요청
 
 - 보호된 API 요청은 access token 쿠키를 기준으로 인증된다.
 - 보호된 API에서 `TOKEN_EXPIRED`가 반환되면 클라이언트는 `/api/auth/refresh`를 1회 호출해 access token 갱신을 시도한다.
@@ -877,11 +1092,14 @@ GET    /api/meetings?date=YYYY-MM-DD
 GET    /api/meetings/{id}
 PUT    /api/meetings/{id}
 DELETE /api/meetings/{id}
+GET    /api/meetings/{meetingId}/memos
+POST   /api/meetings/{meetingId}/memos
+DELETE /api/meetings/{meetingId}/memos/{memoId}
 ```
 
 ---
 
-## 11. 설계 결정 사항
+## 12. 설계 결정 사항
 
 - 요약 생성 API와 회의 저장 API는 분리한다.
 - access token의 유효 기간은 1시간으로 설정한다.
@@ -895,5 +1113,9 @@ DELETE /api/meetings/{id}
 - `date` query parameter는 히스토리 날짜 필터로만 사용한다.
 - `meetingDate`는 캘린더 및 날짜별 조회 기준으로 사용한다.
 - 회의 목록 응답에는 summary preview를 포함하지 않는다.
+- 개인 메모는 회의 상세 API와 분리해 조회한다.
+- 개인 메모 `id`는 숫자로 반환한다.
+- 개인 메모 API 응답에는 생성 시각을 포함하지 않는다.
+- 개인 메모 추가와 삭제는 성공 시 204를 반환한다.
 - MVP 보안은 인증 검증, `httpOnly` 쿠키, Vercel 기본 보호 기능을 우선 사용한다.
 - 앱 레벨 감사 테이블과 rate limit은 MVP 이후 확장 후보로 둔다.

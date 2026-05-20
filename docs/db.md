@@ -12,7 +12,9 @@ PRD의 저장 방향은 "회의록 1건을 하나의 영속 데이터 단위로 
 
 - 최종 회의 데이터는 Neon Postgres에 저장한다.
 - 회의록 1건은 `meetings` 테이블의 레코드 1개로 관리한다.
+- 회의별 개인 메모는 `meeting_memos` 테이블의 레코드로 관리한다.
 - `id`는 회의 레코드의 primary key로 사용한다.
+- `meeting_memos.meeting_id`는 `meetings.id`를 참조한다.
 - 날짜별 캘린더 표시는 `meeting_date` 컬럼을 기준으로 조회한다.
 - `meeting_date`는 서비스 기준 날짜이며, 기본 시간대는 `Asia/Seoul`이다.
 - `created_at`과 `updated_at`은 실제 생성 및 수정 시각을 나타낸다.
@@ -39,6 +41,16 @@ PRD의 저장 방향은 "회의록 1건을 하나의 영속 데이터 단위로 
 | `summary`           | `text`        | no   | AI가 생성하고 사용자가 수정할 수 있는 총 회의 요약 |
 | `key_points`        | `jsonb`       | no   | AI가 생성하고 사용자가 수정할 수 있는 주요 사항 목록 |
 
+### 3-2. `meeting_memos`
+
+저장된 회의에 사용자가 직접 추가한 개인 메모를 관리하는 테이블이다.
+
+| Column       | Type      | Null | 설명                         |
+| ------------ | --------- | ---- | ---------------------------- |
+| `id`         | `integer` | no   | 개인 메모 고유 식별자        |
+| `meeting_id` | `uuid`    | no   | 개인 메모가 속한 회의 식별자 |
+| `content`    | `text`    | no   | 개인 메모 본문               |
+
 ---
 
 ## 4. DDL 초안
@@ -61,6 +73,17 @@ create table if not exists meetings (
   constraint meetings_key_points_is_array
     check (jsonb_typeof(key_points) = 'array')
 );
+
+create table if not exists meeting_memos (
+  id integer generated always as identity primary key,
+  meeting_id uuid not null
+    references meetings (id)
+    on delete cascade,
+  content text not null,
+
+  constraint meeting_memos_content_length
+    check (char_length(content) between 1 and 500)
+);
 ```
 
 ### 4-1. `meeting_date` 생성 규칙
@@ -81,6 +104,9 @@ create index meetings_meeting_date_idx
 
 create index meetings_meeting_date_created_at_idx
   on meetings (meeting_date, created_at asc);
+
+create index meeting_memos_meeting_id_id_idx
+  on meeting_memos (meeting_id, id asc);
 ```
 
 ### 5-1. 인덱스 목적
@@ -91,6 +117,8 @@ create index meetings_meeting_date_created_at_idx
 - `meetings_meeting_date_created_at_idx`
   - 특정 날짜의 회의 목록을 조회하고 `created_at asc`로 정렬할 때 사용한다.
 - 상세 조회, 수정, 삭제는 primary key인 `id`로 처리한다.
+- `meeting_memos_meeting_id_id_idx`
+  - 특정 회의의 개인 메모 목록을 조회하고 `id asc`로 정렬할 때 사용한다.
 
 ---
 
@@ -230,6 +258,46 @@ where id = $1;
 ```
 
 MVP에서는 soft delete를 사용하지 않고 실제 레코드를 삭제한다.
+`meeting_memos.meeting_id`는 `on delete cascade`를 사용하므로 회의 삭제 시 해당 회의의 개인 메모도 함께 삭제된다.
+
+### 7-7. 특정 회의의 개인 메모 목록 조회
+
+```sql
+select
+  id,
+  content
+from meeting_memos
+where meeting_id = $1
+order by id asc;
+```
+
+이 조회 결과는 회의 상세 화면의 개인 메모 패널에서 사용한다.
+
+### 7-8. 개인 메모 추가
+
+```sql
+insert into meeting_memos (
+  meeting_id,
+  content
+) values (
+  $1,
+  $2
+);
+```
+
+`$2`는 앞뒤 공백을 제거한 뒤 1자 이상 500자 이하인 값이다.
+서버는 추가 전에 해당 회의의 개인 메모가 50개 미만인지 확인한다.
+
+### 7-9. 개인 메모 삭제
+
+```sql
+delete from meeting_memos
+where meeting_id = $1
+  and id = $2
+returning id;
+```
+
+삭제 대상은 회의 `id`와 개인 메모 `id`를 함께 사용해 식별한다.
 
 ---
 
@@ -268,6 +336,19 @@ DELETE /api/meetings/{id}
 
 파일 저장 방식에서 필요했던 `date + id` 조합은 DB primary key 구조에서는 필요하지 않다. API 명세를 후속 수정할 때 상세 조회, 수정, 삭제 endpoint는 `id` 단독 식별로 전환한다.
 
+### 8-4. 특정 회의의 개인 메모 조회, 추가, 삭제
+
+```http
+GET    /api/meetings/{meetingId}/memos
+POST   /api/meetings/{meetingId}/memos
+DELETE /api/meetings/{meetingId}/memos/{memoId}
+```
+
+- 서버는 `meetingId`를 UUID로 검증한다.
+- 서버는 `memoId`를 양의 정수로 검증한다.
+- 목록은 `meeting_memos.id asc`로 정렬한다.
+- 추가와 삭제는 성공 시 응답 본문 없이 204를 반환한다.
+
 ---
 
 ## 9. API 타입 매핑
@@ -286,6 +367,13 @@ DB 컬럼은 `snake_case`, API 응답은 `camelCase`로 매핑한다.
 | `summary`           | `summary`          |
 | `key_points`        | `keyPoints`        |
 
+### 9-1. 개인 메모 API 타입 매핑
+
+| DB Column               | API Field |
+| ----------------------- | --------- |
+| `meeting_memos.id`      | `id`      |
+| `meeting_memos.content` | `content` |
+
 ---
 
 ## 10. 제외 범위
@@ -296,6 +384,7 @@ DB 컬럼은 `snake_case`, API 응답은 `camelCase`로 매핑한다.
 - `key_points`는 별도 테이블로 정규화하지 않고 `jsonb`로 저장한다.
 - 보안 이벤트 저장 테이블은 이 문서의 MVP 범위에서 제외한다.
 - 오디오 원본 파일은 저장하지 않는다.
+- 개인 메모 수정 API는 만들지 않는다.
 
 ---
 
@@ -307,3 +396,7 @@ DB 컬럼은 `snake_case`, API 응답은 `camelCase`로 매핑한다.
 - 같은 날짜의 회의 목록은 `created_at asc`로 정렬한다.
 - 상세 조회, 수정, 삭제는 `id` 단독 식별을 기준으로 설계한다.
 - 회의 삭제는 row 삭제로 처리한다.
+- 회의별 개인 메모는 `meeting_memos` 테이블에 저장한다.
+- 개인 메모 `id`는 증가 숫자로 저장한다.
+- 개인 메모 목록은 `id asc`로 정렬한다.
+- 회의 삭제 시 해당 회의의 개인 메모도 함께 삭제한다.
