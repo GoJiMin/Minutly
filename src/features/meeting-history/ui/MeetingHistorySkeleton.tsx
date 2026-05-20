@@ -2,7 +2,7 @@ import {Separator, Skeleton} from '@/shared/components';
 
 export function MeetingCalendarSkeleton() {
   return (
-    <div aria-hidden className="w-92 bg-transparent p-3 [--cell-radius:var(--radius-4xl)] [--cell-size:--spacing(8)]">
+    <div aria-hidden className="w-80 bg-transparent p-3 [--cell-radius:var(--radius-4xl)] [--cell-size:--spacing(8)]">
       <div className="relative flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)">
         <Skeleton className="absolute left-0 size-(--cell-size) rounded-(--cell-radius)" />
         <Skeleton className="h-4 w-20 rounded-md" />
@@ -115,7 +115,7 @@ export function MeetingListSkeleton() {
 
 function MeetingHistorySidebarSkeleton() {
   return (
-    <aside className="w-105 h-full min-h-0 flex flex-col items-center gap-3">
+    <aside className="w-90 h-full min-h-0 flex flex-col items-center gap-3">
       <MeetingCalendarSkeleton />
       <Separator />
       <MeetingListSkeleton />
@@ -123,20 +123,12 @@ function MeetingHistorySidebarSkeleton() {
   );
 }
 
-function MeetingHistoryDetailSkeleton() {
-  return (
-    <section aria-hidden className="flex min-h-0 flex-1 flex-col rounded-xl">
-      <Skeleton className="h-full w-full rounded-xl" />
-    </section>
-  );
-}
-
 export function MeetingHistoryWorkspaceSkeleton() {
   return (
-    <section className="w-full h-full min-h-0 flex overflow-hidden py-7 px-1">
+    <section className="w-full h-full min-h-0 flex overflow-hidden py-7 pl-1 pr-4">
       <MeetingHistorySidebarSkeleton />
       <Separator orientation="vertical" />
-      <MeetingHistoryDetailSkeleton />
+      <MeetingDetailSkeleton />
     </section>
   );
 }
