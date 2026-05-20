@@ -1,6 +1,7 @@
 import {keepPreviousData} from '@tanstack/react-query';
 import {getMeetingById, getMeetingDatesByMonth, getMeetingsByDate} from '../api/meetingApi';
 import type {MeetingDatesQuery, MeetingIdParams, MeetingsByDateQuery} from '../model/schema';
+import {getMeetingMemos} from '../api/meetingMemoApi';
 
 export const meetingQueryKeys = {
   all: () => ['meeting'] as const,
@@ -18,6 +19,11 @@ export const meetingQueryKeys = {
   detail: {
     all: () => [...meetingQueryKeys.all(), 'detail'] as const,
     byId: (id: string) => [...meetingQueryKeys.detail.all(), id] as const,
+  },
+
+  memos: {
+    all: () => [...meetingQueryKeys.all(), 'memos'] as const,
+    byMeetingId: (meetingId: string) => [...meetingQueryKeys.memos.all(), 'meeting', meetingId] as const,
   },
 };
 
@@ -38,6 +44,12 @@ export const meetingQueryOptions = {
   detail: ({id}: MeetingIdParams) => ({
     queryKey: meetingQueryKeys.detail.byId(id),
     queryFn: () => getMeetingById({id}),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  }),
+  memosByMeetingId: ({id}: MeetingIdParams) => ({
+    queryKey: meetingQueryKeys.memos.byMeetingId(id),
+    queryFn: () => getMeetingMemos({meetingId: id}),
     staleTime: Infinity,
     gcTime: Infinity,
   }),

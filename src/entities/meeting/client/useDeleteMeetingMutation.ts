@@ -31,6 +31,10 @@ export function useDeleteMeetingMutation() {
       queryClient.removeQueries({
         queryKey: meetingQueryKeys.detail.byId(id),
       });
+
+      queryClient.removeQueries({
+        queryKey: meetingQueryKeys.memos.byMeetingId(id),
+      });
     },
   });
 
