@@ -82,7 +82,7 @@ export function MeetingDetail({meetingId}: Props) {
         </div>
       </div>
       <aside className="min-h-0">
-        <MeetingMemoPanel key={meetingId} />
+        <MeetingMemoPanel meetingId={meetingId} />
       </aside>
     </section>
   );
