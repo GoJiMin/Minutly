@@ -43,7 +43,7 @@ export function SelectedDateMeetingList({date}: {date: string}) {
             onClick={() => selectMeeting(meeting.id)}
             aria-current={isSelected ? 'true' : undefined}
             className={cn(
-              'relative min-h-14 w-full justify-start overflow-hidden px-4 py-3 text-base font-normal',
+              'relative min-h-14 w-full justify-start overflow-hidden px-4 py-3 font-normal',
               'before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:origin-left before:scale-y-0 before:bg-foreground/70 before:transition-transform',
               isSelected
                 ? 'bg-muted text-foreground font-semibold before:scale-y-100'
