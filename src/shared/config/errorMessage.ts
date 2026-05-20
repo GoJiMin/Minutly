@@ -59,4 +59,8 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
   INVALID_MEETING_ID: '회의 식별자가 올바르지 않습니다.',
   MEETING_NOT_FOUND: '회의 기록을 찾을 수 없습니다.',
   MEETING_READ_FAILED: '회의록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+
+  // PUT /api/meetings/[id]
+  INVALID_MEETING_UPDATE_REQUEST: '회의 수정 요청이 올바르지 않습니다. 다시 확인해주세요.',
+  MEETING_UPDATE_FAILED: '회의 수정 저장에 실패했습니다. 잠시 후 다시 시도해주세요.',
 } as const;

@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
   Spinner,
+  toast,
 } from '@/shared/components';
 
 export function MeetingEditDialog(props: MeetingEditInitialValues) {
@@ -29,6 +30,10 @@ export function MeetingEditDialog(props: MeetingEditInitialValues) {
       {
         onSuccess: () => {
           setIsOpen(false);
+          toast.success({
+            title: '회의록 수정 완료',
+            description: '변경한 내용이 저장됐어요.',
+          });
         },
       },
     );
