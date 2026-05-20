@@ -1,4 +1,5 @@
 import {MeetingMemoList} from './MeetingMemoList';
+import {MeetingMemoForm} from './MeetingMemoForm';
 import {useGetMeetingMemos} from '@/entities/meeting/client';
 import {Text} from '@/shared/components';
 
@@ -18,8 +19,8 @@ export function MeetingMemoPanel({meetingId}: Props) {
           중요한 내용을 등록할 수 있어요.
         </Text>
       </header>
-
       <MeetingMemoList meetingId={meetingId} memos={memos} />
+      <MeetingMemoForm meetingId={meetingId} />
     </div>
   );
 }
