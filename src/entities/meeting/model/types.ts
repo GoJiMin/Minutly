@@ -15,6 +15,11 @@ export type MeetingListItem = {
   title: string;
 };
 
+export type MeetingMemo = {
+  id: number;
+  content: string;
+};
+
 export type GetMeetingsByDateResponse = {
   meetings: MeetingListItem[];
 };
