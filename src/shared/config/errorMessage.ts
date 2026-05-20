@@ -54,4 +54,9 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
   UNSUPPORTED_DATE: '조회할 수 없는 날짜입니다.',
   INVALID_MEETINGS_QUERY: '회의 목록 조회 요청이 올바르지 않습니다.',
   MEETINGS_READ_FAILED: '회의 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+
+  // GET /api/meetings/[id]
+  INVALID_MEETING_ID: '회의 식별자가 올바르지 않습니다.',
+  MEETING_NOT_FOUND: '회의 기록을 찾을 수 없습니다.',
+  MEETING_READ_FAILED: '회의록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
 } as const;

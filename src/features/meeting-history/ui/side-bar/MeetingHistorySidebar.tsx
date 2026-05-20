@@ -11,7 +11,7 @@ export function MeetingHistorySidebar() {
   const {date, month, year} = useMeetingHistorySearchParams();
 
   return (
-    <aside className="w-105 h-full min-h-0 flex flex-col items-center gap-3">
+    <aside className="w-90 h-full min-h-0 flex flex-col items-center gap-3">
       <QueryErrorBoundary
         fallback={({message, reset}) => (
           <QueryErrorFallback
