@@ -1,8 +1,8 @@
 import {format} from 'date-fns';
 import {ko} from 'date-fns/locale';
-import {MeetingEditDialog} from './MeetingEditDialog';
-import {MeetingDeleteDialog} from './MeetingDeleteDialog';
-import {MeetingMemoPanel} from './MeetingMemoPanel';
+import {MeetingDeleteDialog} from './delete/MeetingDeleteDialog';
+import {MeetingEditDialog} from './edit/MeetingEditDialog';
+import {MeetingMemoPanel} from './memo/MeetingMemoPanel';
 import {useMeetingDetailQuery} from '@/entities/meeting/client';
 import {Heading, Separator, Text} from '@/shared/components';
 
