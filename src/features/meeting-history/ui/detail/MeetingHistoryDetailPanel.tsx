@@ -2,7 +2,7 @@
 
 import {Suspense} from 'react';
 import {MeetingDetail} from './MeetingDetail';
-import {MeetingDetailSkeleton} from './MeetingDetailSkeleton';
+import {MeetingDetailSkeleton} from '../MeetingHistorySkeleton';
 import {SelectMeetingEmptyState} from './SelectMeetingEmptyState';
 import {useMeetingHistorySearchParams} from '../../lib/useMeetingHistorySearchParams';
 import {QueryErrorBoundary, QueryErrorFallback} from '@/shared/components';
