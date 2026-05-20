@@ -1,8 +1,10 @@
 import {format} from 'date-fns';
 import {ko} from 'date-fns/locale';
+import {Trash2} from 'lucide-react';
 import {MeetingMemoPanel} from './MeetingMemoPanel';
 import {useMeetingDetailQuery} from '@/entities/meeting/client';
-import {Heading, Separator, Text} from '@/shared/components';
+import {Button, Heading, Separator, Text} from '@/shared/components';
+import {MeetingEditDialog} from './MeetingEditDialog';
 
 type Props = {
   meetingId: string;
@@ -17,20 +19,30 @@ export function MeetingDetail({meetingId}: Props) {
 
   return (
     <section className="min-h-0 flex-1 grid grid-cols-[minmax(0,1fr)_21rem] gap-6">
-      <div className="flex flex-col min-h-0">
-        <header className="px-4 pb-3">
-          <Heading level="h2" className="border-none text-2xl">
-            {title}
-          </Heading>
-          <div className="flex gap-3">
-            <Text variant="small" className="text-muted-foreground">
-              <span className="text-foreground font-medium">작성일 : </span>
-              <time dateTime={createdAt}>{formatKoreanDateTime(createdAt)}</time>
-            </Text>
-            <Text variant="small" className="text-muted-foreground">
-              <span className="text-foreground font-medium">최근 수정 : </span>
-              <time dateTime={updatedAt}>{formatKoreanDateTime(updatedAt)}</time>
-            </Text>
+      <div className="flex flex-col min-h-0 @container/detail-main">
+        <header className="flex flex-col gap-2 px-4 pb-3 @4xl/detail-main:flex-row @4xl/detail-main:items-start @4xl/detail-main:justify-between @4xl/detail-main:gap-4">
+          <div className="min-w-0">
+            <Heading level="h2" className="wrap-break-word border-none text-2xl">
+              {title}
+            </Heading>
+            <div className="flex flex-wrap gap-x-3 gap-y-1">
+              <Text variant="small" className="text-muted-foreground">
+                <span className="text-foreground font-medium">작성일 : </span>
+                <time dateTime={createdAt}>{formatKoreanDateTime(createdAt)}</time>
+              </Text>
+              <Text variant="small" className="text-muted-foreground">
+                <span className="text-foreground font-medium">최근 수정 : </span>
+                <time dateTime={updatedAt}>{formatKoreanDateTime(updatedAt)}</time>
+              </Text>
+            </div>
+          </div>
+          <div className="flex shrink-0 gap-2 justify-end mb-1">
+            <MeetingEditDialog />
+            {/* TODO: 삭제 기능 연결 */}
+            <Button variant="outline" className="h-8 rounded-lg gap-1 px-5 font-semibold">
+              <Trash2 className="size-4" />
+              삭제
+            </Button>
           </div>
         </header>
         <Separator />
