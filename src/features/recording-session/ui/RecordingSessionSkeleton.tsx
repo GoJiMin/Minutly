@@ -34,7 +34,7 @@ function RecordingSessionFeedbackPanelSkeleton() {
     <section className="flex min-h-0 flex-1 flex-col rounded-xl border-2">
       <header className="px-5 py-4 border-b-2">
         <div className="flex items-center gap-2 mb-1">
-          <Skeleton className="size-[22px] rounded-md" />
+          <Skeleton className="size-5.5 rounded-md" />
           <Skeleton className="h-8 w-20 rounded-md" />
         </div>
         <Skeleton className="h-7 w-80 rounded-md" />
