@@ -15,6 +15,8 @@ export type {
   MeetingIdParams,
   MeetingsByDateQuery,
   UpdateMeetingRequest,
+  CreateMeetingMemoRequest,
+  MeetingMemoIdParams,
 } from '../model/schema';
 
 export {
@@ -23,6 +25,8 @@ export {
   meetingIdParamsSchema,
   meetingsByDateQuerySchema,
   updateMeetingRequestSchema,
+  createMeetingMemoRequestSchema,
+  meetingMemoIdParamsSchema,
 } from '../model/schema';
 
 export {NeonMeetingDb} from './neon-meeting-db';

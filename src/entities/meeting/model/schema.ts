@@ -48,3 +48,18 @@ export const meetingDatesQuerySchema = z
 export type MeetingIdParams = z.infer<typeof meetingIdParamsSchema>;
 export type MeetingsByDateQuery = z.infer<typeof meetingsByDateQuerySchema>;
 export type MeetingDatesQuery = z.infer<typeof meetingDatesQuerySchema>;
+
+export const createMeetingMemoRequestSchema = z.object({
+  content: z
+    .string()
+    .trim()
+    .min(1, '메모 내용을 입력해주세요.')
+    .max(500, '메모 내용은 최대 500자 이하로 입력해주세요.'),
+});
+
+export const meetingMemoIdParamsSchema = z.object({
+  memoId: z.coerce.number().int('메모 식별자는 양의 정수여야 합니다.').positive('메모 식별자는 양의 정수여야 합니다.'),
+});
+
+export type CreateMeetingMemoRequest = z.infer<typeof createMeetingMemoRequestSchema>;
+export type MeetingMemoIdParams = z.infer<typeof meetingMemoIdParamsSchema>;

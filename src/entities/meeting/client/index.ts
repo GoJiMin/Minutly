@@ -13,6 +13,8 @@ export type {
   MeetingIdParams,
   MeetingsByDateQuery,
   UpdateMeetingRequest,
+  CreateMeetingMemoRequest,
+  MeetingMemoIdParams,
 } from '../model/schema';
 
 export {
@@ -21,6 +23,8 @@ export {
   meetingIdParamsSchema,
   meetingsByDateQuerySchema,
   updateMeetingRequestSchema,
+  createMeetingMemoRequestSchema,
+  meetingMemoIdParamsSchema,
 } from '../model/schema';
 
 export {MEETING_HISTORY_START_DATE, MEETING_HISTORY_START_MONTH} from '../model/constants';
