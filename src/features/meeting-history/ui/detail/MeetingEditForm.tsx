@@ -61,7 +61,7 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
   }
 
   return (
-    <form className="flex-1 h-full flex flex-col gap-4 overflow-auto pr-4">
+    <form className="min-h-0 flex-1 overflow-auto px-6 flex flex-col gap-4">
       <Controller
         name="title"
         control={form.control}
