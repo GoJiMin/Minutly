@@ -2,8 +2,9 @@ import {Suspense} from 'react';
 import {render, screen, waitFor, within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {Toaster as SonnerToaster} from 'sonner';
+import mockRouter from 'next-router-mock';
 import {MeetingDetail} from '../MeetingDetail';
-import {fetchUpdateMeeting, getMeetingById} from '@/entities/meeting/api/meetingApi';
+import {fetchDeleteMeeting, fetchUpdateMeeting, getMeetingById} from '@/entities/meeting/api/meetingApi';
 import type {MeetingDetail as MeetingDetailResponse} from '@/entities/meeting/client';
 import {withAllContext} from '@/shared/utils/withAllContext';
 
@@ -11,8 +12,10 @@ jest.mock('@/entities/meeting/api/meetingApi');
 
 const mockedGetMeetingById = jest.mocked(getMeetingById);
 const mockedFetchUpdateMeeting = jest.mocked(fetchUpdateMeeting);
+const mockedFetchDeleteMeeting = jest.mocked(fetchDeleteMeeting);
 
 const MEETING_ID = '5f5d8a97-022c-4ea9-bef6-c099a4df6fce';
+const HISTORY_DETAIL_PATH = `/history?year=2026&month=05&meetingId=${MEETING_ID}`;
 
 const MEETING_DETAIL: MeetingDetailResponse = {
   id: MEETING_ID,
@@ -45,11 +48,20 @@ async function openEditDialog(user: ReturnType<typeof userEvent.setup>) {
   return await screen.findByRole('dialog', {name: '회의록 수정'});
 }
 
+async function openDeleteDialog(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(await screen.findByRole('button', {name: '삭제'}));
+
+  return await screen.findByRole('dialog', {name: '회의록 삭제'});
+}
+
 describe('@/src/features/meeting-history/ui/detail/MeetingDetail.tsx', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRouter.reset();
+    mockRouter.push(HISTORY_DETAIL_PATH);
     mockedGetMeetingById.mockResolvedValue(MEETING_DETAIL);
     mockedFetchUpdateMeeting.mockResolvedValue(undefined);
+    mockedFetchDeleteMeeting.mockResolvedValue(undefined);
   });
 
   it('회의록 상세를 표시한다.', async () => {
@@ -61,7 +73,7 @@ describe('@/src/features/meeting-history/ui/detail/MeetingDetail.tsx', () => {
     expect(screen.getByText('최종 회의 내용입니다.')).toBeInTheDocument();
   });
 
-  it('수정 다이얼로그를 연다.', async () => {
+  it('수정 다이얼로그를 열 수 있다.', async () => {
     const user = userEvent.setup();
 
     renderMeetingDetail();
@@ -71,12 +83,10 @@ describe('@/src/features/meeting-history/ui/detail/MeetingDetail.tsx', () => {
     expect(within(dialog).getByRole('textbox', {name: '회의 제목'})).toHaveValue('주간 기획 회의');
     expect(within(dialog).getByRole('textbox', {name: '회의 요약'})).toHaveValue('회의 요약입니다.');
     expect(within(dialog).getByRole('textbox', {name: '주요 사항 1'})).toHaveValue('담당자를 정합니다.');
-    expect(within(dialog).getByRole('textbox', {name: '주요 사항 2'})).toHaveValue(
-      '다음 회의 일정을 확인합니다.',
-    );
+    expect(within(dialog).getByRole('textbox', {name: '주요 사항 2'})).toHaveValue('다음 회의 일정을 확인합니다.');
   });
 
-  it('수정 내용을 저장한다.', async () => {
+  it('수정 내용을 저장할 수 있다.', async () => {
     const user = userEvent.setup();
 
     renderMeetingDetail();
@@ -188,5 +198,85 @@ describe('@/src/features/meeting-history/ui/detail/MeetingDetail.tsx', () => {
     expect(within(dialog).getByRole('textbox', {name: '회의 제목'})).not.toHaveAttribute('readonly');
     expect(within(dialog).getByRole('textbox', {name: '회의 요약'})).not.toHaveAttribute('readonly');
     expect(within(dialog).getByRole('textbox', {name: '주요 사항 1'})).not.toHaveAttribute('readonly');
+  });
+
+  it('삭제 다이얼로그를 열 수 있다.', async () => {
+    const user = userEvent.setup();
+
+    renderMeetingDetail();
+
+    const dialog = await openDeleteDialog(user);
+
+    expect(within(dialog).getByText('삭제한 회의록은 다시 되돌릴 수 없어요.')).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', {name: '닫기'})).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', {name: '삭제하기'})).toBeInTheDocument();
+  });
+
+  it('회의록을 삭제할 수 있다.', async () => {
+    const user = userEvent.setup();
+
+    renderMeetingDetail();
+
+    const dialog = await openDeleteDialog(user);
+
+    await user.click(within(dialog).getByRole('button', {name: '삭제하기'}));
+
+    await waitFor(() => {
+      expect(mockedFetchDeleteMeeting).toHaveBeenCalledWith({id: MEETING_ID});
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', {name: '회의록 삭제'})).not.toBeInTheDocument();
+    });
+    expect(await screen.findByText('회의록 삭제 완료')).toBeInTheDocument();
+    expect(mockRouter.asPath).toBe('/history');
+  });
+
+  it('삭제 중 상태를 표시한다.', async () => {
+    const user = userEvent.setup();
+    let resolveDeleteMeeting!: () => void;
+
+    mockedFetchDeleteMeeting.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          resolveDeleteMeeting = () => resolve(undefined);
+        }),
+    );
+
+    renderMeetingDetail();
+
+    const dialog = await openDeleteDialog(user);
+
+    await user.click(within(dialog).getByRole('button', {name: '삭제하기'}));
+
+    expect(await within(dialog).findByRole('button', {name: /삭제 중/})).toBeDisabled();
+    expect(within(dialog).getByRole('status', {name: 'Loading'})).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', {name: '닫기'})).toBeDisabled();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.getByRole('dialog', {name: '회의록 삭제'})).toBeInTheDocument();
+
+    resolveDeleteMeeting();
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', {name: '회의록 삭제'})).not.toBeInTheDocument();
+    });
+  });
+
+  it('삭제 실패 후 다시 삭제할 수 있다.', async () => {
+    const user = userEvent.setup();
+
+    mockedFetchDeleteMeeting.mockRejectedValue(new Error('회의 삭제 실패'));
+
+    renderMeetingDetail();
+
+    const dialog = await openDeleteDialog(user);
+
+    await user.click(within(dialog).getByRole('button', {name: '삭제하기'}));
+
+    expect(await within(dialog).findByRole('button', {name: '삭제하기'})).toBeEnabled();
+    expect(screen.getByRole('dialog', {name: '회의록 삭제'})).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', {name: '닫기'})).toBeEnabled();
+    expect(mockRouter.asPath).toBe(HISTORY_DETAIL_PATH);
   });
 });
