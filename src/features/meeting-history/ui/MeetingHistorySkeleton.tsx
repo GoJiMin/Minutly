@@ -79,7 +79,7 @@ export function MeetingDetailSkeleton() {
       <aside className="min-h-0">
         <div className="flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 p-3">
           <header className="px-2 pb-3 pt-1">
-            <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-foreground/20" />
+            <div className="mx-auto mb-3 h-1 w-16 rounded-full bg-foreground/20" />
             <Skeleton className="h-5 w-16 rounded-md" />
             <Skeleton className="mt-2 h-4 w-36 rounded-md" />
           </header>
