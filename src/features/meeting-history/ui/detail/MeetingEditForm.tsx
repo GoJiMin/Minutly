@@ -4,7 +4,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import {Trash2} from 'lucide-react';
 import {Controller, useForm} from 'react-hook-form';
 
-export type MeetingEditFormProps = {
+export type MeetingEditInitialValues = {
   meetingId: string;
   title: string;
   summary: string;
@@ -12,7 +12,12 @@ export type MeetingEditFormProps = {
   meetingDate: string;
 };
 
-export function MeetingEditForm({title, summary, keyPoints, meetingDate}: MeetingEditFormProps) {
+type MeetingEditFormProps = MeetingEditInitialValues & {
+  isSaving: boolean;
+  onSubmit: (payload: UpdateMeetingRequest) => void;
+};
+
+export function MeetingEditForm({title, summary, keyPoints, isSaving, onSubmit}: MeetingEditFormProps) {
   const form = useForm<UpdateMeetingRequest>({
     resolver: zodResolver(updateMeetingRequestSchema),
     defaultValues: {
@@ -61,7 +66,11 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
   }
 
   return (
-    <form className="min-h-0 flex-1 overflow-auto px-6 flex flex-col gap-4">
+    <form
+      id="meeting-edit-form"
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="min-h-0 flex-1 overflow-auto px-6 flex flex-col gap-4"
+    >
       <Controller
         name="title"
         control={form.control}
@@ -75,6 +84,7 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
               id="meeting-title"
               aria-invalid={fieldState.invalid}
               placeholder="회의 제목을 입력해주세요."
+              readOnly={isSaving}
               autoComplete="off"
               autoFocus
               className="h-12 rounded-lg border-border bg-muted/30 px-3 font-medium focus-visible:bg-white"
@@ -96,6 +106,7 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
               id="meeting-summary"
               aria-invalid={fieldState.invalid}
               placeholder="회의 요약을 입력해주세요."
+              readOnly={isSaving}
               autoComplete="off"
               className="h-64 rounded-lg border-border bg-muted/30 px-3 md:text-base font-medium focus-visible:bg-white"
             />
@@ -117,7 +128,7 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    disabled={formKeyPoints.length <= 1}
+                    disabled={isSaving || formKeyPoints.length <= 1}
                     aria-label={`${index + 1}번째 주요 사항 삭제`}
                     onClick={() => removeKeyPoint(index)}
                   >
@@ -129,6 +140,7 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
                   id={`meeting-key-point-${index}`}
                   aria-invalid={fieldState.invalid}
                   placeholder="주요 사항을 입력해주세요."
+                  readOnly={isSaving}
                   autoComplete="off"
                   className="h-12 rounded-lg border-border bg-muted/30 px-3 font-medium focus-visible:bg-white"
                 />
@@ -142,7 +154,7 @@ export function MeetingEditForm({title, summary, keyPoints, meetingDate}: Meetin
           className="mt-2"
           type="button"
           variant="outline"
-          disabled={formKeyPoints.length >= 20}
+          disabled={isSaving || formKeyPoints.length >= 20}
           onClick={addKeyPoint}
         >
           주요 사항 추가
