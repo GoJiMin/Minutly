@@ -1,5 +1,6 @@
 import {format} from 'date-fns';
 import {ko} from 'date-fns/locale';
+import {MeetingMemoPanel} from './MeetingMemoPanel';
 import {useMeetingDetailQuery} from '@/entities/meeting/client';
 import {Heading, Separator, Text} from '@/shared/components';
 
@@ -67,6 +68,9 @@ export function MeetingDetail({meetingId}: Props) {
           </article>
         </div>
       </div>
+      <aside className="min-h-0">
+        <MeetingMemoPanel key={meetingId} />
+      </aside>
     </section>
   );
 }
