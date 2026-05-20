@@ -1,10 +1,10 @@
 import {format} from 'date-fns';
 import {ko} from 'date-fns/locale';
-import {Trash2} from 'lucide-react';
+import {MeetingEditDialog} from './MeetingEditDialog';
+import {MeetingDeleteDialog} from './MeetingDeleteDialog';
 import {MeetingMemoPanel} from './MeetingMemoPanel';
 import {useMeetingDetailQuery} from '@/entities/meeting/client';
-import {Button, Heading, Separator, Text} from '@/shared/components';
-import {MeetingEditDialog} from './MeetingEditDialog';
+import {Heading, Separator, Text} from '@/shared/components';
 
 type Props = {
   meetingId: string;
@@ -20,6 +20,7 @@ export function MeetingDetail({meetingId}: Props) {
   });
 
   const editProps = {meetingId, title, summary, keyPoints, meetingDate};
+  const deleteProps = {meetingId, meetingDate};
 
   return (
     <section className="min-h-0 flex-1 grid grid-cols-[minmax(0,1fr)_21rem] gap-6">
@@ -42,11 +43,7 @@ export function MeetingDetail({meetingId}: Props) {
           </div>
           <div className="flex shrink-0 gap-2 justify-end mb-1">
             <MeetingEditDialog {...editProps} />
-            {/* TODO: 삭제 기능 연결 */}
-            <Button variant="outline" className="h-8 rounded-lg gap-1 px-5 font-semibold">
-              <Trash2 className="size-4" />
-              삭제
-            </Button>
+            <MeetingDeleteDialog {...deleteProps} />
           </div>
         </header>
         <Separator />

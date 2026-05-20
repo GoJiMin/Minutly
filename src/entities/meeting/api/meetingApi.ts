@@ -11,7 +11,7 @@ import type {
   GetMeetingsByDateResponse,
   MeetingDetail,
 } from '../model/types';
-import {fetchGet, fetchPost, fetchPut} from '@/shared/api';
+import {fetchDelete, fetchGet, fetchPost, fetchPut} from '@/shared/api';
 
 export async function fetchCreateMeeting(payload: CreateMeetingRequest) {
   return await fetchPost<CreateMeetingResponse>({
@@ -25,6 +25,12 @@ export async function fetchUpdateMeeting({id, payload}: {id: string; payload: Up
   await fetchPut({
     endpoint: `/api/meetings/${id}`,
     body: payload,
+  });
+}
+
+export async function fetchDeleteMeeting({id}: MeetingIdParams) {
+  await fetchDelete({
+    endpoint: `/api/meetings/${id}`,
   });
 }
 

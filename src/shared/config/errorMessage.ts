@@ -63,4 +63,7 @@ export const SERVER_ERROR_MESSAGE: ErrorMessage = {
   // PUT /api/meetings/[id]
   INVALID_MEETING_UPDATE_REQUEST: '회의 수정 요청이 올바르지 않습니다. 다시 확인해주세요.',
   MEETING_UPDATE_FAILED: '회의 수정 저장에 실패했습니다. 잠시 후 다시 시도해주세요.',
+
+  // DELETE /api/meetings/[id]
+  MEETING_DELETE_FAILED: '회의 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.',
 } as const;
