@@ -2,7 +2,7 @@ import {UpdateMeetingRequest, updateMeetingRequestSchema} from '@/entities/meeti
 import {Button, Field, FieldError, FieldLabel, Input, Textarea} from '@/shared/components';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {Trash2} from 'lucide-react';
-import {Controller, useForm} from 'react-hook-form';
+import {Controller, useForm, useWatch} from 'react-hook-form';
 
 export type MeetingEditInitialValues = {
   meetingId: string;
@@ -28,7 +28,10 @@ export function MeetingEditForm({title, summary, keyPoints, isSaving, onSubmit}:
     mode: 'onChange',
   });
 
-  const formKeyPoints = form.watch('keyPoints') ?? [];
+  const formKeyPoints = useWatch({
+    control: form.control,
+    name: 'keyPoints',
+  }) ?? [];
 
   function focusKeyPoint(index: number) {
     const fieldName = `keyPoints.${index}` as const;
