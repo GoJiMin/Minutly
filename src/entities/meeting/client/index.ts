@@ -30,3 +30,4 @@ export {useMeetingDatesByMonthQuery} from './useMeetingDatesByMonthQuery';
 export {useMeetingsByDateQuery} from './useMeetingsByDateQuery';
 export {useCreateMeetingMutation} from './useCreateMeetingMutation';
 export {useUpdateMeetingMutation} from './useUpdateMeetingMutation';
+export {useDeleteMeetingMutation} from './useDeleteMeetingMutation';
