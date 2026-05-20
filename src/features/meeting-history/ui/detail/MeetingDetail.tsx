@@ -15,7 +15,11 @@ function formatKoreanDateTime(value: string | Date) {
 }
 
 export function MeetingDetail({meetingId}: Props) {
-  const {title, createdAt, updatedAt, summary, keyPoints, transcript} = useMeetingDetailQuery({id: meetingId});
+  const {title, createdAt, updatedAt, summary, keyPoints, transcript, meetingDate} = useMeetingDetailQuery({
+    id: meetingId,
+  });
+
+  const editProps = {meetingId, title, summary, keyPoints, meetingDate};
 
   return (
     <section className="min-h-0 flex-1 grid grid-cols-[minmax(0,1fr)_21rem] gap-6">
@@ -37,7 +41,7 @@ export function MeetingDetail({meetingId}: Props) {
             </div>
           </div>
           <div className="flex shrink-0 gap-2 justify-end mb-1">
-            <MeetingEditDialog />
+            <MeetingEditDialog {...editProps} />
             {/* TODO: 삭제 기능 연결 */}
             <Button variant="outline" className="h-8 rounded-lg gap-1 px-5 font-semibold">
               <Trash2 className="size-4" />
