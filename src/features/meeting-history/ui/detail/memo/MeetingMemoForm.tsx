@@ -41,7 +41,7 @@ export function MeetingMemoForm({meetingId}: Props) {
   }
 
   return (
-    <form className="border-t border-border pt-3 px-3" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="border-t border-border pt-4 px-3" onSubmit={form.handleSubmit(onSubmit)}>
       <Controller
         name="content"
         control={form.control}

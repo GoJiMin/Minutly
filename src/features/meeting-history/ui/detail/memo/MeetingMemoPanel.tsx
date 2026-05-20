@@ -11,12 +11,11 @@ export function MeetingMemoPanel({meetingId}: Props) {
   const memos = useGetMeetingMemos(meetingId);
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 py-3">
-      <header className="px-4 pb-3 pt-1">
-        <div className="mx-auto mb-3 h-1 w-16 rounded-full bg-foreground/20" aria-hidden />
+    <div className="flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 py-4">
+      <header className="border-b border-border/70 px-4 pb-3">
         <Text className="font-semibold leading-6">메모</Text>
         <Text variant="muted" className="text-xs leading-5">
-          중요한 내용을 등록할 수 있어요.
+          이 회의에만 저장되는 내용이에요.
         </Text>
       </header>
       <MeetingMemoList meetingId={meetingId} memos={memos} />
