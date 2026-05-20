@@ -32,3 +32,7 @@ export type CreateMeetingResponse = {
   id: string;
   meetingDate: string;
 };
+
+export type GetMeetingMemosResponse = {
+  memos: MeetingMemo[];
+};

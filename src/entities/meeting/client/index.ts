@@ -5,6 +5,7 @@ export type {
   MeetingDetail,
   MeetingListItem,
   MeetingMemo,
+  GetMeetingMemosResponse,
 } from '../model/types';
 
 export type {
