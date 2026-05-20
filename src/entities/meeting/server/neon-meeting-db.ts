@@ -110,14 +110,12 @@ export class NeonMeetingDb implements MeetingDb {
 
   async updateMeeting(id: string, input: UpdateMeetingRequest): Promise<{updated: boolean}> {
     const now = this.getNow();
-    const {title, originTranscript, transcript, summary, keyPoints} = input;
+    const {title, summary, keyPoints} = input;
 
     const rows = await this.sql`
       UPDATE meetings
       SET
         title = ${title},
-        origin_transcript = ${originTranscript},
-        transcript = ${transcript},
         summary = ${summary},
         key_points = ${JSON.stringify(keyPoints)}::jsonb,
         updated_at = ${now}

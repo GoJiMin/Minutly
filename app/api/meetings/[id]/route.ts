@@ -42,14 +42,6 @@ function createUpdateMeetingValidationError(error: ZodError): ErrorResponse {
         status: 400,
       };
 
-    case 'originTranscript':
-    case 'transcript':
-      return {
-        title: 'TRANSCRIPT_REQUIRED',
-        detail: '회의 내용을 입력해주세요.',
-        status: 400,
-      };
-
     case 'summary':
       return {
         title: 'SUMMARY_REQUIRED',
@@ -175,8 +167,6 @@ export async function PUT(req: NextRequest, {params}: RouteParams): Promise<Next
       message: error instanceof Error ? error.message : 'Unknown error',
       id,
       titleLength: requestBodyValidationResult.value.title.length,
-      originTranscriptLength: requestBodyValidationResult.value.originTranscript.length,
-      transcriptLength: requestBodyValidationResult.value.transcript.length,
       summaryLength: requestBodyValidationResult.value.summary.length,
       keyPointCount: requestBodyValidationResult.value.keyPoints.length,
     });

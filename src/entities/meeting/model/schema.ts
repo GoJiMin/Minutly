@@ -13,7 +13,11 @@ const meetingPayloadSchema = z.object({
 });
 
 export const createMeetingRequestSchema = meetingPayloadSchema;
-export const updateMeetingRequestSchema = meetingPayloadSchema;
+export const updateMeetingRequestSchema = meetingPayloadSchema.pick({
+  title: true,
+  summary: true,
+  keyPoints: true,
+});
 
 export type CreateMeetingRequest = z.infer<typeof createMeetingRequestSchema>;
 export type UpdateMeetingRequest = z.infer<typeof updateMeetingRequestSchema>;
