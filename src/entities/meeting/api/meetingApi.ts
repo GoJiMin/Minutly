@@ -21,7 +21,7 @@ export async function fetchCreateMeeting(payload: CreateMeetingRequest) {
   });
 }
 
-export async function fetchUpdateMeeting(id: string, payload: UpdateMeetingRequest) {
+export async function fetchUpdateMeeting({id, payload}: {id: string; payload: UpdateMeetingRequest}) {
   await fetchPut({
     endpoint: `/api/meetings/${id}`,
     body: payload,
