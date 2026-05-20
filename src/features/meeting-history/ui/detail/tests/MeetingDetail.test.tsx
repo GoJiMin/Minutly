@@ -5,14 +5,17 @@ import {Toaster as SonnerToaster} from 'sonner';
 import mockRouter from 'next-router-mock';
 import {MeetingDetail} from '../MeetingDetail';
 import {fetchDeleteMeeting, fetchUpdateMeeting, getMeetingById} from '@/entities/meeting/api/meetingApi';
+import {getMeetingMemos} from '@/entities/meeting/api/meetingMemoApi';
 import type {MeetingDetail as MeetingDetailResponse} from '@/entities/meeting/client';
 import {withAllContext} from '@/shared/utils/withAllContext';
 
 jest.mock('@/entities/meeting/api/meetingApi');
+jest.mock('@/entities/meeting/api/meetingMemoApi');
 
 const mockedGetMeetingById = jest.mocked(getMeetingById);
 const mockedFetchUpdateMeeting = jest.mocked(fetchUpdateMeeting);
 const mockedFetchDeleteMeeting = jest.mocked(fetchDeleteMeeting);
+const mockedGetMeetingMemos = jest.mocked(getMeetingMemos);
 
 const MEETING_ID = '5f5d8a97-022c-4ea9-bef6-c099a4df6fce';
 const HISTORY_DETAIL_PATH = `/history?year=2026&month=05&meetingId=${MEETING_ID}`;
@@ -60,6 +63,7 @@ describe('@/src/features/meeting-history/ui/detail/MeetingDetail.tsx', () => {
     mockRouter.reset();
     mockRouter.push(HISTORY_DETAIL_PATH);
     mockedGetMeetingById.mockResolvedValue(MEETING_DETAIL);
+    mockedGetMeetingMemos.mockResolvedValue({memos: []});
     mockedFetchUpdateMeeting.mockResolvedValue(undefined);
     mockedFetchDeleteMeeting.mockResolvedValue(undefined);
   });

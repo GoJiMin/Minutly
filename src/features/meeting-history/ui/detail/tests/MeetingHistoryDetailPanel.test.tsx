@@ -2,10 +2,12 @@ import {render, screen} from '@testing-library/react';
 import mockRouter from 'next-router-mock';
 import {MeetingHistoryDetailPanel} from '../MeetingHistoryDetailPanel';
 import {getMeetingById} from '@/entities/meeting/api/meetingApi';
+import {getMeetingMemos} from '@/entities/meeting/api/meetingMemoApi';
 import {RequestGetError} from '@/shared/api';
 import {withAllContext} from '@/shared/utils/withAllContext';
 
 jest.mock('@/entities/meeting/api/meetingApi');
+jest.mock('@/entities/meeting/api/meetingMemoApi');
 
 jest.mock('lottie-react', () => ({
   __esModule: true,
@@ -13,6 +15,7 @@ jest.mock('lottie-react', () => ({
 }));
 
 const mockedGetMeetingById = jest.mocked(getMeetingById);
+const mockedGetMeetingMemos = jest.mocked(getMeetingMemos);
 
 const MEETING_ID = '5f5d8a97-022c-4ea9-bef6-c099a4df6fce';
 
@@ -30,6 +33,7 @@ describe('@/src/features/meeting-history/ui/detail/MeetingHistoryDetailPanel.tsx
   beforeEach(() => {
     jest.clearAllMocks();
     mockRouter.reset();
+    mockedGetMeetingMemos.mockResolvedValue({memos: []});
   });
 
   afterEach(() => {
