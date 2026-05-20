@@ -12,8 +12,21 @@ CREATE TABLE IF NOT EXISTS meetings (
     CHECK (jsonb_typeof(key_points) = 'array')
 );
 
+CREATE TABLE IF NOT EXISTS meeting_memos (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  meeting_id UUID NOT NULL
+    REFERENCES meetings (id)
+    ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  CONSTRAINT meeting_memos_content_length
+    CHECK (char_length(content) BETWEEN 1 AND 500)
+);
+
 CREATE INDEX IF NOT EXISTS meetings_meeting_date_idx
   ON meetings (meeting_date);
 
 CREATE INDEX IF NOT EXISTS meetings_meeting_date_created_at_idx
   ON meetings (meeting_date, created_at ASC);
+
+CREATE INDEX IF NOT EXISTS meeting_memos_meeting_id_id_idx
+  ON meeting_memos (meeting_id, id ASC);

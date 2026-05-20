@@ -1,11 +1,13 @@
 import 'server-only';
 
 import {neon} from '@neondatabase/serverless';
-import type {MeetingDb} from './meeting-db';
+import type {CreateMeetingMemoResult, DeleteMeetingMemoResult, MeetingDb} from './meeting-db';
 import type {CreateMeetingRequest, UpdateMeetingRequest} from '../model/schema';
-import type {CreateMeetingResponse, MeetingDetail, MeetingListItem} from '../model/types';
+import type {CreateMeetingResponse, MeetingDetail, MeetingListItem, MeetingMemo} from '../model/types';
 import {neonConfig} from '@/shared/server';
 import {getMonthStartDate, getNextMonthStartDate, toMeetingDate} from '@/shared/utils';
+
+const MAX_MEETING_MEMO_COUNT = 50;
 
 type NeonMeetingDbOptions = {
   getNow?: () => Date;
@@ -169,5 +171,95 @@ export class NeonMeetingDb implements MeetingDb {
       id: row.id,
       title: row.title,
     }));
+  }
+
+  async listMeetingMemos(meetingId: string): Promise<MeetingMemo[] | null> {
+    const [meetingRows, memoRows] = await this.sql.transaction(txn => [
+      txn`
+        SELECT id
+        FROM meetings
+        WHERE id = ${meetingId};
+      `,
+      txn`
+        SELECT
+          id,
+          content
+        FROM meeting_memos
+        WHERE meeting_id = ${meetingId}
+        ORDER BY id ASC;
+      `,
+    ]);
+
+    if (meetingRows.length === 0) return null;
+
+    return memoRows.map(row => ({
+      id: row.id,
+      content: row.content,
+    }));
+  }
+
+  async createMeetingMemo(meetingId: string, content: string): Promise<CreateMeetingMemoResult> {
+    const [meetingRows, insertedRows] = await this.sql.transaction(txn => [
+      txn`
+        SELECT id
+        FROM meetings
+        WHERE id = ${meetingId}
+        FOR UPDATE;
+      `,
+      txn`
+        INSERT INTO meeting_memos (
+          meeting_id,
+          content
+        )
+        SELECT
+          ${meetingId},
+          ${content}
+        FROM meetings
+        WHERE id = ${meetingId}
+          AND (
+            SELECT count(*)
+            FROM meeting_memos
+            WHERE meeting_id = ${meetingId}
+          ) < ${MAX_MEETING_MEMO_COUNT}
+        RETURNING id;
+      `,
+    ]);
+
+    if (meetingRows.length === 0) {
+      return {created: false, reason: 'MEETING_NOT_FOUND'};
+    }
+
+    if (insertedRows.length === 0) {
+      return {created: false, reason: 'MEETING_MEMOS_TOO_MANY'};
+    }
+
+    return {created: true};
+  }
+
+  async deleteMeetingMemo(meetingId: string, memoId: number): Promise<DeleteMeetingMemoResult> {
+    const [meetingRows, deletedRows] = await this.sql.transaction(txn => [
+      txn`
+        SELECT id
+        FROM meetings
+        WHERE id = ${meetingId}
+        FOR UPDATE;
+      `,
+      txn`
+        DELETE FROM meeting_memos
+        WHERE meeting_id = ${meetingId}
+          AND id = ${memoId}
+        RETURNING id;
+      `,
+    ]);
+
+    if (meetingRows.length === 0) {
+      return {deleted: false, reason: 'MEETING_NOT_FOUND'};
+    }
+
+    if (deletedRows.length === 0) {
+      return {deleted: false, reason: 'MEETING_MEMO_NOT_FOUND'};
+    }
+
+    return {deleted: true};
   }
 }
