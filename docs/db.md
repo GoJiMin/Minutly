@@ -33,11 +33,11 @@ PRD의 저장 방향은 "회의록 1건을 하나의 영속 데이터 단위로 
 | `title`             | `text`        | no   | 회의 제목                                 |
 | `meeting_date`      | `date`        | no   | 캘린더와 날짜별 목록 조회에 사용하는 날짜 |
 | `created_at`        | `timestamptz` | no   | 회의 최초 저장 시각                       |
-| `updated_at`        | `timestamptz` | no   | 회의 마지막 수정 또는 재요약 저장 시각    |
+| `updated_at`        | `timestamptz` | no   | 회의 마지막 수정 시각                     |
 | `origin_transcript` | `text`        | no   | STT가 인식한 원본 전사 텍스트             |
 | `transcript`        | `text`        | no   | 사용자가 검토 및 수정한 최종 전사 텍스트  |
-| `summary`           | `text`        | no   | AI가 생성한 총 회의 요약                  |
-| `key_points`        | `jsonb`       | no   | AI가 생성한 주요 사항 목록                |
+| `summary`           | `text`        | no   | AI가 생성하고 사용자가 수정할 수 있는 총 회의 요약 |
+| `key_points`        | `jsonb`       | no   | AI가 생성하고 사용자가 수정할 수 있는 주요 사항 목록 |
 
 ---
 
@@ -207,21 +207,19 @@ returning id, meeting_date::text as meeting_date;
 `$2`는 서버에서 `Asia/Seoul` 기준으로 계산한 `meeting_date`다.
 저장 API의 응답에는 후속 조회와 캘린더 갱신에 필요한 `id`, `meeting_date`만 사용한다.
 
-### 7-5. 회의 수정 및 재요약 저장
+### 7-5. 회의 수정 저장
 
 ```sql
 update meetings
 set
   title = $2,
-  origin_transcript = $3,
-  transcript = $4,
-  summary = $5,
-  key_points = $6::jsonb,
-  updated_at = $7
+  summary = $3,
+  key_points = $4::jsonb,
+  updated_at = $5
 where id = $1;
 ```
 
-수정 저장 시 `created_at`과 `meeting_date`는 유지한다.
+수정 저장 시 `created_at`, `meeting_date`, `origin_transcript`, `transcript`는 유지한다.
 수정 저장 API는 성공 시 응답 본문을 반환하지 않는다.
 
 ### 7-6. 회의 삭제

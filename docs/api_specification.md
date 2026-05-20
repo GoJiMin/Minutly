@@ -20,7 +20,7 @@ API는 RESTful한 형태를 기본으로 하며, 인증이 필요한 API는 서�
 - `meetingDate`는 캘린더 및 날짜별 조회에 사용하는 서비스 기준 날짜다.
 - `meetingDate`는 `createdAt`을 `Asia/Seoul` 시간대로 해석해 생성한다.
 - `createdAt`은 회의 생성 시각 전체를 나타내는 ISO 문자열로 저장한다.
-- `updatedAt`은 회의 마지막 수정 또는 재요약 저장 시각을 나타내는 ISO 문자열로 저장한다.
+- `updatedAt`은 회의 마지막 수정 시각을 나타내는 ISO 문자열로 저장한다.
 - DB 컬럼은 `snake_case`를 사용하지만 API 요청/응답은 `camelCase`를 사용한다.
 
 ---
@@ -119,7 +119,7 @@ type ErrorResponse = {
 | POST   | `/api/auth/logout`                       | 인증 쿠키 제거                           | 불필요             |
 | GET    | `/api/auth/check`                        | 현재 인증 상태 확인                      | 필요               |
 | POST   | `/api/speech/token`                      | Azure Speech access token 발급           | 필요               |
-| POST   | `/api/summary`                           | transcript 기반 요약 생성                | 필요               |
+| POST   | `/api/summary`                           | transcript로 요약 생성                   | 필요               |
 | POST   | `/api/meetings`                          | 신규 회의 저장                           | 필요               |
 | GET    | `/api/meetings/dates?year=YYYY&month=MM` | 특정 연월에서 회의가 있는 날짜 목록 조회 | 필요               |
 | GET    | `/api/meetings?date=YYYY-MM-DD`          | 특정 날짜의 회의 목록 조회               | 필요               |
@@ -362,7 +362,7 @@ POST /api/summary
 
 ### 목적
 
-사용자가 검토한 transcript를 기반으로 AI 요약을 생성한다.
+사용자가 검토한 transcript로 AI 요약을 생성한다.
 
 ### Request Body
 
@@ -391,7 +391,7 @@ type CreateSummaryResponse = {
 
 ```json
 {
-  "summary": "회의 전체 내용을 정리한 요약문",
+  "summary": "회의 요약문",
   "keyPoints": ["주요 사항 1", "주요 사항 2"]
 }
 ```
@@ -402,7 +402,7 @@ type CreateSummaryResponse = {
 - 클라이언트는 AI API 키를 알 수 없어야 한다.
 - 요약 결과는 `summary`, `keyPoints` 두 섹션으로 고정한다.
 - 요약 생성 API와 회의 저장 API는 분리한다.
-- 사용자는 원문 수정 후 요약만 별도로 다시 요청할 수 있어야 한다.
+- 사용자는 요약 생성 전에 원문을 수정한 경우 요약 API를 다시 요청할 수 있어야 한다.
 - 요약 실패 시 서버는 회의 데이터를 저장하지 않는다.
 - 클라이언트는 요약 성공 후 회의 저장 API를 호출한다.
 
@@ -439,7 +439,7 @@ POST /api/meetings
   "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의",
   "originTranscript": "Azure STT 원본 전사 텍스트",
   "transcript": "사용자가 수정한 최종 전사 텍스트",
-  "summary": "회의 전체 내용을 정리한 요약문",
+  "summary": "회의 요약문",
   "keyPoints": ["주요 사항 1", "주요 사항 2"]
 }
 ```
@@ -503,7 +503,7 @@ PUT /api/meetings/{id}
 
 ### 목적
 
-기존 회의의 transcript 수정 및 재요약 결과를 같은 회의 레코드에 갱신 저장한다.
+기존 회의의 제목, 회의 요약, 주요 사항을 같은 회의 레코드에 갱신 저장한다.
 
 ### Path Parameter
 
@@ -516,10 +516,8 @@ PUT /api/meetings/{id}
 ```json
 {
   "title": "[2026-04-26. 일] - 메디큐브 시딩 제품 관련 오션 회의",
-  "originTranscript": "Azure STT 원본 전사 텍스트",
-  "transcript": "수정된 최종 전사 텍스트",
-  "summary": "재생성된 회의 요약문",
-  "keyPoints": ["재생성된 주요 사항 1", "재생성된 주요 사항 2"]
+  "summary": "수정된 회의 요약문",
+  "keyPoints": ["수정된 주요 사항 1", "수정된 주요 사항 2"]
 }
 ```
 
@@ -532,8 +530,6 @@ type UpdateMeetingParams = {
 
 type UpdateMeetingRequest = {
   title: string;
-  originTranscript: string;
-  transcript: string;
   summary: string;
   keyPoints: string[];
 };
@@ -551,6 +547,8 @@ type UpdateMeetingRequest = {
 - 기존 회의가 존재하지 않으면 404를 반환한다.
 - 수정 저장 시 `createdAt`은 기존 값을 유지한다.
 - 수정 저장 시 `meetingDate`는 기존 값을 유지한다.
+- 수정 저장 시 `originTranscript`는 기존 값을 유지한다.
+- 수정 저장 시 `transcript`는 기존 값을 유지한다.
 - 수정 저장 시 `updatedAt`은 서버 현재 시간으로 갱신한다.
 - 수정 저장 성공 시 응답 본문을 반환하지 않는다.
 - 클라이언트는 mutation에 사용한 `id`와 현재 화면 상태를 기준으로 관련 query를 invalidate 후 재조회한다.
@@ -562,7 +560,6 @@ type UpdateMeetingRequest = {
 | 400    | `INVALID_MEETING_ID`             | 회의 식별자는 UUID 형식이어야 합니다.                       |
 | 400    | `TITLE_REQUIRED`                 | 회의 제목을 입력해주세요.                                   |
 | 400    | `TITLE_TOO_LONG`                 | 회의 제목은 최대 100자 이하로 입력해주세요.                 |
-| 400    | `TRANSCRIPT_REQUIRED`            | 회의 내용을 입력해주세요.                                   |
 | 400    | `SUMMARY_REQUIRED`               | 회의 요약을 입력해주세요.                                   |
 | 400    | `KEY_POINTS_REQUIRED`            | 주요 사항을 1개 이상 입력해주세요.                          |
 | 400    | `KEY_POINTS_TOO_MANY`            | 주요 사항은 최대 20개까지 저장할 수 있습니다.               |
@@ -813,7 +810,7 @@ type GetMeetingDetailResponse = MeetingDetail;
   "updatedAt": "2026-04-26T14:18:32+09:00",
   "originTranscript": "Azure STT 원본 전사 텍스트",
   "transcript": "사용자가 수정한 최종 전사 텍스트",
-  "summary": "회의 전체 내용을 정리한 요약문",
+  "summary": "회의 요약문",
   "keyPoints": ["주요 사항 1", "주요 사항 2"]
 }
 ```
