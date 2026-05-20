@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --watchAll --coverage",
-    "test:ci": "NODE_ENV=test jest --ci --watchAll=false --coverage --passWithNoTests",
+    "test": "TZ=Asia/Seoul jest",
+    "test:watch": "TZ=Asia/Seoul jest --watch",
+    "test:coverage": "TZ=Asia/Seoul jest --watchAll --coverage",
+    "test:ci": "TZ=Asia/Seoul NODE_ENV=test jest --ci --watchAll=false --coverage --passWithNoTests",
     "vercel:build": "pnpm test:ci && pnpm build"
   },
   "dependencies": {
