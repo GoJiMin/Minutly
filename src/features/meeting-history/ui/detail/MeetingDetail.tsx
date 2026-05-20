@@ -60,7 +60,7 @@ export function MeetingDetail({meetingId}: Props) {
           <Separator />
           <article className="space-y-3">
             <Heading level="h3" className="text-lg">
-              전사 원문
+              최종 회의 내용
             </Heading>
             <Text className="whitespace-pre-line mt-3 rounded-lg bg-muted/45 border border-border/70 p-4">
               {transcript}

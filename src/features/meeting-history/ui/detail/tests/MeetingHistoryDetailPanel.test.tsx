@@ -56,7 +56,7 @@ describe('@/src/features/meeting-history/ui/detail/MeetingHistoryDetailPanel.tsx
       createdAt: '2026-05-18T10:25:03.047Z',
       updatedAt: '2026-05-18T10:25:03.047Z',
       originTranscript: '원본 전사 내용',
-      transcript: '전사 원문입니다.',
+      transcript: '최종 회의 내용입니다.',
       summary: '회의 요약입니다.',
       keyPoints: ['담당자를 정합니다.', '다음 회의 일정을 확인합니다.'],
     });
@@ -74,8 +74,8 @@ describe('@/src/features/meeting-history/ui/detail/MeetingHistoryDetailPanel.tsx
     expect(screen.getByText('주요 사항')).toBeInTheDocument();
     expect(screen.getByText('담당자를 정합니다.')).toBeInTheDocument();
     expect(screen.getByText('다음 회의 일정을 확인합니다.')).toBeInTheDocument();
-    expect(screen.getByText('전사 원문')).toBeInTheDocument();
-    expect(screen.getByText('전사 원문입니다.')).toBeInTheDocument();
+    expect(screen.getByText('최종 회의 내용')).toBeInTheDocument();
+    expect(screen.getByText('최종 회의 내용입니다.')).toBeInTheDocument();
     expect(screen.getAllByText('2026년 5월 18일 (월요일) 오후 7시 25분')).toHaveLength(2);
     expect(screen.getByText('메모')).toBeInTheDocument();
   });
