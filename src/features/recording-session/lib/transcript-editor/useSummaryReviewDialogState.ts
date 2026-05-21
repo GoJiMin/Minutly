@@ -45,6 +45,7 @@ export function useSummaryReviewDialogState() {
         const searchParams = new URLSearchParams({
           year,
           month,
+          date: meetingDate,
           meetingId: id,
         });
 
