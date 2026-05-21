@@ -28,7 +28,16 @@ function RecordingSessionControlsPanelSkeleton() {
 }
 
 function RecordingSessionFeedbackPanelSkeleton() {
-  const onboardingRowWidths = ['w-4/5', 'w-2/3', 'w-3/4', 'w-5/6', 'w-7/12', 'w-4/5', 'w-3/5', 'w-5/6'];
+  const onboardingRowWidths = [
+    'w-[31.5rem]',
+    'w-[29rem]',
+    'w-[32.5rem]',
+    'w-[32.5rem]',
+    'w-[41.5rem]',
+    'w-[39.5rem]',
+    'w-[29rem]',
+    'w-[45rem]',
+  ];
 
   return (
     <section className="flex min-h-0 flex-1 flex-col rounded-xl border-2">
@@ -48,7 +57,7 @@ function RecordingSessionFeedbackPanelSkeleton() {
               className="grid min-h-0 grid-cols-[3rem_1fr] items-center border-b border-border/60 last:border-b-0"
             >
               <Skeleton className="h-5 w-6 rounded-sm" />
-              <Skeleton className={`h-7 rounded-md ${widthClassName}`} />
+              <Skeleton className={`h-6 rounded-md ${widthClassName}`} />
             </li>
           ))}
         </ol>

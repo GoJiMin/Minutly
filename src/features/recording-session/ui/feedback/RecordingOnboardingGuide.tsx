@@ -22,7 +22,7 @@ export function RecordingOnboardingGuide() {
           <span className="text-lg font-semibold tabular-nums text-muted-foreground">
             {String(index + 1).padStart(2, '0')}
           </span>
-          <Text className="text-xl text-foreground">{step}</Text>
+          <Text className="text-lg text-foreground">{step}</Text>
         </li>
       ))}
     </ol>
