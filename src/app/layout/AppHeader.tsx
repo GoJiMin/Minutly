@@ -17,10 +17,12 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 flex shrink-0 items-center border-b bg-inherit py-5 px-10">
       <Link
         href="/"
-        className="inline-flex items-center text-3xl gap-1.5 font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex items-center text-3xl gap-2 font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Image src="/logo.png" alt="logo" width={48} height={48} priority className="size-12 shrink-0" />
-        <span>Minutly</span>
+        <Image src="/logo.png" alt="logo" width={48} height={48} priority className="size-11 shrink-0" />
+        <span>
+          Minut<span className="text-foreground/60">ly</span>
+        </span>
       </Link>
 
       <nav aria-label="주요 메뉴" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-10">

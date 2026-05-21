@@ -44,7 +44,9 @@ export function LoginForm() {
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="" width={48} height={48} priority className="size-14 shrink-0" />
           <div className="grid gap-1">
-            <CardTitle className="text-2xl font-semibold">Minutly</CardTitle>
+            <CardTitle className="text-2xl font-semibold">
+              Minut<span className="text-foreground/60">ly</span>
+            </CardTitle>
             <CardDescription>보안을 위해 아이디와 비밀번호를 입력해주세요.</CardDescription>
           </div>
         </div>
