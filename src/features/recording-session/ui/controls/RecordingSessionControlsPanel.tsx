@@ -14,7 +14,7 @@ export default function RecordingSessionControlsPanel() {
   const isTranscriptReviewVisible = status === 'transcript_review';
 
   return (
-    <section className="w-110 flex flex-col border-2 rounded-xl px-5 py-6 gap-3">
+    <section className="w-100 flex flex-col border-2 rounded-xl px-5 py-6 gap-3">
       <div className="flex flex-1 flex-col justify-center items-center">
         <time className="text-2xl text-foreground">{formatKoreanDate(new Date())}</time>
         <RecordingSessionTimer />

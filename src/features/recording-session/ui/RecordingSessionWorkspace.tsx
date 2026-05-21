@@ -6,7 +6,7 @@ export default function RecordingSessionWorkspace() {
   useRecordingDraftPersistence();
 
   return (
-    <section className="w-full h-full flex gap-10 p-10">
+    <section className="w-full h-full flex gap-5 p-10">
       <RecordingSessionControlsPanel />
       <RecordingSessionFeedbackPanel />
     </section>

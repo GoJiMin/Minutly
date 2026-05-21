@@ -17,7 +17,7 @@ export function RecordingSessionActionButtons() {
   const handlePrimaryClick = canResume ? resumeRecordingSession : startRecordingSession;
 
   return (
-    <div className="mt-10 flex w-full max-w-90 flex-col gap-3">
+    <div className="mt-6 flex w-full max-w-85 flex-col gap-3">
       <Button
         onClick={handlePrimaryClick}
         disabled={!canStart && !canResume}
