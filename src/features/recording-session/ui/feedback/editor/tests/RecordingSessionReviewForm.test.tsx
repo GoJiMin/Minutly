@@ -293,7 +293,9 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     });
 
     await waitFor(() => {
-      expect(mockRouter.asPath).toBe('/history?year=2026&month=05&meetingId=5f5d8a97-022c-4ea9-bef6-c099a4df6fce');
+      expect(mockRouter.asPath).toBe(
+        '/history?year=2026&month=05&date=2026-05-17&meetingId=5f5d8a97-022c-4ea9-bef6-c099a4df6fce',
+      );
     });
   });
 });
