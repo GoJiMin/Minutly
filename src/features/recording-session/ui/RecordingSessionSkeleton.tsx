@@ -68,7 +68,7 @@ function RecordingSessionFeedbackPanelSkeleton() {
 
 export function RecordingSessionWorkspaceSkeleton() {
   return (
-    <section aria-hidden className="w-full h-full flex gap-5 p-10">
+    <section aria-hidden className="w-full h-full flex gap-5 px-10 py-6">
       <RecordingSessionControlsPanelSkeleton />
       <RecordingSessionFeedbackPanelSkeleton />
     </section>
