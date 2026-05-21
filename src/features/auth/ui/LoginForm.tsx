@@ -38,7 +38,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full md:max-w-sm h-fit flex flex-col">
+    <Card className="w-full md:max-w-sm h-fit flex flex-col rounded-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-semibold">Minutly</CardTitle>
         <CardDescription>보안을 위해 아이디와 비밀번호를 입력해주세요.</CardDescription>
@@ -60,6 +60,7 @@ export function LoginForm() {
                     aria-invalid={fieldState.invalid}
                     placeholder="아이디를 입력해주세요."
                     autoComplete="off"
+                    className="h-10 rounded-lg border-border bg-muted/30 px-3 font-medium text-sm focus-visible:bg-white"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -79,6 +80,7 @@ export function LoginForm() {
                     id="login-form-password"
                     aria-invalid={fieldState.invalid}
                     placeholder="*********"
+                    className="h-10 rounded-lg border-border bg-muted/30 px-3 font-medium text-sm focus-visible:bg-white"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -88,7 +90,13 @@ export function LoginForm() {
         </form>
       </CardContent>
       <CardFooter>
-        <Button type="submit" form="login-form" size="lg" className="w-full font-semibold" disabled={isPendingLogin}>
+        <Button
+          type="submit"
+          form="login-form"
+          size="lg"
+          className="w-full font-semibold rounded-lg"
+          disabled={isPendingLogin}
+        >
           {isPendingLogin ? <Spinner /> : '로그인'}
         </Button>
       </CardFooter>
