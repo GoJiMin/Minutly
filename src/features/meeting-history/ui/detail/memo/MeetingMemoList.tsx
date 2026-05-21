@@ -11,7 +11,7 @@ export function MeetingMemoList({memos, meetingId}: Props) {
   const {deleteMeetingMemo} = useDeleteMeetingMemoMutation();
 
   return (
-    <ul className="flex flex-col gap-3 min-h-0 flex-1 overflow-y-auto px-3 py-2">
+    <ul className="flex flex-col gap-3 min-h-0 flex-1 overflow-y-auto px-3 py-5">
       {memos.map(memo => (
         <li key={memo.id} className="flex items-end justify-end gap-1.5">
           <div className="max-w-[90%] rounded-2xl rounded-br-sm border border-border/80 bg-background px-3 py-2 text-foreground">

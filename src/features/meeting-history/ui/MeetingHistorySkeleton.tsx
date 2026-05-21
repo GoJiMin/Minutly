@@ -83,15 +83,20 @@ export function MeetingDetailSkeleton() {
             <Skeleton className="mt-2 h-4 w-36 rounded-md" />
           </header>
 
-          <div className="min-h-0 flex-1 px-3 py-2">
-            <div className="flex flex-col gap-3">
-              <Skeleton className="ml-auto h-16 w-4/5 rounded-2xl rounded-br-sm" />
-              <Skeleton className="ml-auto h-20 w-5/6 rounded-2xl rounded-br-sm" />
-              <Skeleton className="ml-auto h-14 w-3/4 rounded-2xl rounded-br-sm" />
-            </div>
-          </div>
+          <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-3 py-5">
+            {[
+              'h-16 w-4/5',
+              'h-20 w-5/6',
+              'h-14 w-3/4',
+            ].map((className, index) => (
+              <li key={index} className="flex items-end justify-end gap-1.5">
+                <Skeleton className={`${className} max-w-[90%] rounded-2xl rounded-br-sm`} />
+                <Skeleton className="mb-0.5 size-6 shrink-0 rounded-md" />
+              </li>
+            ))}
+          </ul>
 
-          <div className="border-t border-border px-3 pt-3">
+          <div className="border-t border-border px-3 pt-4">
             <Skeleton className="h-10 w-full rounded-xl" />
           </div>
         </div>
