@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {usePathname} from 'next/navigation';
 import {cn} from '@/shared/utils';
 
@@ -16,9 +17,10 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 flex shrink-0 items-center border-b bg-inherit py-5 px-10">
       <Link
         href="/"
-        className="text-3xl font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex items-center text-3xl gap-1.5 font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        Minutly
+        <Image src="/logo.png" alt="logo" width={48} height={48} priority className="size-12 shrink-0" />
+        <span>Minutly</span>
       </Link>
 
       <nav aria-label="주요 메뉴" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-10">

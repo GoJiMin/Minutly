@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {Controller, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {LoginRequest, loginRequestSchema, useFetchLogin} from '@/entities/auth';
@@ -38,10 +39,15 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full md:max-w-sm h-fit flex flex-col rounded-xl">
+    <Card className="w-full md:max-w-sm h-fit flex flex-col rounded-xl gap-4">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold">Minutly</CardTitle>
-        <CardDescription>보안을 위해 아이디와 비밀번호를 입력해주세요.</CardDescription>
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="" width={48} height={48} priority className="size-14 shrink-0" />
+          <div className="grid gap-1">
+            <CardTitle className="text-2xl font-semibold">Minutly</CardTitle>
+            <CardDescription>보안을 위해 아이디와 비밀번호를 입력해주세요.</CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form id="login-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -89,7 +95,7 @@ export function LoginForm() {
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="mt-2">
         <Button
           type="submit"
           form="login-form"
