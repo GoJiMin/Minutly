@@ -86,6 +86,9 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
 
     renderSidebar();
 
+    await waitFor(() => {
+      expect(screen.queryByTestId('meeting-calendar-loading-overlay')).not.toBeInTheDocument();
+    });
     await user.click(await screen.findByRole('button', {name: /2026년 6월 10일/}));
 
     await waitFor(() => {

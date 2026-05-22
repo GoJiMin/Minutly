@@ -1,4 +1,5 @@
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {RequestGetError} from '@/shared/api';
 
 export function withAllContext(children: React.ReactNode) {
   const testQueryClient = createTestQueryClient();
@@ -11,6 +12,7 @@ function createTestQueryClient() {
     defaultOptions: {
       queries: {
         retry: 0,
+        throwOnError: error => !(error instanceof RequestGetError) || error.errorHandlingType === 'errorBoundary',
       },
     },
   });

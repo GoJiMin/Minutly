@@ -1,9 +1,12 @@
-import {useSuspenseQuery} from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 import {meetingQueryOptions} from './meeting-query';
 import type {MeetingDatesQuery} from '../model/schema';
 
 export function useMeetingDatesByMonthQuery(query: MeetingDatesQuery) {
-  const {data} = useSuspenseQuery(meetingQueryOptions.datesByMonth(query));
+  const {data, isFetching} = useQuery(meetingQueryOptions.datesByMonth(query));
 
-  return data.dates;
+  return {
+    dates: data?.dates ?? [],
+    isFetching,
+  };
 }
