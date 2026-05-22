@@ -1,8 +1,7 @@
 import {toMeetingDate} from '@/shared/utils';
-import {useRouter, useSearchParams} from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
 
 export function useMeetingHistoryNavigation() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   function updateUrl(nextValues: Record<string, string>) {
@@ -13,7 +12,7 @@ export function useMeetingHistoryNavigation() {
     });
 
     const queryString = nextParams.toString();
-    router.push(`?${queryString}`, {scroll: false});
+    window.history.pushState(null, '', `?${queryString}`);
   }
 
   function moveMonth(monthDate: Date) {

@@ -15,6 +15,15 @@ const NEXT_MEETING_ID = '6f5d8a97-022c-4ea9-bef6-c099a4df6fce';
 
 let consoleErrorSpy: jest.SpiedFunction<typeof console.error> | undefined;
 
+function setHistoryPath(path: string) {
+  mockRouter.push(path);
+  window.history.replaceState(null, '', path);
+}
+
+function getQueryParams() {
+  return Object.fromEntries(new URLSearchParams(window.location.search));
+}
+
 function renderSidebar() {
   return render(withAllContext(<MeetingHistorySidebar />));
 }
@@ -27,6 +36,7 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
   beforeEach(() => {
     jest.clearAllMocks();
     mockRouter.reset();
+    window.history.replaceState(null, '', '/history');
   });
 
   afterEach(() => {
@@ -50,7 +60,7 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
         },
       ],
     });
-    mockRouter.push(`/history?year=2026&month=06&date=2026-06-03&meetingId=${MEETING_ID}`);
+    setHistoryPath(`/history?year=2026&month=06&date=2026-06-03&meetingId=${MEETING_ID}`);
 
     renderSidebar();
 
@@ -72,14 +82,14 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
       dates: ['2026-06-03', '2026-06-10'],
     });
     mockedGetMeetingsByDate.mockResolvedValue({meetings: []});
-    mockRouter.push(`/history?year=2026&month=06&meetingId=${MEETING_ID}`);
+    setHistoryPath(`/history?year=2026&month=06&meetingId=${MEETING_ID}`);
 
     renderSidebar();
 
     await user.click(await screen.findByRole('button', {name: /2026년 6월 10일/}));
 
     await waitFor(() => {
-      expect(mockRouter.query).toEqual({
+      expect(getQueryParams()).toEqual({
         year: '2026',
         month: '06',
         date: '2026-06-10',
@@ -106,14 +116,14 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
         },
       ],
     });
-    mockRouter.push(`/history?year=2026&month=06&date=2026-06-03&meetingId=${MEETING_ID}`);
+    setHistoryPath(`/history?year=2026&month=06&date=2026-06-03&meetingId=${MEETING_ID}`);
 
     renderSidebar();
 
     await user.click(await screen.findByRole('button', {name: '제품 회고 회의'}));
 
     await waitFor(() => {
-      expect(mockRouter.query).toEqual({
+      expect(getQueryParams()).toEqual({
         year: '2026',
         month: '06',
         date: '2026-06-03',
@@ -126,7 +136,7 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
     hideExpectedErrorBoundaryLog();
 
     mockedGetMeetingDatesByMonth.mockRejectedValue(new Error('날짜 조회 실패'));
-    mockRouter.push('/history?year=2026&month=06');
+    setHistoryPath('/history?year=2026&month=06');
 
     renderSidebar();
 
@@ -142,7 +152,7 @@ describe('@/src/features/meeting-history/ui/side-bar/MeetingHistorySidebar.tsx',
       dates: ['2026-06-03'],
     });
     mockedGetMeetingsByDate.mockRejectedValue(new Error('목록 조회 실패'));
-    mockRouter.push('/history?year=2026&month=06&date=2026-06-03');
+    setHistoryPath('/history?year=2026&month=06&date=2026-06-03');
 
     renderSidebar();
 
