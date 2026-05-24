@@ -19,7 +19,6 @@ if (typeof window !== 'undefined') {
 process.env.DATABASE_URL = 'postgresql://test-user:test-password@localhost:5432/test-db';
 process.env.AZURE_SPEECH_SECRET_KEY = 'test-azure-speech-secret-key';
 process.env.AZURE_SPEECH_REGION = 'koreacentral';
-process.env.AZURE_SPEECH_API_ENDPOINT = 'https://test-speech.example.com';
 process.env.GEMINI_API_KEY = 'test-gemini-api-key';
 process.env.AUTH_LOGIN_ID = 'test-login-id';
 process.env.AUTH_PASSWORD = 'test-password';

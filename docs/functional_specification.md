@@ -38,7 +38,7 @@
 - 서비스는 1인 사용을 전제로 한다.
 - 웹 기반으로 동작한다.
 - 애플리케이션은 Vercel에 배포한다.
-- 음성 인식은 Azure Speech F0를 사용한다.
+- 음성 인식은 Azure AI Speech 리소스 F0를 사용한다.
 - 회의 데이터는 Neon Postgres에 저장한다.
 - 회의별 개인 메모는 Neon Postgres에 저장한다.
 - 오디오 원본은 저장하지 않는다.

@@ -1,6 +1,6 @@
 export type SpeechTokenResponse = {
   token: string;
-  endpoint: string;
+  region: string;
 };
 
 export type RecordingStatus =

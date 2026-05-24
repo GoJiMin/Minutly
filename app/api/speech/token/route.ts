@@ -22,12 +22,12 @@ export async function POST(): Promise<NextResponse<SpeechTokenResponse | ErrorRe
     });
   }
 
-  const {token, endpoint} = result.value;
+  const {token, region} = result.value;
 
   return NextResponse.json(
     {
       token,
-      endpoint,
+      region,
     },
     {
       status: 200,

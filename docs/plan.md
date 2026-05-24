@@ -104,7 +104,7 @@
   - 회의 생성, 조회, 수정, 삭제 API
   - 보호 API 인증 확인
 - 완료 기준:
-  - 클라이언트는 Azure Speech token과 endpoint를 받을 수 있다.
+  - 클라이언트는 Azure Speech token과 region을 받을 수 있다.
   - 클라이언트는 transcript를 보내 summary와 keyPoints를 받을 수 있다.
   - 클라이언트는 회의 저장, 조회, 수정, 삭제 요청을 보낼 수 있다.
   - 보호 API는 로그인한 사용자만 사용할 수 있다.

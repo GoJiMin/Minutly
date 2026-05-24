@@ -203,7 +203,7 @@ Minutly는 회의 중 마이크로 입력된 음성을 텍스트화하고, 회�
 
 ### 8-2. 음성 인식
 
-- Azure Speech F0 Free Tier 사용
+- Azure AI Speech 리소스 F0 Free Tier 사용
 - 월 5시간 무료 사용량 내에서 PoC 운영
 - 한국어를 기본으로 지원하고, 필요 시 영어까지 대응
 - 실시간 화면 표시는 Azure STT의 최종 인식 완료 이벤트 기준으로 갱신한다.

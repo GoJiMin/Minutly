@@ -4,7 +4,6 @@ type SecretEnvKey =
   | 'DATABASE_URL'
   | 'AZURE_SPEECH_SECRET_KEY'
   | 'AZURE_SPEECH_REGION'
-  | 'AZURE_SPEECH_API_ENDPOINT'
   | 'GEMINI_API_KEY'
   | 'AUTH_LOGIN_ID'
   | 'AUTH_PASSWORD'
@@ -30,7 +29,6 @@ function readRequiredSecretEnv(key: SecretEnvKey) {
 export const azureConfig = Object.freeze({
   apiKey: readRequiredSecretEnv('AZURE_SPEECH_SECRET_KEY'),
   region: readRequiredSecretEnv('AZURE_SPEECH_REGION'),
-  endpoint: readRequiredSecretEnv('AZURE_SPEECH_API_ENDPOINT'),
 });
 
 export const neonConfig = Object.freeze({

@@ -24,10 +24,9 @@ export function useAzureSpeechRecognizer() {
   const {issueAzureSpeechToken} = useAzureSpeechTokenMutation();
 
   async function createSpeechRecognizer({deviceId}: {deviceId?: string}): Promise<sdk.SpeechRecognizer> {
-    const {token, endpoint} = await issueAzureSpeechToken();
+    const {token, region} = await issueAzureSpeechToken();
 
-    const speechConfig = sdk.SpeechConfig.fromEndpoint(new URL(endpoint));
-    speechConfig.authorizationToken = token;
+    const speechConfig = sdk.SpeechConfig.fromAuthorizationToken(token, region);
     speechConfig.speechRecognitionLanguage = RECOGNITION_LANGUAGE;
 
     let audioConfig: sdk.AudioConfig;

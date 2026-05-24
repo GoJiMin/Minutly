@@ -320,7 +320,7 @@ POST /api/speech/token
 ```ts
 type SpeechTokenResponse = {
   token: string;
-  endpoint: string;
+  region: string;
 };
 ```
 
@@ -329,7 +329,7 @@ type SpeechTokenResponse = {
 ```json
 {
   "token": "azure-speech-access-token",
-  "endpoint": "https://koreacentral.api.cognitive.microsoft.com/"
+  "region": "koreacentral"
 }
 ```
 
@@ -344,7 +344,7 @@ Cache-Control: no-store
 - 서버는 Azure Speech 리소스 키를 환경 변수로만 관리한다.
 - 서버는 Azure Speech 리소스 키를 사용해 Azure access token을 발급받는다.
 - 클라이언트에는 Azure 리소스 키를 절대 내려주지 않는다.
-- 클라이언트는 반환된 `token`과 `endpoint`를 사용해 Azure Speech SDK 연결을 수행한다.
+- 클라이언트는 반환된 `token`과 `region`을 사용해 Azure Speech SDK 연결을 수행한다.
 - 토큰 응답은 캐싱되지 않도록 `Cache-Control: no-store` 헤더를 설정한다.
 
 ### Error

@@ -7,7 +7,7 @@ type IssueAzureSpeechTokenResult = Promise<{ok: true; value: SpeechTokenResponse
 
 export async function issueAzureSpeechToken(): IssueAzureSpeechTokenResult {
   try {
-    const tokenEndpoint = new URL(`/sts/v1.0/issueToken`, `https://${azureConfig.region}.api.cognitive.microsoft.com`);
+    const tokenEndpoint = `https://${azureConfig.region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
     const response = await fetch(tokenEndpoint, {
       method: 'POST',
       headers: {
@@ -35,7 +35,7 @@ export async function issueAzureSpeechToken(): IssueAzureSpeechTokenResult {
       return {ok: false};
     }
 
-    return {ok: true, value: {token, endpoint: azureConfig.endpoint}};
+    return {ok: true, value: {token, region: azureConfig.region}};
   } catch (error) {
     console.error('[azure-speech] token issue request failed', {
       message: error instanceof Error ? error.message : 'Unknown error',
