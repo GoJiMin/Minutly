@@ -5,7 +5,7 @@ import {MeetingCalendar} from './MeetingCalendar';
 import {MeetingListBySelectedDate} from './MeetingListBySelectedDate';
 import {MeetingListSkeleton} from '../MeetingHistorySkeleton';
 import {useMeetingHistorySearchParams} from '../../lib/useMeetingHistorySearchParams';
-import {QueryErrorBoundary, QueryErrorFallback, Separator} from '@/shared/components';
+import {QueryErrorBoundary, RetryErrorFallback, Separator} from '@/shared/components';
 
 export function MeetingHistorySidebar() {
   const {date, month, year} = useMeetingHistorySearchParams();
@@ -14,7 +14,7 @@ export function MeetingHistorySidebar() {
     <aside className="w-90 h-full min-h-0 flex flex-col items-center gap-3">
       <QueryErrorBoundary
         fallback={({message, reset}) => (
-          <QueryErrorFallback
+          <RetryErrorFallback
             title="회의 날짜를 불러오지 못했어요"
             message={message}
             onRetry={reset}
@@ -29,7 +29,7 @@ export function MeetingHistorySidebar() {
       <Separator />
       <QueryErrorBoundary
         fallback={({message, reset}) => (
-          <QueryErrorFallback
+          <RetryErrorFallback
             title="회의 목록을 불러오지 못했어요"
             message={message}
             onRetry={reset}

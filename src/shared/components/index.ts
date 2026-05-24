@@ -11,4 +11,5 @@ export * from './select';
 export * from './dialog';
 export * from './calendar';
 export * from './query-error-boundary';
+export * from './retry-error-fallback';
 export * from './textarea';

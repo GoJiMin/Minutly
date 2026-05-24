@@ -5,7 +5,7 @@ import {MeetingDetail} from './MeetingDetail';
 import {MeetingDetailSkeleton} from '../MeetingHistorySkeleton';
 import {SelectMeetingEmptyState} from './SelectMeetingEmptyState';
 import {useMeetingHistorySearchParams} from '../../lib/useMeetingHistorySearchParams';
-import {QueryErrorBoundary, QueryErrorFallback} from '@/shared/components';
+import {QueryErrorBoundary, RetryErrorFallback} from '@/shared/components';
 
 export function MeetingHistoryDetailPanel() {
   const {meetingId} = useMeetingHistorySearchParams();
@@ -17,7 +17,7 @@ export function MeetingHistoryDetailPanel() {
         <QueryErrorBoundary
           resetKeys={[meetingId]}
           fallback={({message, reset}) => (
-            <QueryErrorFallback
+            <RetryErrorFallback
               title="회의록을 불러오지 못했어요."
               message={message}
               onRetry={reset}
