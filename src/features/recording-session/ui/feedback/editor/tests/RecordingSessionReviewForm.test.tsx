@@ -16,17 +16,22 @@ import {withAllContext} from '@/shared/utils/withAllContext';
 const mockedGetTranscript = jest.fn();
 const mockedMoveToInterruption = jest.fn();
 const mockedMarkInterruptionReviewed = jest.fn();
+const mockedUseTranscriptEditor = jest.fn();
 
 jest.mock('@/entities/summary/api/summaryApi');
 jest.mock('@/entities/meeting/api/meetingApi');
 
 jest.mock('../../../../lib/transcript-editor/useTranscriptEditor', () => ({
-  useTranscriptEditor: () => ({
-    containerRef: {current: null},
-    getTranscript: mockedGetTranscript,
-    moveToInterruption: mockedMoveToInterruption,
-    markInterruptionReviewed: mockedMarkInterruptionReviewed,
-  }),
+  useTranscriptEditor: (props: unknown) => {
+    mockedUseTranscriptEditor(props);
+
+    return {
+      containerRef: {current: null},
+      getTranscript: mockedGetTranscript,
+      moveToInterruption: mockedMoveToInterruption,
+      markInterruptionReviewed: mockedMarkInterruptionReviewed,
+    };
+  },
 }));
 
 const mockedFetchTranscriptSummary = jest.mocked(fetchTranscriptSummary);
@@ -54,7 +59,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     expect(screen.getByRole('textbox', {name: '회의 제목'})).toHaveValue('[2026-05-17. 일] - ');
   });
 
-  it('검토 draft가 있다면 제목 기본값으로 사용한다.', () => {
+  it('임시 저장된 제목으로 검토를 다시 시작할 수 있다.', () => {
     saveTranscriptReviewDraft({
       title: '저장된 검토 제목',
       transcript: VALID_TRANSCRIPT,
@@ -63,6 +68,21 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     renderReviewForm();
 
     expect(screen.getByRole('textbox', {name: '회의 제목'})).toHaveValue('저장된 검토 제목');
+  });
+
+  it('임시 저장된 전사 내용으로 검토를 다시 시작할 수 있다.', () => {
+    saveTranscriptReviewDraft({
+      title: '저장된 검토 제목',
+      transcript: VALID_TRANSCRIPT,
+    });
+
+    renderReviewForm();
+
+    expect(mockedUseTranscriptEditor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        doc: VALID_TRANSCRIPT,
+      }),
+    );
   });
 
   it('녹음 중단 구간이 있다면 확인 패널이 표시된다.', () => {
@@ -183,7 +203,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     expect(screen.getByText('회의 제목은 최대 100자 이하로 입력할 수 있습니다.')).toBeInTheDocument();
   });
 
-  it('제목과 전사 내용이 정상적으로 입력된 경우 요약 생성을 요청하고 검토 draft를 저장한다.', async () => {
+  it('요약 생성 전 입력 내용을 복구할 수 있게 보존한다.', async () => {
     const user = userEvent.setup();
 
     mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
@@ -215,7 +235,43 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     });
   });
 
-  it('요약 생성에 성공하면 요약 결과 다이얼로그를 표시하고 검토 화면을 잠근다.', async () => {
+  it('요약 생성에 실패해도 입력을 잃지 않고 다시 생성할 수 있다.', async () => {
+    const user = userEvent.setup();
+
+    mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
+    mockedFetchTranscriptSummary.mockRejectedValueOnce(new Error('요약 생성 실패')).mockResolvedValueOnce({
+      summary: '다시 생성된 회의 요약입니다.',
+      keyPoints: ['실패 후 같은 제목과 전사 내용으로 다시 생성했다.'],
+    });
+
+    renderReviewForm();
+
+    const titleInput = screen.getByRole('textbox', {name: '회의 제목'});
+    await user.clear(titleInput);
+    await user.type(titleInput, '요약 실패 재시도 회의');
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
+
+    await waitFor(() => {
+      expect(mockedFetchTranscriptSummary).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole('button', {name: '요약 생성하기'})).toBeEnabled();
+    });
+
+    expect(titleInput).toHaveValue('요약 실패 재시도 회의');
+    expect(readTranscriptReviewDraft()).toEqual({
+      title: '요약 실패 재시도 회의',
+      transcript: VALID_TRANSCRIPT,
+    });
+
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
+
+    expect(await screen.findByText('다시 생성된 회의 요약입니다.')).toBeInTheDocument();
+    expect(screen.getByText('실패 후 같은 제목과 전사 내용으로 다시 생성했다.')).toBeInTheDocument();
+    expect(mockedFetchTranscriptSummary).toHaveBeenCalledTimes(2);
+  });
+
+  it('요약 생성에 성공하면 요약 결과를 확인할 수 있고 검토 입력을 잠근다.', async () => {
     const user = userEvent.setup();
 
     mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
@@ -241,7 +297,7 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
     expect(titleInput).toHaveAttribute('readonly');
   });
 
-  it('요약 결과 저장 중 다이얼로그를 유지하고 저장 성공 시 생성된 회의록 화면으로 이동한다.', async () => {
+  it('요약 결과 저장 중에는 결과를 유지하고 저장 성공 시 생성된 회의록 화면으로 이동한다.', async () => {
     const user = userEvent.setup();
     let resolveCreateMeeting!: (response: CreateMeetingResponse) => void;
 
@@ -292,6 +348,54 @@ describe('@/src/features/recording-session/ui/feedback/editor/RecordingSessionRe
       meetingDate: '2026-05-17',
     });
 
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe(
+        '/history?year=2026&month=05&date=2026-05-17&meetingId=5f5d8a97-022c-4ea9-bef6-c099a4df6fce',
+      );
+    });
+  });
+
+  it('저장에 실패해도 요약 결과를 잃지 않고 다시 저장할 수 있다.', async () => {
+    const user = userEvent.setup();
+
+    mockedGetTranscript.mockReturnValue(VALID_TRANSCRIPT);
+    mockedFetchTranscriptSummary.mockResolvedValue({
+      summary: '저장 실패 후 유지할 회의 요약입니다.',
+      keyPoints: ['저장 실패 후에도 같은 요약 결과를 다시 저장할 수 있다.'],
+    });
+    mockedFetchCreateMeeting.mockRejectedValueOnce(new Error('회의 저장 실패')).mockResolvedValueOnce({
+      id: '5f5d8a97-022c-4ea9-bef6-c099a4df6fce',
+      meetingDate: '2026-05-17',
+    });
+
+    mockRouter.push('/');
+
+    renderReviewForm();
+
+    const titleInput = screen.getByRole('textbox', {name: '회의 제목'});
+    await user.clear(titleInput);
+    await user.type(titleInput, '회의 저장 실패 재시도');
+    await user.click(screen.getByRole('button', {name: '요약 생성하기'}));
+
+    expect(await screen.findByText('저장 실패 후 유지할 회의 요약입니다.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', {name: '저장하기'}));
+
+    await waitFor(() => {
+      expect(mockedFetchCreateMeeting).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole('button', {name: '저장하기'})).toBeEnabled();
+    });
+
+    expect(screen.getByText('저장 실패 후 유지할 회의 요약입니다.')).toBeInTheDocument();
+    expect(screen.getByText('저장 실패 후에도 같은 요약 결과를 다시 저장할 수 있다.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', {name: '저장하기'}));
+
+    await waitFor(() => {
+      expect(mockedFetchCreateMeeting).toHaveBeenCalledTimes(2);
+    });
     await waitFor(() => {
       expect(mockRouter.asPath).toBe(
         '/history?year=2026&month=05&date=2026-05-17&meetingId=5f5d8a97-022c-4ea9-bef6-c099a4df6fce',
