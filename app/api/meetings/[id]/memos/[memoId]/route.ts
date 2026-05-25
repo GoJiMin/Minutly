@@ -1,5 +1,5 @@
 import {type NextRequest, NextResponse} from 'next/server';
-import {NeonMeetingDb, meetingIdParamsSchema, meetingMemoIdParamsSchema} from '@/entities/meeting/server';
+import {getMeetingDb, meetingIdParamsSchema, meetingMemoIdParamsSchema} from '@/entities/meeting/server';
 import type {ErrorResponse} from '@/shared/api';
 import {createErrorJsonResponse, validateRouteParams} from '@/shared/server';
 import {requireAuth} from '@/shared/server/auth';
@@ -50,7 +50,7 @@ export async function DELETE(_req: NextRequest, {params}: RouteParams): Promise<
 
   const {id} = meetingIdValidationResult.value;
   const {memoId} = memoIdValidationResult.value;
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const deleteResult = await db.deleteMeetingMemo(id, memoId);

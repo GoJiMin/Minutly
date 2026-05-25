@@ -1,8 +1,8 @@
 import {type NextRequest, NextResponse} from 'next/server';
 import type {ZodError} from 'zod';
 import {
-  NeonMeetingDb,
   createMeetingMemoRequestSchema,
+  getMeetingDb,
   meetingIdParamsSchema,
   type GetMeetingMemosResponse,
 } from '@/entities/meeting/server';
@@ -69,7 +69,7 @@ export async function GET(
   }
 
   const {id} = validateResult.value;
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const memos = await db.listMeetingMemos(id);
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest, {params}: RouteParams): Promise<Nex
   const {id} = routeParamsValidationResult.value;
   const {content} = requestBodyValidationResult.value;
 
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const createResult = await db.createMeetingMemo(id, content);

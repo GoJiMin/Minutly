@@ -2,7 +2,7 @@ import {type NextRequest, NextResponse} from 'next/server';
 import type {ZodError} from 'zod';
 import {
   meetingsByDateQuerySchema,
-  NeonMeetingDb,
+  getMeetingDb,
   createMeetingRequestSchema,
   type CreateMeetingResponse,
   type GetMeetingsByDateResponse,
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreateMeeting
     return validateResult.error;
   }
 
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const {id, meetingDate} = await db.createMeeting(validateResult.value);
@@ -153,7 +153,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<GetMeetingsByD
     return validateResult.error;
   }
 
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const meetings = await db.listMeetingsByDate(validateResult.value.date);

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import {neon} from '@neondatabase/serverless';
-import type {CreateMeetingMemoResult, DeleteMeetingMemoResult, MeetingDb} from './meeting-db';
+import type {CreateMeetingMemoResult, DeleteMeetingMemoResult, MeetingDbAdapter} from './meeting-db';
 import type {CreateMeetingRequest, UpdateMeetingRequest} from '../model/schema';
 import type {CreateMeetingResponse, MeetingDetail, MeetingListItem, MeetingMemo} from '../model/types';
 import {neonConfig} from '@/shared/server';
@@ -31,7 +31,7 @@ function toIsoTimestamp(value: TimestampValue) {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
 
-export class NeonMeetingDb implements MeetingDb {
+export class NeonMeetingDb implements MeetingDbAdapter {
   private readonly sql = neon(neonConfig.databaseUrl);
   private readonly getNow: () => Date;
 

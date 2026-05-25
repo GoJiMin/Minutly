@@ -3,7 +3,7 @@ import type {ZodError} from 'zod';
 import {
   meetingIdParamsSchema,
   type MeetingDetail,
-  NeonMeetingDb,
+  getMeetingDb,
   updateMeetingRequestSchema,
 } from '@/entities/meeting/server';
 import type {ErrorResponse} from '@/shared/api';
@@ -91,7 +91,7 @@ export async function GET(
   }
 
   const {id} = validateResult.value;
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const meeting = await db.getMeetingById(id);
@@ -148,7 +148,7 @@ export async function PUT(req: NextRequest, {params}: RouteParams): Promise<Next
   }
 
   const {id} = routeParamsValidationResult.value;
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const {updated} = await db.updateMeeting(id, requestBodyValidationResult.value);
@@ -194,7 +194,7 @@ export async function DELETE(_req: NextRequest, {params}: RouteParams): Promise<
   }
 
   const {id} = validateResult.value;
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const {deleted} = await db.deleteMeeting(id);

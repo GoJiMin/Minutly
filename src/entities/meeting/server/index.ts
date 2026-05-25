@@ -30,4 +30,5 @@ export {
   meetingMemoIdParamsSchema,
 } from '../model/schema';
 
-export {NeonMeetingDb} from './neon-meeting-db';
+export {getMeetingDb} from './meeting-db';
+export type {MeetingDbAdapter} from './meeting-db';

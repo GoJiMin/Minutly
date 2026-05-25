@@ -1,6 +1,6 @@
 import {type NextRequest, NextResponse} from 'next/server';
 import type {ZodError} from 'zod';
-import {type GetMeetingDatesResponse, meetingDatesQuerySchema, NeonMeetingDb} from '@/entities/meeting/server';
+import {type GetMeetingDatesResponse, getMeetingDb, meetingDatesQuerySchema} from '@/entities/meeting/server';
 import type {ErrorResponse} from '@/shared/api';
 import {createErrorJsonResponse, validateQueryParams} from '@/shared/server';
 import {requireAuth} from '@/shared/server/auth';
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<GetMeetingDate
   }
 
   const {year, month} = validateResult.value;
-  const db = new NeonMeetingDb();
+  const db = getMeetingDb();
 
   try {
     const dates = await db.listMeetingDates(year, month);
