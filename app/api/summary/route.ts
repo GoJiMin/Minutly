@@ -1,11 +1,6 @@
 import {type NextRequest, NextResponse} from 'next/server';
 import type {ZodError} from 'zod';
-import {
-  createSummaryRequestSchema,
-  GeminiSummaryProvider,
-  SummaryService,
-  type CreateSummaryResponse,
-} from '@/entities/summary/server';
+import {createSummaryRequestSchema, getSummaryService, type CreateSummaryResponse} from '@/entities/summary/server';
 import type {ErrorResponse} from '@/shared/api';
 import {createErrorJsonResponse, validateRequestBody} from '@/shared/server';
 import {requireAuth} from '@/shared/server/auth';
@@ -57,7 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreateSummary
     return validateResult.error;
   }
 
-  const summaryService = new SummaryService(new GeminiSummaryProvider());
+  const summaryService = getSummaryService();
   const result = await summaryService.createSummary(validateResult.value);
 
   if (!result.ok) {

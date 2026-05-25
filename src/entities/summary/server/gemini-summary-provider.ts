@@ -1,7 +1,7 @@
 import 'server-only';
 
 import {GoogleGenAI} from '@google/genai';
-import type {CreateSummaryResult, SummaryProvider} from './summary-provider';
+import type {CreateSummaryResult, SummaryProviderAdapter} from './summary-service';
 import {summaryGenerationResultSchema, type CreateSummaryRequest} from '../model/schema';
 import {aiConfig} from '@/shared/server';
 
@@ -70,7 +70,7 @@ Output rules:
 - Do not return Markdown, code fences, explanations, or extra fields.
 `;
 
-export class GeminiSummaryProvider implements SummaryProvider {
+export class GeminiSummaryProvider implements SummaryProviderAdapter {
   private readonly geminiSdk = new GoogleGenAI({apiKey: aiConfig.apiKey});
 
   async createSummary(input: CreateSummaryRequest): Promise<CreateSummaryResult> {

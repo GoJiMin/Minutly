@@ -1,16 +1,26 @@
 import 'server-only';
 
-import type {CreateSummaryResult, SummaryProvider} from './summary-provider';
-import type {CreateSummaryRequest} from '../model/schema';
+import type {CreateSummaryRequest, CreateSummaryResponse} from '../model/schema';
+import {GeminiSummaryProvider} from './gemini-summary-provider';
 
-export class SummaryService {
-  private readonly summaryProvider: SummaryProvider;
+export type CreateSummaryResult = {ok: true; value: CreateSummaryResponse} | {ok: false};
 
-  constructor(summaryProvider: SummaryProvider) {
+export interface SummaryProviderAdapter {
+  createSummary(input: CreateSummaryRequest): Promise<CreateSummaryResult>;
+}
+
+class SummaryService implements SummaryProviderAdapter {
+  private readonly summaryProvider: SummaryProviderAdapter;
+
+  constructor(summaryProvider: SummaryProviderAdapter) {
     this.summaryProvider = summaryProvider;
   }
 
   createSummary(input: CreateSummaryRequest): Promise<CreateSummaryResult> {
     return this.summaryProvider.createSummary(input);
   }
+}
+
+export function getSummaryService(): SummaryProviderAdapter {
+  return new SummaryService(new GeminiSummaryProvider());
 }
