@@ -20,7 +20,7 @@ Minutly는 이 불편을 줄이기 위해 만들어졌습니다. 사용자는 �
 
 <img width="3080" height="1974" alt="로그인" src="https://github.com/user-attachments/assets/88a0c21f-f3e8-4479-b528-0fc1dddb53e0" />
 
-회의록에는 내부 논의, 의사 결정, 일정, 개인 메모처럼 외부에 노출되면 안되는 내용이 포함될 수 있습니다. Minutly는 1인 사용을 전제하기 때문에 별도의 회원가입, 팀 초대, 사용자 관리 기능을 제공하지 않습니다.
+회의록에는 내부 논의, 의사 결정, 일정, 개인 메모처럼 외부에 노출되면 안 되는 내용이 포함될 수 있습니다. Minutly는 1인 사용을 전제하기 때문에 별도의 회원가입, 팀 초대, 사용자 관리 기능을 제공하지 않습니다.
 
 사용자는 로그인 화면에서 아이디와 비밀번호를 입력합니다. 서버는 입력된 값이 환경 변수에 등록된 아이디와 비밀번호와 일치하는지 확인하고 인증된 사용자에게만 서비스 접근을 허용합니다.
 
@@ -64,6 +64,18 @@ Minutly는 이 불편을 줄이기 위해 만들어졌습니다. 사용자는 �
 
 저장된 회의의 제목, 회의 요약, 주요 사항을 수정할 수 있으며 각 회의별로 개인 메모를 추가하거나 삭제할 수도 있습니다.
 
+## 기술 스택
+
+| 구분            | 기술             |
+| --------------- | ---------------- |
+| Framework       | Next.js          |
+| Language        | TypeScript       |
+| Database        | Neon PostgreSQL  |
+| Speech-to-Text  | Azure Speech     |
+| AI              | Google AI Studio |
+| Deploy          | Vercel           |
+| Package Manager | pnpm             |
+
 ## 기술 선정 이유
 
 ### Azure Speech
@@ -94,7 +106,7 @@ Groq에서 사용할 수 있는 모델 중 `openai/gpt-oss-120b`는 무료 플�
 
 DB 호스팅 서비스로 먼저 Supabase의 무료 플랜을 확인한 결과 저장 공간은 1인 사용 서비스에 충분했지만 일정 기간 요청이 없으면 프로젝트가 pause 될 수 있어 제외했습니다. Neon도 1인 사용 서비스에 충분한 무료 저장 공간을 제공했고, 요청이 없는 시간이 길어지면 DB가 잠시 대기 상태로 전환될 수는 있지만 새 요청이 들어올 때 다시 연결되는 방식이라 직접 복구해야 하는 부담이 적어 선택했습니다.
 
-DB를 사용하기로 결정한 상태에서 NoSQL도 선택지가 될 수 있었습니다. 하지만 회의별로 개인 메모 기능이 추가되면서 회의와 메모 사이에 1:N의 관계가 생겼습니다. 회의 1건은 여러 개의 메모를 가질 수 있고, 메모는 반드시 특정 회의에 속해야 하며, 회의가 삭제되면 연결된 메모도 함께 삭제되어야 했습니다. 이런 관계를 어플리케이션 코드에서 직접 관리할 수도 있지만 관계형 데이터베이스를 사용하면 외래 키와 `ON DELETE CASCADE`로 데이터베이스 수준에서 처리하는게 가능합니다.
+DB를 사용하기로 결정한 상태에서 NoSQL도 선택지가 될 수 있었습니다. 하지만 회의별로 개인 메모 기능이 추가되면서 회의와 메모 사이에 1:N의 관계가 생겼습니다. 회의 1건은 여러 개의 메모를 가질 수 있고, 메모는 반드시 특정 회의에 속해야 하며, 회의가 삭제되면 연결된 메모도 함께 삭제되어야 했습니다. 이런 관계를 어플리케이션 코드에서 직접 관리할 수도 있지만 관계형 데이터베이스를 사용하면 외래 키와 `ON DELETE CASCADE`로 데이터베이스 수준에서 처리하는 게 가능합니다.
 
 또한 회의 목록은 날짜 기준으로 조회돼야 하고 같은 날짜의 회의는 생성 시각을 기준으로 정렬되어야 했습니다. 회의별 메모 역시 특정 회의에 속한 메모를 ID 순서대로 불러와야 했기 때문에 인덱스를 두고 조회 조건을 관리할 수 있는 관계형 데이터베이스가 더 적합하다고 판단했습니다.
 
@@ -134,7 +146,7 @@ Minutly는 1인 사용을 전제로 했기 때문에 별도의 회원 테이블�
   <img width="700" alt="전사 연결" src="https://github.com/user-attachments/assets/22d0ca70-23db-402a-b73a-0f935747bb60" />
 </div>
 
-사용자가 녹음을 시작하면 브라우저는 서버에 STT 연결용 단기 토큰을 요청합니다. 서버는 Azure에서 Speech 연결용 단기 토큰을 발급받아 브라우저에 전달하고 브라우저는 해당 토큰으로 Azure Speech와 WebSocket으로 연결해 전사 결과를 실시간으로 전달 받습니다.
+사용자가 녹음을 시작하면 브라우저는 서버에 STT 연결용 단기 토큰을 요청합니다. 서버는 Azure에서 Speech 연결용 단기 토큰을 발급받아 브라우저에 전달하고 브라우저는 해당 토큰으로 Azure Speech와 WebSocket으로 연결해 전사 결과를 실시간으로 전달받습니다.
 
 ### 전사 검토 및 요약 생성
 
@@ -207,3 +219,210 @@ Minutly는 1인 사용을 전제로 했기 때문에 별도의 회원 테이블�
 | `meeting_memos_meeting_id_id_idx`      | 특정 회의에 연결된 메모 목록을 ID 오름차순으로 조회할 때 사용 |
 
 </div>
+
+## 빠른 시작
+
+Minutly를 로컬에서 실행하려면 Node.js, pnpm, Neon PostgreSQL, Azure Speech, Google AI Studio API Key가 필요합니다.
+
+- [Node.js](https://nodejs.org/) `20.9.0` 이상
+- [pnpm](https://pnpm.io/)
+- [Neon](https://neon.com/) 계정
+- [Azure](https://portal.azure.com/) 계정
+- [Google AI Studio](https://aistudio.google.com/) 접근 가능 계정
+
+저장소를 클론한 뒤 의존성을 설치합니다.
+
+```bash
+git clone <repository-url>
+cd minutly
+
+pnpm install
+```
+
+### 1. 외부 서비스 준비
+
+#### Neon PostgreSQL
+
+[Neon](https://neon.com/)에서 새 프로젝트를 만들고 PostgreSQL connection string을 복사합니다. 이 값은 `.env.local`의 `DATABASE_URL`에 입력합니다.
+
+Neon connection string 확인 방법은 [Neon 공식 문서](https://neon.com/docs/get-started/connect-neon)를 참고할 수 있습니다.
+
+#### Azure Speech
+
+[Azure Portal](https://portal.azure.com/)에서 Speech 리소스를 생성합니다. 생성 시 Foundry Tools가 아닌 음성 서비스(Speech Service) 리소스를 생성합니다. 가격 측정 계층을 Free F0으로 설정 시 월 무료 5시간을 제공하며 Standard S0으로 설정 시 사용량에 비례한 요금을 지불하게 됩니다.
+
+생성한 리소스의 key와 region을 확인한 뒤 각각 `.env.local`의 `AZURE_SPEECH_SECRET_KEY`, `AZURE_SPEECH_REGION`에 입력합니다.
+
+`AZURE_SPEECH_REGION`에는 `koreacentral`, `westus`처럼 Azure Speech 리소스를 만든 region identifier를 입력합니다. Azure Speech는 key와 region이 서로 맞아야 인증에 성공합니다. region identifier는 [Azure Speech region 문서](https://learn.microsoft.com/azure/ai-services/speech-service/regions)에서 확인할 수 있습니다.
+
+#### Google AI Studio
+
+[Google AI Studio API Key 페이지](https://aistudio.google.com/app/apikey)에서 API key를 생성합니다. 생성한 key는 `.env.local`의 `GEMINI_API_KEY`에 입력합니다.
+
+API key 생성 및 관리 방식은 [Google AI for Developers 문서](https://ai.google.dev/gemini-api/docs/api-key)를 참고할 수 있습니다.
+
+### 2. 환경 변수 설정
+
+`.env.example`을 복사해 `.env.local`을 만들고 값을 채웁니다.
+
+```bash
+cp .env.example .env.local
+```
+
+| 환경 변수                   | 설명                                  |
+| --------------------------- | ------------------------------------- |
+| `DATABASE_URL`              | Neon PostgreSQL connection string     |
+| `AZURE_SPEECH_SECRET_KEY`   | Azure Speech 리소스 key               |
+| `AZURE_SPEECH_REGION`       | Azure Speech 리소스 region identifier |
+| `GEMINI_API_KEY`            | Google AI Studio에서 발급한 API key   |
+| `AUTH_LOGIN_ID`             | Minutly 로그인에 사용할 아이디        |
+| `AUTH_PASSWORD`             | Minutly 로그인에 사용할 비밀번호      |
+| `AUTH_ACCESS_TOKEN_SECRET`  | access token 서명에 사용할 secret     |
+| `AUTH_REFRESH_TOKEN_SECRET` | refresh token 서명에 사용할 secret    |
+
+`AUTH_ACCESS_TOKEN_SECRET`, `AUTH_REFRESH_TOKEN_SECRET`에는 서로 다른 임의 문자열을 입력합니다. 아래 명령을 두 번 실행해 각각 다른 값을 만들 수 있습니다.
+
+```bash
+openssl rand -base64 32
+```
+
+### 3. 데이터베이스 스키마 생성
+
+Neon SQL Editor 또는 사용 중인 PostgreSQL 클라이언트에서 [db/schema.sql](./db/schema.sql)을 실행합니다.
+
+이 스키마는 회의록을 저장하는 `meetings` 테이블과 회의별 개인 메모를 저장하는 `meeting_memos` 테이블을 생성합니다. 회의가 삭제되면 해당 회의에 연결된 개인 메모도 함께 삭제됩니다.
+
+### 4. 로컬 실행
+
+개발 서버를 실행합니다.
+
+```bash
+pnpm dev
+```
+
+브라우저에서 아래 주소로 접속합니다.
+
+```txt
+http://localhost:3000
+```
+
+로컬에서 다음 기능이 동작하는지 확인합니다.
+
+- `.env.local`에 설정한 아이디와 비밀번호로 로그인
+- 마이크 권한 허용
+- 녹음 시작 및 실시간 전사
+- 전사 내용 확인 및 수정
+- AI 요약 생성
+- 회의록 저장
+- 기록 화면에서 저장된 회의록 조회
+
+## 배포
+
+Minutly는 배포해 개인용 웹 서비스처럼 사용할 수 있습니다. Minutly는 Next.js 어플리케이션이므로 Vercel, Netlify, Render, AWS, OCI 등 Next.js 또는 Node.js 어플리케이션을 실행할 수 있는 환경에 배포할 수 있습니다.
+
+현재 이 프로젝트는 Vercel에 배포된 상태입니다. 다른 플랫폼에 배포할 경우에도 `.env.local`에 설정한 모든 값을 해당 플랫폼의 Environment Variables 또는 Secrets 설정에 동일하게 등록해야 합니다.
+
+환경 변수에는 외부 API Key, DB 연결 정보, 로그인 정보, JWT 서명 secret이 포함되어 있으므로 브라우저에 노출되면 안 됩니다. Next.js에서 클라이언트에 노출되는 `NEXT_PUBLIC_` prefix를 붙이지 말고 서버 환경 변수로만 등록합니다.
+
+또한 Vercel WAF Rate Limiting을 사용할 수 있다면 로그인 API인 `/api/auth/login`에 rate limit rule을 우선 적용하는 것을 권장합니다. Hobby 플랜은 프로젝트당 사용할 수 있는 rate limit rule 수가 제한되어 있으므로 로그인 시도 제한을 가장 먼저 보호하는 편이 적합합니다.
+
+다른 호스팅 플랫폼에 배포할 경우에도 다음 항목을 확인해야 합니다.
+
+- 환경 변수가 빌드 로그나 클라이언트 번들에 노출되지 않는지
+- HTTPS 환경에서 서비스되는지(마이크 입력은 브라우저 권한과 HTTPS 환경이 필요합니다.)
+- 서버 API Route가 정상적으로 실행되는지
+- 배포 전에 Neon 데이터베이스에 `db/schema.sql`이 적용되어 있는지
+- 로그인, 녹음, 요약 생성, 회의록 저장, 기록 조회가 배포 환경에서 동작하는지
+
+## 사용 범위와 한계
+
+Minutly는 다중 사용자를 위한 SaaS가 아니라 1인 또는 지정된 소수 사용자를 위한 self-hosted 앱입니다.
+
+- 회원가입, 팀 초대, 조직 권한 관리 기능은 제공하지 않습니다.
+- 서비스 접근은 환경 변수에 등록한 단일 아이디와 비밀번호로 제한합니다.
+- 오디오 원본은 저장하지 않습니다.
+- 회의 전사, 요약, 주요 사항, 개인 메모는 Neon PostgreSQL에 저장됩니다.
+- 외부 서비스의 무료 사용량과 과금 정책은 각 서비스 정책에 따라 달라질 수 있습니다.
+
+## 외부 서비스 교체
+
+Minutly는 기본적으로 Google AI Studio로 회의 요약을 생성하고 Neon PostgreSQL에 회의록을 저장합니다.
+
+다만 프로젝트를 직접 수정할 수 있다면 이 두 서비스는 다른 서비스로 바꿔 사용할 수 있습니다. 예를 들어 회의록 저장소를 다른 데이터베이스로 바꾸거나 요약 생성을 OpenAI나 Groq 같은 다른 LLM API로 바꿀 수 있습니다.
+
+아래 내용은 코드를 수정해 외부 서비스를 교체하려는 사용자를 위한 안내입니다.
+
+### 데이터베이스 변경
+
+다른 Neon 프로젝트를 사용할 경우 `.env.local`의 `DATABASE_URL`만 변경하면 됩니다.
+
+Supabase, Railway, AWS RDS처럼 Neon이 아닌 데이터베이스에 회의록을 저장하고 싶다면 코드 수정이 필요합니다. 새 저장소 코드는 [src/entities/meeting/server/meeting-db.ts](src/entities/meeting/server/meeting-db.ts)의 `MeetingDbAdapter` interface와 동일한 기능을 제공해야 합니다.
+
+- 기본 구현체는 [src/entities/meeting/server/neon-meeting-db.ts](src/entities/meeting/server/neon-meeting-db.ts)의 `NeonMeetingDb`입니다.
+
+새 구현체를 만든 뒤 `getMeetingDb()`에서 사용하는 의존성을 변경합니다.
+
+```ts
+export function getMeetingDb(): MeetingDbAdapter {
+  return new MeetingDb(new YourMeetingDb());
+}
+```
+
+새 어댑터는 다음 동작을 기존 구현과 동일하게 보장해야 합니다.
+
+- 회의 생성 시 `now = new Date()`처럼 현재 시각을 한 번만 만들고, 같은 `now`로 `createdAt`, `updatedAt`, `meetingDate`를 계산합니다. 기존 구현은 `meetingDate`를 `toMeetingDate(now)`로 생성합니다.
+- `meetingDate`는 서버/DB의 UTC 날짜가 아니라 사용하는 지역 기준 날짜여야 합니다.
+- 월별 날짜 조회는 예를 들어 2026년 6월이면 `2026-06-01 <= meetingDate < 2026-07-01` 범위로 조회합니다.
+- 특정 날짜의 회의 목록은 생성 시각을 기준으로 오름차순으로 반환합니다.
+- 회의 상세 조회 응답은 `createdAt`, `updatedAt`을 ISO timestamp 문자열로 반환합니다.
+- 회의 수정 시 `title`, `summary`, `keyPoints`, `updatedAt`만 변경하고 원문 전사와 최종 전사는 유지합니다.
+- 회의 삭제 시 연결된 개인 메모도 함께 삭제합니다.
+- 개인 메모 목록은 ID를 기준으로 오름차순으로 반환합니다.
+- 개인 메모는 회의 1건당 최대 50개까지만 생성할 수 있어야 합니다.
+- 개인 메모 생성과 삭제는 동시 요청에서도 잘못된 개수 초과나 불일치가 생기지 않도록 트랜잭션 또는 락 등으로 보호합니다.
+- 존재하지 않는 회의나 메모에 대해 `MeetingDbAdapter`의 result type과 동일한 실패 사유를 반환합니다.
+
+날짜 계산 규칙의 자세한 배경은 [docs/db.md](./docs/db.md)의 `meeting_date 생성 규칙`을 참고할 수 있습니다.
+
+### AI Summary 변경
+
+Google AI Studio 대신 OpenAI, Groq 등 다른 LLM 서비스를 사용하려면 AI 요약 어댑터를 새로 만들면 됩니다.
+
+AI 요약 어댑터는 [src/entities/summary/server/summary-service.ts](src/entities/summary/server/summary-service.ts)의 `SummaryProviderAdapter` interface를 구현해야 합니다. 기본 구현체는 [src/entities/summary/server/gemini-summary-provider.ts](src/entities/summary/server/gemini-summary-provider.ts)의 `GeminiSummaryProvider`입니다.
+
+새 구현체를 만든 뒤 `getSummaryService()`에서 사용하는 의존성을 변경합니다.
+
+```ts
+export function getSummaryService(): SummaryProviderAdapter {
+  return new SummaryService(new YourSummaryProvider());
+}
+```
+
+새 AI 요약 어댑터는 다음 동작을 기존 구현과 동일하게 보장해야 합니다.
+
+- 입력값으로 회의 제목 `title`과 최종 전사 텍스트 `transcript`를 받습니다.
+- 성공 시 `summary` 문자열과 `keyPoints` 문자열 배열을 반환합니다.
+- 실패 시 예외를 그대로 노출하지 않고 `{ok: false}` 형태로 반환합니다.
+- 요약 결과는 제공된 회의 제목과 전사 텍스트만 근거로 생성해야 합니다.
+- `keyPoints`는 화면에서 바로 표시할 수 있는 독립적인 문장 목록이어야 합니다.
+- LLM 응답 형식이 일정하지 않은 경우 어댑터 내부에서 파싱과 검증을 끝낸 뒤 `SummaryProviderAdapter`의 반환 형식에 맞춰 반환합니다.
+
+필요한 경우 새 LLM 서비스에 맞는 API Key를 환경 변수에 추가하고 `.env.example`과 README의 환경 변수 설명도 함께 수정합니다.
+
+## 기능 확장 시 참고 사항
+
+새 API나 기능을 추가할 경우 서버 에러 응답과 사용자 안내 문구를 함께 추가해야 합니다.
+
+- 서버 에러 메시지는 [src/shared/config/errorMessage.ts](src/shared/config/errorMessage.ts)에 등록합니다.
+- React Query 요청 에러는 [src/app/providers/ReactQueryProvider.tsx](src/app/providers/ReactQueryProvider.tsx)에서 전역 에러 상태로 전달됩니다.
+- 전역 에러는 [src/app/providers/GlobalErrorDetector.tsx](src/app/providers/GlobalErrorDetector.tsx)에서 toast 또는 최상위 error boundary로 처리됩니다.
+
+## 개발 문서
+
+프로젝트 관련 산출 문서는 아래에서 확인할 수 있습니다.
+
+- [PRD](./docs/prd.md)
+- [기능 명세](./docs/functional_specification.md)
+- [API 명세](./docs/api_specification.md)
+- [DB 설계](./docs/db.md)
+- [개발 계획](./docs/plan.md)
