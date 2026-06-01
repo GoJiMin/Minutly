@@ -426,3 +426,7 @@ export function getSummaryService(): SummaryProviderAdapter {
 - [API 명세](./docs/api_specification.md)
 - [DB 설계](./docs/db.md)
 - [개발 계획](./docs/plan.md)
+
+## 라이센스
+
+이 프로젝트는 [MIT License](./LICENSE)를 따릅니다.
