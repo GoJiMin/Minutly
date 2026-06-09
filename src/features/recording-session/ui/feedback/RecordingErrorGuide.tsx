@@ -83,18 +83,18 @@ export function RecordingErrorGuide() {
           {guide.title}
         </Heading>
 
-        <Text variant="muted" className="mt-2">
+        <Text variant="muted" className="mt-2 text-sm md:text-base break-keep">
           {guide.description}
         </Text>
 
         {guide.recoverySteps && (
           <ol className="mt-6 w-full space-y-3 text-left">
             {guide.recoverySteps.map((step, index) => (
-              <li key={step} className="grid grid-cols-[2rem_1fr] gap-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+              <li key={step} className="grid grid-cols-[2rem_1fr] gap-1 md:gap-3">
+                <span className="flex w-6 h-6 md:h-7 md:w-7 items-center justify-center rounded-full bg-muted text-xs md:text-sm font-semibold">
                   {index + 1}
                 </span>
-                <Text>{step}</Text>
+                <Text className="text-sm md:text-base break-keep">{step}</Text>
               </li>
             ))}
           </ol>
