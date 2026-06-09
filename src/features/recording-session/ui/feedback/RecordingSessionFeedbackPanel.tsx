@@ -49,7 +49,7 @@ export function RecordingSessionFeedbackPanel({className}: Props) {
           </Text>
         </header>
       )}
-      <div className={`flex min-h-0 flex-1 bg-white ${isFinishRecording ? 'p-0' : 'px-4 py-3 md:px-8 md:py-4'}`}>
+      <div className={`flex min-h-0 flex-1 bg-white ${isFinishRecording ? 'p-0' : 'px-6 py-3 md:px-8 md:py-4'}`}>
         {content}
       </div>
     </section>
