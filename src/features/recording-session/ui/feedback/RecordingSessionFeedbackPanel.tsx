@@ -35,7 +35,7 @@ export function RecordingSessionFeedbackPanel({className}: Props) {
   else content = <RecordingOnboardingGuide />;
 
   return (
-    <section className={cn('flex min-h-0 flex-1 flex-col rounded-xl border-2', className)}>
+    <section className={cn('flex min-h-0 flex-1 flex-col md:rounded-xl md:border-2', className)}>
       {shouldShowHeader && (
         <header className="px-5 py-4 border-b-2">
           <div className="flex items-center gap-2 mb-1">

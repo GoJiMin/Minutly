@@ -20,8 +20,8 @@ export default function RecordingSessionControlsPanel({className}: Props) {
   return (
     <section
       className={cn(
-        'flex w-full shrink-0 flex-col gap-3 rounded-t-xl border-2 bg-background px-4 py-3',
-        'md:w-100 md:rounded-xl md:px-5 md:py-6',
+        'flex w-full shrink-0 flex-col gap-3 bg-background px-4 py-3',
+        'md:w-100 md:rounded-xl md:px-5 md:py-6 md:border-2',
         className,
       )}
     >
