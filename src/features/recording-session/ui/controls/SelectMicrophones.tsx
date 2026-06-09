@@ -54,11 +54,11 @@ export default function SelectMicrophones() {
 
   return (
     <div className="flex flex-col gap-1">
-      <Text variant="small" className="ml-2 text-muted-foreground">
+      <Text variant="small" className="ml-2 text-muted-foreground sr-only md:not-sr-only">
         입력 마이크
       </Text>
       <Select onValueChange={handleValueChange} value={selectValue}>
-        <SelectTrigger className="h-11 w-full bg-muted px-3 text-sm">
+        <SelectTrigger className="h-10 md:h-11 w-full bg-muted px-3 text-sm">
           <SelectValue>{selectedMicrophone?.label ?? '브라우저 기본 마이크'}</SelectValue>
         </SelectTrigger>
         <SelectContent position="popper">
