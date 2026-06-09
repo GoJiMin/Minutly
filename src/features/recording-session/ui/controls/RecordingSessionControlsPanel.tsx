@@ -25,7 +25,7 @@ export default function RecordingSessionControlsPanel({className}: Props) {
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 md:flex-1 md:flex-col md:justify-center">
+      <div className="flex items-center justify-between gap-3 px-1 md:flex-1 md:flex-col md:justify-center">
         <time className="hidden text-2xl text-foreground md:block">{formatKoreanDate(new Date())}</time>
         <RecordingSessionTimer />
         {isRecordingControlVisible && <RecordingSessionActionButtons />}
