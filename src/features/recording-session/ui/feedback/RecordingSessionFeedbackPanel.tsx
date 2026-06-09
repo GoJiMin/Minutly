@@ -37,7 +37,7 @@ export function RecordingSessionFeedbackPanel({className}: Props) {
   return (
     <section className={cn('flex min-h-0 flex-1 flex-col md:rounded-xl md:border-2', className)}>
       {shouldShowHeader && (
-        <header className="px-5 py-4 border-b-2">
+        <header className="hidden md:block px-5 py-4 border-b-2">
           <div className="flex items-center gap-2 mb-1">
             <TextAlignStart size={22} />
             <Heading level="h3" className="font-bold text-xl">
@@ -49,7 +49,9 @@ export function RecordingSessionFeedbackPanel({className}: Props) {
           </Text>
         </header>
       )}
-      <div className={`flex min-h-0 flex-1 bg-white ${isFinishRecording ? 'p-0' : 'px-8 py-4'}`}>{content}</div>
+      <div className={`flex min-h-0 flex-1 bg-white ${isFinishRecording ? 'p-0' : 'px-4 py-3 md:px-8 md:py-4'}`}>
+        {content}
+      </div>
     </section>
   );
 }
