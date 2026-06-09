@@ -7,8 +7,13 @@ import {RecordingErrorGuide} from './RecordingErrorGuide';
 import {RecordingSessionReviewForm} from './editor/RecordingSessionReviewForm';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
 import {Heading, Text} from '@/shared/components';
+import {cn} from '@/shared/utils';
 
-export function RecordingSessionFeedbackPanel() {
+type Props = {
+  className?: HTMLDivElement['className'];
+};
+
+export function RecordingSessionFeedbackPanel({className}: Props) {
   const {status, hasPreviewChunks} = useRecordingStore(
     useShallow(state => ({
       status: state.status,
@@ -30,7 +35,7 @@ export function RecordingSessionFeedbackPanel() {
   else content = <RecordingOnboardingGuide />;
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col rounded-xl border-2">
+    <section className={cn('flex min-h-0 flex-1 flex-col rounded-xl border-2', className)}>
       {shouldShowHeader && (
         <header className="px-5 py-4 border-b-2">
           <div className="flex items-center gap-2 mb-1">
