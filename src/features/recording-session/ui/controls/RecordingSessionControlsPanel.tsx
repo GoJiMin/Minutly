@@ -18,18 +18,25 @@ export default function RecordingSessionControlsPanel({className}: Props) {
   const isTranscriptReviewVisible = status === 'transcript_review';
 
   return (
-    <section className={cn('w-100 flex flex-col border-2 rounded-xl px-5 py-6 gap-3', className)}>
-      <div className="flex flex-1 flex-col justify-center items-center">
-        <time className="text-2xl text-foreground">{formatKoreanDate(new Date())}</time>
+    <section
+      className={cn(
+        'flex w-full shrink-0 flex-col gap-3 rounded-t-xl border-2 bg-background px-4 py-3',
+        'md:w-100 md:rounded-xl md:px-5 md:py-6',
+        className,
+      )}
+    >
+      <div className="flex items-center justify-between gap-3 md:flex-1 md:flex-col md:justify-center">
+        <time className="hidden text-2xl text-foreground md:block">{formatKoreanDate(new Date())}</time>
         <RecordingSessionTimer />
         {isRecordingControlVisible && <RecordingSessionActionButtons />}
         {isTranscriptReviewVisible && <RecordingSessionReviewActions />}
       </div>
+
       {isRecordingControlVisible && (
-        <>
-          <Separator />
+        <div className="flex flex-col gap-2">
+          <Separator className="hidden md:block" />
           <SelectMicrophones />
-        </>
+        </div>
       )}
     </section>
   );
