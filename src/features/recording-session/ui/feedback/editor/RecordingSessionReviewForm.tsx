@@ -106,7 +106,7 @@ export function RecordingSessionReviewForm() {
         )}
         <TranscriptEditorField containerRef={containerRef} />
       </div>
-      <div className="shrink-0 border-t bg-background px-7 py-5">
+      <div className="shrink-0 border-t bg-background px-4 py-3 md:px-7 md:py-5">
         <ReviewSubmitActions
           disabled={isSubmitDisabled}
           isReviewLocked={isReviewLocked}
