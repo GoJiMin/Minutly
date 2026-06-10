@@ -14,7 +14,10 @@ export function ReviewTitleField({control, readOnly}: ReviewTitleFieldProps) {
       control={control}
       render={({field, fieldState}) => (
         <Field data-invalid={fieldState.invalid} className="shrink-0 gap-3">
-          <FieldLabel className="pl-1 md:text-lg font-semibold tracking-normal" htmlFor="recording-review-title">
+          <FieldLabel
+            className="sr-only md:not-sr-only pl-1 text-lg font-semibold tracking-normal"
+            htmlFor="recording-review-title"
+          >
             회의 제목
           </FieldLabel>
           <Input
