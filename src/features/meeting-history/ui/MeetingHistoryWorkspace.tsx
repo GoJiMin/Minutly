@@ -5,7 +5,7 @@ import {MeetingCalenderDrawer} from './MeetingCalenderDrawer';
 
 export default function MeetingHistoryWorkspace() {
   return (
-    <section className="w-full h-full min-h-0 flex overflow-hidden py-7 pl-1 pr-4">
+    <section className="w-full h-full min-h-0 flex overflow-hidden pt-6 pb-3 px-1 md:py-7 md:pl-1 md:pr-4">
       <MeetingHistorySidebar className="hidden md:flex" />
       <Separator orientation="vertical" className="hidden md:block" />
       <div className="fixed md:hidden bottom-4 right-4">

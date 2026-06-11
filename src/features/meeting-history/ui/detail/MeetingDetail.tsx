@@ -26,17 +26,17 @@ export function MeetingDetail({meetingId}: Props) {
   return (
     <section className="min-h-0 flex-1 md:grid md:grid-cols-[minmax(0,1fr)_21rem] md:gap-6 overflow-y-auto">
       <div className="flex flex-col min-h-0 @container/detail-main">
-        <header className="flex flex-col gap-2 px-4 pb-3 @4xl/detail-main:flex-row @4xl/detail-main:items-start @4xl/detail-main:justify-between @4xl/detail-main:gap-4">
+        <header className="flex flex-col gap-3 md:gap-2 px-4 pb-3 @4xl/detail-main:flex-row @4xl/detail-main:items-start @4xl/detail-main:justify-between @4xl/detail-main:gap-4">
           <div className="min-w-0">
-            <Heading level="h2" className="wrap-break-word border-none text-2xl">
+            <Heading level="h2" className="wrap-break-word border-none text-lg md:text-2xl">
               {title}
             </Heading>
             <div className="flex flex-wrap gap-x-3 gap-y-1">
-              <Text variant="small" className="text-muted-foreground">
+              <Text variant="small" className="text-muted-foreground max-md:text-xs">
                 <span className="text-foreground font-medium">작성일 : </span>
                 <time dateTime={createdAt}>{formatKoreanDateTime(createdAt)}</time>
               </Text>
-              <Text variant="small" className="text-muted-foreground">
+              <Text variant="small" className="text-muted-foreground max-md:text-xs">
                 <span className="text-foreground font-medium">최근 수정 : </span>
                 <time dateTime={updatedAt}>{formatKoreanDateTime(updatedAt)}</time>
               </Text>
@@ -50,14 +50,14 @@ export function MeetingDetail({meetingId}: Props) {
         <Separator />
         <div className="flex-1 flex flex-col gap-6 overflow-y-auto px-4 py-6">
           <article className="space-y-3">
-            <Heading level="h3" className="text-lg">
+            <Heading level="h3" className="text-base md:text-lg">
               회의 요약
             </Heading>
             <Text className="whitespace-pre-line">{summary}</Text>
           </article>
           <Separator />
           <article className="space-y-3">
-            <Heading level="h3" className="text-lg">
+            <Heading level="h3" className="text-base md:text-lg">
               주요 사항
             </Heading>
             <ul className="flex flex-col gap-2">
@@ -73,7 +73,7 @@ export function MeetingDetail({meetingId}: Props) {
           </article>
           <Separator />
           <article className="space-y-3">
-            <Heading level="h3" className="text-lg">
+            <Heading level="h3" className="text-base md:text-lg">
               최종 회의 내용
             </Heading>
             <Text className="whitespace-pre-line mt-3 rounded-lg bg-muted/45 border border-border/70 p-4">

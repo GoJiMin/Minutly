@@ -51,17 +51,17 @@ export function MeetingDeleteDialog({meetingId, meetingDate}: Props) {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-8 rounded-lg gap-1 px-5 font-semibold">
+        <Button variant="outline" className="h-8 rounded-lg gap-1 px-3 md:px-5 font-semibold">
           <Trash2 />
           삭제
         </Button>
       </DialogTrigger>
-      <DialogContent showCloseButton={!isDeletingMeeting} className="max-w-md rounded-xl">
+      <DialogContent showCloseButton={false} className="max-sm md:max-w-md rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">회의록 삭제</DialogTitle>
           <DialogDescription>삭제한 회의록은 다시 되돌릴 수 없어요.</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 flex-row">
           <DialogClose asChild>
             <Button
               variant="outline"
