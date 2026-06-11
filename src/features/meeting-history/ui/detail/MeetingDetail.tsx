@@ -34,7 +34,7 @@ export function MeetingDetail({meetingId}: Props) {
         <MeetingMemoPanelBoundary meetingId={meetingId} />
       </aside>
 
-      <div className="fixed bottom-20 right-4 z-20 md:hidden">
+      <div className="fixed bottom-25 right-4 z-20 md:hidden">
         <MeetingMemoDrawer meetingId={meetingId} />
       </div>
     </section>

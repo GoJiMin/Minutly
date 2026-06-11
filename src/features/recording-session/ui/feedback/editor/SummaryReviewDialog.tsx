@@ -36,7 +36,7 @@ export function SummaryReviewDialog({isOpen, isSaving, onClose, onRequestRegener
     >
       <DialogContent
         showCloseButton={false}
-        className="flex flex-col max-w-5xl pt-8 pb-10 md:pb-6 md:pt-8 px-4 md:px-8 gap-4 md:gap-6 md:rounded-2xl h-[min(100vh,850px)]"
+        className="flex flex-col max-w-5xl pt-8 pb-4 md:pb-6 md:pt-8 px-4 md:px-8 gap-4 md:gap-6 md:rounded-2xl h-[min(100vh,850px)]"
       >
         <DialogHeader>
           <DialogTitle className="md:text-2xl font-bold">{title}</DialogTitle>
@@ -67,7 +67,7 @@ export function SummaryReviewDialog({isOpen, isSaving, onClose, onRequestRegener
             <Button
               variant="outline"
               disabled={isSaving}
-              className="h-10 w-full rounded-lg gap-1.5 px-3 text-sm font-semibold md:h-12 md:w-auto md:min-w-44 md:gap-2 md:px-7 md:text-lg"
+              className="h-10 w-[80vw] mx-auto rounded-lg gap-1.5 px-3 text-sm font-semibold md:h-12 md:w-auto md:min-w-44 md:gap-2 md:px-7 md:text-lg"
             >
               닫기
             </Button>

@@ -73,7 +73,7 @@ export function MeetingEditForm({title, summary, keyPoints, isSaving, onSubmit}:
     <form
       id="meeting-edit-form"
       onSubmit={form.handleSubmit(onSubmit)}
-      className="min-h-0 flex-1 overflow-auto px-4 md:px-6 flex flex-col gap-4"
+      className="min-h-0 flex-1 overflow-auto px-4 md:px-6 flex flex-col gap-4 py-4"
     >
       <Controller
         name="title"

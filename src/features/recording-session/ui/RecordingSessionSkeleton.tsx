@@ -31,7 +31,7 @@ function RecordingSessionControlsPanelSkeleton({className}: SkeletonPanelProps) 
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 px-5 pb-1 md:px-0">
         <Separator className="hidden md:block" />
 
         <div className="flex flex-col gap-2">

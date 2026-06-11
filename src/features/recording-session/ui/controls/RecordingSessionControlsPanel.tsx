@@ -38,7 +38,7 @@ export default function RecordingSessionControlsPanel({className}: Props) {
       </div>
 
       {isRecordingControlVisible && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 px-5 md:px-0 pb-1">
           <Separator className="hidden md:block" />
           <SelectMicrophones />
         </div>
