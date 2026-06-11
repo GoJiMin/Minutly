@@ -6,12 +6,17 @@ import {MeetingListBySelectedDate} from './MeetingListBySelectedDate';
 import {MeetingListSkeleton} from '../MeetingHistorySkeleton';
 import {useMeetingHistorySearchParams} from '../../lib/useMeetingHistorySearchParams';
 import {QueryErrorBoundary, RetryErrorFallback, Separator} from '@/shared/components';
+import {cn} from '@/shared/utils';
 
-export function MeetingHistorySidebar() {
+type Props = {
+  className?: HTMLDivElement['className'];
+};
+
+export function MeetingHistorySidebar({className}: Props) {
   const {date, month, year} = useMeetingHistorySearchParams();
 
   return (
-    <aside className="w-90 h-full min-h-0 flex flex-col items-center gap-3">
+    <aside className={cn('w-90 h-full min-h-0 flex flex-col items-center gap-3', className)}>
       <QueryErrorBoundary
         fallback={({message, reset}) => (
           <RetryErrorFallback
