@@ -9,6 +9,11 @@ export type {
 } from '../model/types';
 export {readRecordingDraft, saveRecordingDraft, removeRecordingDraft} from './recordingDraftStorage';
 export {transcriptChunks, useRecordingStore} from './recordingStore';
+export {
+  savePreferredMicrophone,
+  readPreferredMicrophone,
+  removePreferredMicrophone,
+} from './preferredMicrophoneStorage';
 
 export {
   saveTranscriptReviewDraft,

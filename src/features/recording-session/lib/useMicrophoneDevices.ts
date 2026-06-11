@@ -2,7 +2,7 @@
 
 import {useCallback, useEffect, useState} from 'react';
 import {useShallow} from 'zustand/react/shallow';
-import {MicrophoneDevice, useRecordingStore} from '@/entities/speech-to-text/client';
+import {MicrophoneDevice, readPreferredMicrophone, useRecordingStore} from '@/entities/speech-to-text/client';
 
 type MicrophoneDeviceSnapshot = {
   nextMicrophoneOptions: MicrophoneDevice[];
@@ -76,17 +76,30 @@ function reconcileSelectedMicrophone(
   return microphoneOptions.find(option => option.id === selectedMicrophone.id && option.id.length > 0) ?? null;
 }
 
+function isSameMicrophone(left: MicrophoneDevice | null, right: MicrophoneDevice | null) {
+  return left?.id === right?.id && left?.label === right?.label;
+}
+
+function isEmptyRecordingSession({status, startedAt}: {status: string; startedAt: string | null}) {
+  return status === 'idle' && startedAt === null;
+}
+
 export function useMicrophoneDevices() {
   const [microphoneOptions, setMicrophoneOptions] = useState<MicrophoneDevice[]>([]);
+  const [hasResolvedMicrophoneOptions, setHasResolvedMicrophoneOptions] = useState(false);
   const [needsMicrophoneAccess, setNeedsMicrophoneAccess] = useState(false);
 
-  const {markRecordingError, clearRecordingError, setSelectedMicrophone} = useRecordingStore(
-    useShallow(state => ({
-      markRecordingError: state.markRecordingError,
-      clearRecordingError: state.clearRecordingError,
-      setSelectedMicrophone: state.setSelectedMicrophone,
-    })),
-  );
+  const {markRecordingError, clearRecordingError, selectedMicrophone, setSelectedMicrophone, startedAt, status} =
+    useRecordingStore(
+      useShallow(state => ({
+        markRecordingError: state.markRecordingError,
+        clearRecordingError: state.clearRecordingError,
+        selectedMicrophone: state.selectedMicrophone,
+        setSelectedMicrophone: state.setSelectedMicrophone,
+        startedAt: state.startedAt,
+        status: state.status,
+      })),
+    );
 
   async function requestMicrophoneAccess() {
     const mediaDevices = getSupportedMediaDevices();
@@ -129,11 +142,9 @@ export function useMicrophoneDevices() {
 
   const applyMicrophoneDeviceSnapshot = useCallback((snapshot: MicrophoneDeviceSnapshot) => {
     setMicrophoneOptions(snapshot.nextMicrophoneOptions);
-
-    const selectedMicrophone = useRecordingStore.getState().selectedMicrophone;
-    setSelectedMicrophone(reconcileSelectedMicrophone(selectedMicrophone, snapshot.nextMicrophoneOptions));
+    setHasResolvedMicrophoneOptions(true);
     setNeedsMicrophoneAccess(snapshot.needsMicrophoneAccess);
-  }, [setSelectedMicrophone]);
+  }, []);
 
   const refreshMicrophones = useCallback(async ({exposeRedactedDevices = false} = {}) => {
     const mediaDevices = getSupportedMediaDevices();
@@ -158,6 +169,7 @@ export function useMicrophoneDevices() {
       return true;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        setHasResolvedMicrophoneOptions(true);
         setNeedsMicrophoneAccess(true);
         return true;
       }
@@ -189,6 +201,45 @@ export function useMicrophoneDevices() {
       mediaDevices.removeEventListener('devicechange', handleDeviceChange);
     };
   }, [markRecordingError, refreshMicrophones]);
+
+  useEffect(() => {
+    if (!hasResolvedMicrophoneOptions) return;
+
+    if (selectedMicrophone) {
+      const reconciledMicrophone = reconcileSelectedMicrophone(selectedMicrophone, microphoneOptions);
+
+      if (!reconciledMicrophone && !needsMicrophoneAccess) {
+        setSelectedMicrophone(null);
+        return;
+      }
+
+      if (reconciledMicrophone && !isSameMicrophone(selectedMicrophone, reconciledMicrophone)) {
+        setSelectedMicrophone(reconciledMicrophone);
+      }
+
+      return;
+    }
+
+    if (microphoneOptions.length === 0) return;
+    if (!isEmptyRecordingSession({status, startedAt})) return;
+
+    const preferredMicrophone = readPreferredMicrophone();
+    const restoredMicrophone = preferredMicrophone
+      ? microphoneOptions.find(option => option.id === preferredMicrophone.id)
+      : null;
+
+    if (restoredMicrophone) {
+      setSelectedMicrophone(restoredMicrophone);
+    }
+  }, [
+    hasResolvedMicrophoneOptions,
+    microphoneOptions,
+    needsMicrophoneAccess,
+    selectedMicrophone,
+    setSelectedMicrophone,
+    startedAt,
+    status,
+  ]);
 
   return {
     microphoneOptions,

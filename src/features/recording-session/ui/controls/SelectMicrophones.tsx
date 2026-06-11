@@ -1,7 +1,7 @@
 import {Mic} from 'lucide-react';
 import {useShallow} from 'zustand/react/shallow';
 import {useMicrophoneDevices} from '../../lib/useMicrophoneDevices';
-import {useRecordingStore} from '@/entities/speech-to-text/client';
+import {removePreferredMicrophone, savePreferredMicrophone, useRecordingStore} from '@/entities/speech-to-text/client';
 import {
   Button,
   Text,
@@ -29,11 +29,15 @@ export default function SelectMicrophones() {
   function handleValueChange(value: string) {
     if (value === DEFAULT_MICROPHONE_SELECT_VALUE) {
       setSelectedMicrophone(null);
+      removePreferredMicrophone();
       return;
     }
 
     const selectedOptions = microphoneOptions.find(opt => opt.id === value);
-    if (selectedOptions) setSelectedMicrophone(selectedOptions);
+    if (selectedOptions) {
+      setSelectedMicrophone(selectedOptions);
+      savePreferredMicrophone(selectedOptions);
+    }
   }
 
   if (needsMicrophoneAccess) {
