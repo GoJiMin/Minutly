@@ -13,7 +13,7 @@ export function RecordingSessionReviewActions() {
     removeTranscriptReviewDraft();
   }
   return (
-    <div className="flex w-full md:max-w-90 flex-col md:gap-3 md:mt-6">
+    <div className="flex w-full md:max-w-90 flex-col mb-3 md:mb-0 md:gap-3 md:mt-6">
       <div className="hidden md:flex flex-col gap-4 rounded-xl border bg-muted/40 px-4 py-3">
         <div>
           <Text className="font-medium">녹음이 종료됐어요</Text>
