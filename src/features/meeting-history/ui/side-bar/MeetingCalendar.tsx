@@ -20,9 +20,9 @@ export function MeetingCalendar() {
   const historyStartDate = new Date(startYear, startMonth - 1, startDay);
 
   return (
-    <div className="relative" aria-busy={isFetching}>
+    <div className="relative px-2 md:px-0" aria-busy={isFetching}>
       <Calendar
-        className="w-80 bg-transparent"
+        className="w-full md:w-80 bg-transparent"
         mode="single"
         month={calendarMonth}
         selected={selectedDate}

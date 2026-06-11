@@ -1,4 +1,5 @@
 import {Calendar, X} from 'lucide-react';
+import {MeetingHistorySidebar} from './side-bar/MeetingHistorySidebar';
 import {Button} from '@/shared/components';
 import {
   Drawer,
@@ -28,6 +29,7 @@ export function MeetingCalenderDrawer() {
             <X className="size-5" />
           </DrawerClose>
         </DrawerHeader>
+        <MeetingHistorySidebar className="flex w-full" />
       </DrawerContent>
     </Drawer>
   );
