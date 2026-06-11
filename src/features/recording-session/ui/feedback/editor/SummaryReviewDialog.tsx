@@ -36,7 +36,7 @@ export function SummaryReviewDialog({isOpen, isSaving, onClose, onRequestRegener
     >
       <DialogContent
         showCloseButton={false}
-        className="flex flex-col max-w-5xl pt-8 pb-6 md:pb-6 md:pt-8 px-4 md:px-8 gap-4 md:gap-6 rounded-2xl h-[min(100vh,850px)]"
+        className="flex flex-col max-w-5xl pt-8 pb-10 md:pb-6 md:pt-8 px-4 md:px-8 gap-4 md:gap-6 md:rounded-2xl h-[min(100vh,850px)]"
       >
         <DialogHeader>
           <DialogTitle className="md:text-2xl font-bold">{title}</DialogTitle>
