@@ -8,10 +8,10 @@ type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4';
 const headingVariants = cva('scroll-m-20 font-heading text-foreground', {
   variants: {
     level: {
-      h1: 'text-4xl font-extrabold',
-      h2: 'border-b border-border pb-2 text-3xl font-semibold first:mt-0',
-      h3: 'text-2xl font-semibold',
-      h4: 'text-xl font-semibold',
+      h1: 'text-3xl md:text-4xl font-extrabold',
+      h2: 'border-b border-border pb-2 text-2xl md:text-3xl font-semibold first:mt-0',
+      h3: 'text-xl md:text-2xl font-semibold',
+      h4: 'text-lg md:text-xl font-semibold',
     },
   },
   defaultVariants: {

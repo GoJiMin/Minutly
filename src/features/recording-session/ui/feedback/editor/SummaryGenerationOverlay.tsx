@@ -25,7 +25,7 @@ export function SummaryGenerationOverlay() {
     <motion.div
       initial={{opacity: 0}}
       animate={{opacity: 1}}
-      className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md"
+      className="fixed inset-0 z-60 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md"
       role="status"
       aria-live="polite"
       aria-atomic="true"
@@ -41,14 +41,14 @@ export function SummaryGenerationOverlay() {
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute h-48 w-48 rounded-full bg-primary/20 blur-2xl"
+          className="absolute h-32 w-32 rounded-full bg-primary/20 blur-xl md:h-48 md:w-48 md:blur-2xl"
         />
-        <div className="relative z-10 flex items-center justify-center rounded-full bg-background p-5 shadow-xl ring-1 ring-border">
-          <FileText className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+        <div className="relative z-10 flex items-center justify-center rounded-full bg-background p-4 shadow-xl ring-1 ring-border md:p-5">
+          <FileText className="h-8 w-8 text-muted-foreground md:h-12 md:w-12" aria-hidden="true" />
         </div>
       </div>
 
-      <div className="mt-8 h-10">
+      <div className="h-8 mt-8 md:h-10">
         <AnimatePresence mode="wait">
           <motion.p
             key={messageIndex}
@@ -56,7 +56,7 @@ export function SummaryGenerationOverlay() {
             animate={{opacity: 1, y: 0}}
             exit={{opacity: 0, y: -10}}
             transition={{duration: 0.3}}
-            className="text-center text-xl font-medium text-foreground"
+            className="text-center text-base font-medium text-foreground md:text-xl"
           >
             {LOADING_MESSAGES[messageIndex]}
           </motion.p>
@@ -64,7 +64,7 @@ export function SummaryGenerationOverlay() {
       </div>
 
       <div
-        className="mt-8 h-1.5 w-64 overflow-hidden rounded-full bg-muted relative"
+        className="relative mt-5 h-1.5 w-48 overflow-hidden rounded-full bg-muted md:mt-8 md:w-64"
         role="progressbar"
         aria-label="요약본 생성 진행 상태"
       >

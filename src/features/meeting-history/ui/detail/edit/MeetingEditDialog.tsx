@@ -48,26 +48,26 @@ export function MeetingEditDialog(props: MeetingEditInitialValues) {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-8 rounded-lg gap-1 px-5 font-semibold">
+        <Button variant="outline" className="h-8 rounded-lg gap-1 px-3 md:px-5 font-semibold">
           <PencilLine className="size-4" />
           수정
         </Button>
       </DialogTrigger>
       <DialogContent
-        showCloseButton={!isUpdatingMeeting}
-        className="max-w-7xl h-[min(calc(100vh-32px),900px)] flex flex-col rounded-xl overflow-hidden p-0"
+        showCloseButton={false}
+        className="max-w-7xl h-[min(100vh,900px)] flex flex-col rounded-xl overflow-hidden px-0 pb-4 pt-6 md:p-0 md:pt-2"
       >
         <DialogHeader className="border-b border-border bg-muted/60 px-6 py-5">
-          <DialogTitle className="text-2xl font-bold">회의록 수정</DialogTitle>
+          <DialogTitle className="md:text-2xl font-bold">회의록 수정</DialogTitle>
           <DialogDescription>수정 후 저장하기 버튼을 눌러주세요.</DialogDescription>
         </DialogHeader>
         <MeetingEditForm {...props} isSaving={isUpdatingMeeting} onSubmit={handleSubmit} />
-        <DialogFooter className="border-t border-border bg-muted/60 px-7 py-5">
+        <DialogFooter className="flex-row border-t border-border bg-muted/60 px-3 md:px-7 py-3 md:py-5">
           <DialogClose asChild>
             <Button
               variant="outline"
               disabled={isUpdatingMeeting}
-              className="h-11 min-w-44 rounded-lg gap-2 px-7 text-base font-semibold"
+              className="h-10 min-w-0 flex-1 rounded-lg gap-1.5 px-3 text-sm font-semibold md:h-11 md:min-w-44 md:flex-none md:gap-2 md:px-7 md:text-base"
             >
               닫기
             </Button>
@@ -76,7 +76,7 @@ export function MeetingEditDialog(props: MeetingEditInitialValues) {
             type="submit"
             form="meeting-edit-form"
             disabled={isUpdatingMeeting}
-            className="h-11 min-w-44 rounded-lg gap-2 px-7 text-base font-semibold"
+            className="h-10 min-w-0 flex-1 rounded-lg gap-1.5 px-3 text-sm font-semibold md:h-11 md:min-w-44 md:flex-none md:gap-2 md:px-7 md:text-base"
           >
             {isUpdatingMeeting ? (
               <>

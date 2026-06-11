@@ -39,7 +39,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full md:max-w-sm h-fit flex flex-col rounded-xl gap-4">
+    <Card className="w-full h-full md:max-w-sm md:h-fit flex flex-col justify-center md:justify-normal md:rounded-xl gap-4">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="" width={48} height={48} priority className="size-14 shrink-0" />
@@ -68,7 +68,7 @@ export function LoginForm() {
                     aria-invalid={fieldState.invalid}
                     placeholder="아이디를 입력해주세요."
                     autoComplete="off"
-                    className="h-10 rounded-lg border-border bg-muted/30 px-3 font-medium text-sm focus-visible:bg-white"
+                    className="h-10 rounded-lg border-border bg-muted/30 px-3 font-medium text-base md:text-sm focus-visible:bg-white"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -88,7 +88,7 @@ export function LoginForm() {
                     id="login-form-password"
                     aria-invalid={fieldState.invalid}
                     placeholder="*********"
-                    className="h-10 rounded-lg border-border bg-muted/30 px-3 font-medium text-sm focus-visible:bg-white"
+                    className="h-10 rounded-lg border-border bg-muted/30 px-3 font-medium text-base md:text-sm focus-visible:bg-white"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>

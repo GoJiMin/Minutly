@@ -1,8 +1,17 @@
 import {Separator, Skeleton} from '@/shared/components';
+import {cn} from '@/shared/utils';
+
+type MemoPanelSkeletonProps = {
+  showHeader?: boolean;
+  className?: string;
+};
 
 export function MeetingCalendarSkeleton() {
   return (
-    <div aria-hidden className="w-80 bg-transparent p-3 [--cell-radius:var(--radius-4xl)] [--cell-size:--spacing(8)]">
+    <div
+      aria-hidden
+      className="w-full md:w-80 bg-transparent p-3 [--cell-radius:var(--radius-4xl)] [--cell-size:--spacing(10)]"
+    >
       <div className="relative flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)">
         <Skeleton className="absolute left-0 size-(--cell-size) rounded-(--cell-radius)" />
         <Skeleton className="h-4 w-20 rounded-md" />
@@ -22,7 +31,7 @@ export function MeetingCalendarSkeleton() {
           <div key={weekIndex} className="mt-2 flex w-full">
             {Array.from({length: 7}).map((_, dayIndex) => (
               <div key={dayIndex} className="relative aspect-square h-full w-full p-0">
-                <Skeleton className="size-full rounded-(--cell-radius)" />
+                <Skeleton className="mx-auto size-(--cell-size) rounded-(--cell-radius) md:size-full" />
               </div>
             ))}
           </div>
@@ -32,75 +41,98 @@ export function MeetingCalendarSkeleton() {
   );
 }
 
-export function MeetingDetailSkeleton() {
+export function MeetingDetailContentSkeleton() {
   return (
-    <section aria-hidden className="min-h-0 flex-1 grid grid-cols-[minmax(0,1fr)_21rem] gap-6">
-      <div className="flex min-h-0 flex-col">
-        <header className="px-4 pb-3">
-          <Skeleton className="h-8 w-2/5 max-w-96 rounded-md" />
-          <div className="mt-3 flex gap-3">
-            <Skeleton className="h-5 w-64 rounded-md" />
-            <Skeleton className="h-5 w-64 rounded-md" />
+    <div aria-hidden className="flex min-h-0 flex-col">
+      <header className="flex flex-col gap-3 md:gap-2 px-4 pb-3">
+        <div className="min-w-0">
+          <Skeleton className="h-7 w-3/5 max-w-72 rounded-md md:h-8 md:w-2/5 md:max-w-96" />
+          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 md:mt-3">
+            <Skeleton className="h-5 w-52 max-w-full rounded-md md:w-64" />
+            <Skeleton className="h-5 w-48 max-w-full rounded-md md:w-64" />
           </div>
-        </header>
+        </div>
+        <div className="flex justify-end gap-2 md:hidden">
+          <Skeleton className="h-8 w-18 rounded-lg" />
+          <Skeleton className="h-8 w-18 rounded-lg" />
+        </div>
+      </header>
+
+      <Separator />
+
+      <div className="flex-1 flex flex-col gap-6 overflow-hidden px-4 py-6">
+        <section className="space-y-3">
+          <Skeleton className="h-5 w-18 rounded-md md:h-6 md:w-20" />
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-full rounded-md" />
+            <Skeleton className="h-5 w-11/12 rounded-md" />
+            <Skeleton className="h-5 w-4/5 rounded-md" />
+          </div>
+        </section>
 
         <Separator />
 
-        <div className="flex-1 flex flex-col gap-6 overflow-hidden px-4 py-6">
-          <section className="space-y-3">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-full rounded-md" />
-              <Skeleton className="h-5 w-11/12 rounded-md" />
-              <Skeleton className="h-5 w-4/5 rounded-md" />
-            </div>
-          </section>
-
-          <Separator />
-
-          <section className="space-y-3">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <div className="flex flex-col gap-2">
-              {Array.from({length: 3}).map((_, index) => (
-                <Skeleton key={index} className="h-13 w-full rounded-md" />
-              ))}
-            </div>
-          </section>
-
-          <Separator />
-
-          <section className="space-y-3">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <Skeleton className="h-52 w-full rounded-lg" />
-          </section>
-        </div>
-      </div>
-
-      <aside className="min-h-0">
-        <div className="flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 py-4">
-          <header className="border-b border-border/70 px-4 pb-3">
-            <Skeleton className="h-5 w-16 rounded-md" />
-            <Skeleton className="mt-2 h-4 w-36 rounded-md" />
-          </header>
-
-          <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-3 py-5">
-            {[
-              'h-16 w-4/5',
-              'h-20 w-5/6',
-              'h-14 w-3/4',
-            ].map((className, index) => (
-              <li key={index} className="flex items-end justify-end gap-1.5">
-                <Skeleton className={`${className} max-w-[90%] rounded-2xl rounded-br-sm`} />
-                <Skeleton className="mb-0.5 size-6 shrink-0 rounded-md" />
-              </li>
+        <section className="space-y-3">
+          <Skeleton className="h-5 w-18 rounded-md md:h-6 md:w-20" />
+          <div className="flex flex-col gap-2">
+            {Array.from({length: 3}).map((_, index) => (
+              <Skeleton key={index} className="h-13 w-full rounded-md" />
             ))}
-          </ul>
-
-          <div className="border-t border-border px-3 pt-4">
-            <Skeleton className="h-10 w-full rounded-xl" />
           </div>
-        </div>
+        </section>
+
+        <Separator />
+
+        <section className="space-y-3">
+          <Skeleton className="h-5 w-24 rounded-md md:h-6 md:w-20" />
+          <Skeleton className="h-44 w-full rounded-lg md:h-52" />
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export function MeetingMemoPanelSkeleton({showHeader = true, className}: MemoPanelSkeletonProps) {
+  return (
+    <div
+      aria-hidden
+      className={cn('flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 py-4', className)}
+    >
+      {showHeader && (
+        <header className="border-b border-border/70 px-4 pb-3">
+          <Skeleton className="h-5 w-16 rounded-md" />
+          <Skeleton className="mt-2 h-4 w-36 rounded-md" />
+        </header>
+      )}
+
+      <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-3 py-5">
+        {['h-16 w-4/5', 'h-20 w-5/6', 'h-14 w-3/4'].map((className, index) => (
+          <li key={index} className="flex items-end justify-end gap-1.5">
+            <Skeleton className={`${className} max-w-[90%] rounded-2xl rounded-br-sm`} />
+            <Skeleton className="mb-0.5 size-6 shrink-0 rounded-md" />
+          </li>
+        ))}
+      </ul>
+
+      <div className="border-t border-border px-3 pt-4">
+        <Skeleton className="h-10 w-full rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+export function MeetingDetailSkeleton() {
+  return (
+    <section aria-hidden className="min-h-0 flex-1 md:grid md:grid-cols-[minmax(0,1fr)_21rem] md:gap-6 overflow-y-auto">
+      <MeetingDetailContentSkeleton />
+
+      <aside className="hidden min-h-0 md:block">
+        <MeetingMemoPanelSkeleton />
       </aside>
+
+      <div className="fixed bottom-20 right-4 z-20 md:hidden">
+        <Skeleton className="size-9 rounded-full" />
+      </div>
     </section>
   );
 }
@@ -117,9 +149,9 @@ export function MeetingListSkeleton() {
   );
 }
 
-function MeetingHistorySidebarSkeleton() {
+function MeetingHistorySidebarSkeleton({className}: {className?: string} = {}) {
   return (
-    <aside className="w-90 h-full min-h-0 flex flex-col items-center gap-3">
+    <aside className={cn('w-90 h-full min-h-0 flex flex-col items-center gap-3', className)}>
       <MeetingCalendarSkeleton />
       <Separator />
       <MeetingListSkeleton />
@@ -129,9 +161,12 @@ function MeetingHistorySidebarSkeleton() {
 
 export function MeetingHistoryWorkspaceSkeleton() {
   return (
-    <section className="w-full h-full min-h-0 flex overflow-hidden py-7 pl-1 pr-4">
-      <MeetingHistorySidebarSkeleton />
-      <Separator orientation="vertical" />
+    <section className="w-full h-full min-h-0 flex overflow-hidden pt-6 pb-3 px-1 md:py-7 md:pl-1 md:pr-4">
+      <MeetingHistorySidebarSkeleton className="hidden md:flex" />
+      <Separator orientation="vertical" className="hidden md:block" />
+      <div className="fixed bottom-4 right-4 z-20 md:hidden">
+        <Skeleton className="size-9 rounded-full" />
+      </div>
       <MeetingDetailSkeleton />
     </section>
   );

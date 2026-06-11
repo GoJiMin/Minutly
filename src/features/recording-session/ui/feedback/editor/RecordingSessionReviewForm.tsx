@@ -93,10 +93,10 @@ export function RecordingSessionReviewForm() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="relative flex h-full min-h-0 flex-1 flex-col">
-      <div className="shrink-0 border-b bg-background px-6 py-5">
+      <div className="shrink-0 border-b bg-background px-3 md:px-6 py-2 md:py-5">
         <ReviewTitleField control={form.control} readOnly={isEditorReadOnly} />
       </div>
-      <div className="min-h-0 flex flex-1 flex-col gap-3 bg-muted/70 px-6 py-4">
+      <div className="min-h-0 flex flex-1 flex-col gap-3 bg-muted/70 px-0 md:px-6 py-2 md:py-4">
         {interruptionCount > 0 && (
           <InterruptionAlertPanel
             interruptions={interruptions}
@@ -106,7 +106,7 @@ export function RecordingSessionReviewForm() {
         )}
         <TranscriptEditorField containerRef={containerRef} />
       </div>
-      <div className="shrink-0 border-t bg-background px-7 py-5">
+      <div className="shrink-0 border-t bg-background px-4 py-3 md:px-7 md:py-5">
         <ReviewSubmitActions
           disabled={isSubmitDisabled}
           isReviewLocked={isReviewLocked}

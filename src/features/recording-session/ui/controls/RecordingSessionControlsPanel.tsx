@@ -4,9 +4,13 @@ import {RecordingSessionReviewActions} from './RecordingSessionReviewActions';
 import SelectMicrophones from './SelectMicrophones';
 import {useRecordingStore} from '@/entities/speech-to-text/client';
 import {Separator} from '@/shared/components';
-import {formatKoreanDate} from '@/shared/utils';
+import {cn, formatKoreanDate} from '@/shared/utils';
 
-export default function RecordingSessionControlsPanel() {
+type Props = {
+  className?: HTMLDivElement['className'];
+};
+
+export default function RecordingSessionControlsPanel({className}: Props) {
   const status = useRecordingStore(state => state.status);
 
   const isRecordingControlVisible =
@@ -14,18 +18,30 @@ export default function RecordingSessionControlsPanel() {
   const isTranscriptReviewVisible = status === 'transcript_review';
 
   return (
-    <section className="w-100 flex flex-col border-2 rounded-xl px-5 py-6 gap-3">
-      <div className="flex flex-1 flex-col justify-center items-center">
-        <time className="text-2xl text-foreground">{formatKoreanDate(new Date())}</time>
-        <RecordingSessionTimer />
-        {isRecordingControlVisible && <RecordingSessionActionButtons />}
+    <section
+      className={cn(
+        'flex w-full shrink-0 flex-col gap-3 bg-background px-4',
+        'md:w-100 md:rounded-xl md:px-5 md:py-6 md:border-2',
+        !isTranscriptReviewVisible && 'py-3',
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-3 md:flex-1 md:justify-center md:items-center">
+        <time className="hidden text-2xl text-foreground md:block">{formatKoreanDate(new Date())}</time>
+        <div className="flex items-center justify-between gap-3 px-1 md:flex-col">
+          <div className={cn(isTranscriptReviewVisible && 'hidden md:block')}>
+            <RecordingSessionTimer />
+          </div>
+          {isRecordingControlVisible && <RecordingSessionActionButtons />}
+        </div>
         {isTranscriptReviewVisible && <RecordingSessionReviewActions />}
       </div>
+
       {isRecordingControlVisible && (
-        <>
-          <Separator />
+        <div className="flex flex-col gap-2">
+          <Separator className="hidden md:block" />
           <SelectMicrophones />
-        </>
+        </div>
       )}
     </section>
   );

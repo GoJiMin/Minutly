@@ -34,7 +34,9 @@ export function RecordingSessionTimer() {
   }
 
   return (
-    <div className={`mt-4 text-7xl font-bold tabular-nums ${isError ? 'text-destructive/80' : 'text-foreground'}`}>
+    <div
+      className={`text-3xl md:mt-4 md:text-7xl font-bold tabular-nums ${isError ? 'text-destructive/80' : 'text-foreground'}`}
+    >
       {formatDuration(elapsedMs)}
     </div>
   );

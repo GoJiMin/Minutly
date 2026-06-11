@@ -19,10 +19,10 @@ export function RecordingOnboardingGuide() {
           key={step}
           className="grid min-h-0 grid-cols-[3rem_1fr] items-center border-b border-border/60 last:border-b-0"
         >
-          <span className="text-lg font-semibold tabular-nums text-muted-foreground">
+          <span className="md:text-lg font-semibold tabular-nums text-muted-foreground">
             {String(index + 1).padStart(2, '0')}
           </span>
-          <Text className="text-lg text-foreground">{step}</Text>
+          <Text className="text-sm md:text-lg text-foreground">{step}</Text>
         </li>
       ))}
     </ol>

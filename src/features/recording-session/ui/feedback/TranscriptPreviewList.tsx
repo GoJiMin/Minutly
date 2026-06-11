@@ -23,7 +23,7 @@ export function TranscriptPreviewList() {
             }}
           >
             <Text
-              className={`text-lg line-clamp-2 ${chunk.kind === 'interruption' ? 'text-amber-700' : 'text-foreground'}`}
+              className={`text-sm md:text-lg line-clamp-2 ${chunk.kind === 'interruption' ? 'text-amber-700' : 'text-foreground'}`}
             >
               {chunk.text}
             </Text>

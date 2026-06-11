@@ -13,8 +13,8 @@ export function RecordingSessionReviewActions() {
     removeTranscriptReviewDraft();
   }
   return (
-    <div className="mt-6 flex w-full max-w-90 flex-col gap-3">
-      <div className="flex flex-col gap-4 rounded-xl border bg-muted/40 px-4 py-3">
+    <div className="flex w-full md:max-w-90 flex-col mb-3 md:mb-0 md:gap-3 md:mt-6">
+      <div className="hidden md:flex flex-col gap-4 rounded-xl border bg-muted/40 px-4 py-3">
         <div>
           <Text className="font-medium">녹음이 종료됐어요</Text>
           <Text variant="muted" className="mt-2 text-sm">
@@ -37,8 +37,12 @@ export function RecordingSessionReviewActions() {
           </div>
         </div>
       </div>
-      <Button variant="outline" onClick={handleStartNewRecording} className="h-14 w-full rounded-xl text-lg gap-2">
-        <RefreshCcw className="size-6" />새 녹음 시작
+      <Button
+        variant="outline"
+        onClick={handleStartNewRecording}
+        className="h-10 shrink-0 rounded-lg px-3 text-sm md:h-14 md:w-full md:text-lg md:gap-2"
+      >
+        <RefreshCcw className="size-4 md:size-6" />새 녹음 시작
       </Button>
     </div>
   );
