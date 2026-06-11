@@ -20,15 +20,20 @@ export default function RecordingSessionControlsPanel({className}: Props) {
   return (
     <section
       className={cn(
-        'flex w-full shrink-0 flex-col gap-3 bg-background px-4 py-3',
+        'flex w-full shrink-0 flex-col gap-3 bg-background px-4',
         'md:w-100 md:rounded-xl md:px-5 md:py-6 md:border-2',
+        !isTranscriptReviewVisible && 'py-3',
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 px-1 md:flex-1 md:flex-col md:justify-center">
+      <div className="flex flex-col gap-3 md:flex-1 md:justify-center md:items-center">
         <time className="hidden text-2xl text-foreground md:block">{formatKoreanDate(new Date())}</time>
-        <RecordingSessionTimer />
-        {isRecordingControlVisible && <RecordingSessionActionButtons />}
+        <div className="flex items-center justify-between gap-3 px-1 md:flex-col">
+          <div className={cn(isTranscriptReviewVisible && 'hidden md:block')}>
+            <RecordingSessionTimer />
+          </div>
+          {isRecordingControlVisible && <RecordingSessionActionButtons />}
+        </div>
         {isTranscriptReviewVisible && <RecordingSessionReviewActions />}
       </div>
 
