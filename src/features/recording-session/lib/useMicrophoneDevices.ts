@@ -4,6 +4,78 @@ import {useCallback, useEffect, useState} from 'react';
 import {useShallow} from 'zustand/react/shallow';
 import {MicrophoneDevice, useRecordingStore} from '@/entities/speech-to-text/client';
 
+type MicrophoneDeviceSnapshot = {
+  nextMicrophoneOptions: MicrophoneDevice[];
+  hasAudioInput: boolean;
+  needsMicrophoneAccess: boolean;
+};
+
+function createMicrophoneDeviceSnapshot(devices: MediaDeviceInfo[]): MicrophoneDeviceSnapshot {
+  let unnamedDeviceCount = 0;
+  let hasAudioInput = false;
+
+  const nextMicrophoneOptions: MicrophoneDevice[] = [];
+
+  for (const device of devices) {
+    if (device.kind !== 'audioinput') continue;
+
+    hasAudioInput = true;
+
+    const deviceId = device.deviceId.trim();
+    const label = device.label.trim();
+
+    if (deviceId.length === 0) continue;
+
+    if (label.length === 0) {
+      unnamedDeviceCount++;
+    }
+
+    nextMicrophoneOptions.push({
+      id: deviceId,
+      label: label || `마이크 ${unnamedDeviceCount}`,
+    });
+  }
+
+  return {
+    nextMicrophoneOptions,
+    hasAudioInput,
+    needsMicrophoneAccess: hasAudioInput && nextMicrophoneOptions.length === 0,
+  };
+}
+
+async function enumerateDevicesAfterMicrophoneAccess(mediaDevices: MediaDevices) {
+  const stream = await mediaDevices.getUserMedia({audio: true});
+
+  try {
+    return await mediaDevices.enumerateDevices();
+  } finally {
+    for (const track of stream.getTracks()) track.stop();
+  }
+}
+
+function getSupportedMediaDevices() {
+  if (typeof navigator === 'undefined') return null;
+
+  const mediaDevices = navigator.mediaDevices;
+
+  if (!mediaDevices) return null;
+
+  if (typeof mediaDevices.getUserMedia !== 'function' || typeof mediaDevices.enumerateDevices !== 'function') {
+    return null;
+  }
+
+  return mediaDevices;
+}
+
+function reconcileSelectedMicrophone(
+  selectedMicrophone: MicrophoneDevice | null,
+  microphoneOptions: MicrophoneDevice[],
+) {
+  if (!selectedMicrophone) return null;
+
+  return microphoneOptions.find(option => option.id === selectedMicrophone.id && option.id.length > 0) ?? null;
+}
+
 export function useMicrophoneDevices() {
   const [microphoneOptions, setMicrophoneOptions] = useState<MicrophoneDevice[]>([]);
   const [needsMicrophoneAccess, setNeedsMicrophoneAccess] = useState(false);
@@ -16,20 +88,6 @@ export function useMicrophoneDevices() {
     })),
   );
 
-  function getSupportedMediaDevices() {
-    if (typeof navigator === 'undefined') return null;
-
-    const mediaDevices = navigator.mediaDevices;
-
-    if (!mediaDevices) return null;
-
-    if (typeof mediaDevices.getUserMedia !== 'function' || typeof mediaDevices.enumerateDevices !== 'function') {
-      return null;
-    }
-
-    return mediaDevices;
-  }
-
   async function requestMicrophoneAccess() {
     const mediaDevices = getSupportedMediaDevices();
 
@@ -39,12 +97,9 @@ export function useMicrophoneDevices() {
     }
 
     try {
-      const stream = await mediaDevices.getUserMedia({audio: true});
-
-      for (const track of stream.getTracks()) track.stop();
-
-      const refreshed = await refreshMicrophones();
-      if (refreshed) clearRecordingError();
+      const devices = await enumerateDevicesAfterMicrophoneAccess(mediaDevices);
+      applyMicrophoneDeviceSnapshot(createMicrophoneDeviceSnapshot(devices));
+      clearRecordingError();
     } catch (error) {
       if (!(error instanceof DOMException)) {
         markRecordingError('microphone_access_failed');
@@ -72,53 +127,15 @@ export function useMicrophoneDevices() {
     }
   }
 
-  function createMicrophoneDeviceSnapshot(devices: MediaDeviceInfo[]) {
-    let unnamedDeviceCount = 0;
-    let hasAudioInput = false;
-    let hasResolvedDeviceLabel = false;
+  const applyMicrophoneDeviceSnapshot = useCallback((snapshot: MicrophoneDeviceSnapshot) => {
+    setMicrophoneOptions(snapshot.nextMicrophoneOptions);
 
-    const nextMicrophoneOptions: MicrophoneDevice[] = [];
+    const selectedMicrophone = useRecordingStore.getState().selectedMicrophone;
+    setSelectedMicrophone(reconcileSelectedMicrophone(selectedMicrophone, snapshot.nextMicrophoneOptions));
+    setNeedsMicrophoneAccess(snapshot.needsMicrophoneAccess);
+  }, [setSelectedMicrophone]);
 
-    for (const device of devices) {
-      if (device.kind !== 'audioinput') continue;
-
-      hasAudioInput = true;
-
-      const deviceId = device.deviceId.trim();
-      const label = device.label.trim();
-
-      if (label.length > 0) {
-        hasResolvedDeviceLabel = true;
-      }
-
-      if (deviceId.length === 0) continue;
-
-      if (label.length === 0) {
-        unnamedDeviceCount++;
-      }
-
-      nextMicrophoneOptions.push({
-        id: deviceId,
-        label: label || `마이크 ${unnamedDeviceCount}`,
-      });
-    }
-
-    return {
-      nextMicrophoneOptions,
-      needsMicrophoneAccess: hasAudioInput && !hasResolvedDeviceLabel,
-    };
-  }
-
-  function reconcileSelectedMicrophone(
-    selectedMicrophone: MicrophoneDevice | null,
-    microphoneOptions: MicrophoneDevice[],
-  ) {
-    if (!selectedMicrophone) return null;
-
-    return microphoneOptions.find(option => option.id === selectedMicrophone.id && option.id.length > 0) ?? null;
-  }
-
-  const refreshMicrophones = useCallback(async () => {
+  const refreshMicrophones = useCallback(async ({exposeRedactedDevices = false} = {}) => {
     const mediaDevices = getSupportedMediaDevices();
 
     if (!mediaDevices) {
@@ -128,22 +145,28 @@ export function useMicrophoneDevices() {
 
     try {
       const devices = await mediaDevices.enumerateDevices();
+      const snapshot = createMicrophoneDeviceSnapshot(devices);
 
-      const {nextMicrophoneOptions, needsMicrophoneAccess} = createMicrophoneDeviceSnapshot(devices);
+      if (exposeRedactedDevices && snapshot.needsMicrophoneAccess) {
+        const exposedDevices = await enumerateDevicesAfterMicrophoneAccess(mediaDevices);
+        applyMicrophoneDeviceSnapshot(createMicrophoneDeviceSnapshot(exposedDevices));
 
-      setMicrophoneOptions(nextMicrophoneOptions);
+        return true;
+      }
 
-      const selectedMicrophone = useRecordingStore.getState().selectedMicrophone;
-      setSelectedMicrophone(reconcileSelectedMicrophone(selectedMicrophone, nextMicrophoneOptions));
-      setNeedsMicrophoneAccess(needsMicrophoneAccess);
-
+      applyMicrophoneDeviceSnapshot(snapshot);
       return true;
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        setNeedsMicrophoneAccess(true);
+        return true;
+      }
+
       markRecordingError('microphone_access_failed');
 
       return false;
     }
-  }, [markRecordingError, setSelectedMicrophone]);
+  }, [applyMicrophoneDeviceSnapshot, markRecordingError]);
 
   useEffect(() => {
     const mediaDevices = getSupportedMediaDevices();
@@ -157,7 +180,9 @@ export function useMicrophoneDevices() {
       refreshMicrophones();
     }
 
-    refreshMicrophones();
+    void (async () => {
+      await refreshMicrophones({exposeRedactedDevices: true});
+    })();
     mediaDevices.addEventListener('devicechange', handleDeviceChange);
 
     return () => {
