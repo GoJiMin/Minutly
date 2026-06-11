@@ -1,4 +1,10 @@
 import {Separator, Skeleton} from '@/shared/components';
+import {cn} from '@/shared/utils';
+
+type MemoPanelSkeletonProps = {
+  showHeader?: boolean;
+  className?: string;
+};
 
 export function MeetingCalendarSkeleton() {
   return (
@@ -32,74 +38,91 @@ export function MeetingCalendarSkeleton() {
   );
 }
 
-export function MeetingDetailSkeleton() {
+export function MeetingDetailContentSkeleton() {
   return (
-    <section aria-hidden className="min-h-0 flex-1 grid grid-cols-[minmax(0,1fr)_21rem] gap-6">
-      <div className="flex min-h-0 flex-col">
-        <header className="px-4 pb-3">
-          <Skeleton className="h-8 w-2/5 max-w-96 rounded-md" />
-          <div className="mt-3 flex gap-3">
-            <Skeleton className="h-5 w-64 rounded-md" />
-            <Skeleton className="h-5 w-64 rounded-md" />
+    <div aria-hidden className="flex min-h-0 flex-col">
+      <header className="px-4 pb-3">
+        <Skeleton className="h-8 w-2/5 max-w-96 rounded-md" />
+        <div className="mt-3 flex gap-3">
+          <Skeleton className="h-5 w-64 rounded-md" />
+          <Skeleton className="h-5 w-64 rounded-md" />
+        </div>
+      </header>
+
+      <Separator />
+
+      <div className="flex-1 flex flex-col gap-6 overflow-hidden px-4 py-6">
+        <section className="space-y-3">
+          <Skeleton className="h-6 w-20 rounded-md" />
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-full rounded-md" />
+            <Skeleton className="h-5 w-11/12 rounded-md" />
+            <Skeleton className="h-5 w-4/5 rounded-md" />
           </div>
-        </header>
+        </section>
 
         <Separator />
 
-        <div className="flex-1 flex flex-col gap-6 overflow-hidden px-4 py-6">
-          <section className="space-y-3">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-full rounded-md" />
-              <Skeleton className="h-5 w-11/12 rounded-md" />
-              <Skeleton className="h-5 w-4/5 rounded-md" />
-            </div>
-          </section>
-
-          <Separator />
-
-          <section className="space-y-3">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <div className="flex flex-col gap-2">
-              {Array.from({length: 3}).map((_, index) => (
-                <Skeleton key={index} className="h-13 w-full rounded-md" />
-              ))}
-            </div>
-          </section>
-
-          <Separator />
-
-          <section className="space-y-3">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <Skeleton className="h-52 w-full rounded-lg" />
-          </section>
-        </div>
-      </div>
-
-      <aside className="min-h-0">
-        <div className="flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 py-4">
-          <header className="border-b border-border/70 px-4 pb-3">
-            <Skeleton className="h-5 w-16 rounded-md" />
-            <Skeleton className="mt-2 h-4 w-36 rounded-md" />
-          </header>
-
-          <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-3 py-5">
-            {[
-              'h-16 w-4/5',
-              'h-20 w-5/6',
-              'h-14 w-3/4',
-            ].map((className, index) => (
-              <li key={index} className="flex items-end justify-end gap-1.5">
-                <Skeleton className={`${className} max-w-[90%] rounded-2xl rounded-br-sm`} />
-                <Skeleton className="mb-0.5 size-6 shrink-0 rounded-md" />
-              </li>
+        <section className="space-y-3">
+          <Skeleton className="h-6 w-20 rounded-md" />
+          <div className="flex flex-col gap-2">
+            {Array.from({length: 3}).map((_, index) => (
+              <Skeleton key={index} className="h-13 w-full rounded-md" />
             ))}
-          </ul>
-
-          <div className="border-t border-border px-3 pt-4">
-            <Skeleton className="h-10 w-full rounded-xl" />
           </div>
-        </div>
+        </section>
+
+        <Separator />
+
+        <section className="space-y-3">
+          <Skeleton className="h-6 w-20 rounded-md" />
+          <Skeleton className="h-52 w-full rounded-lg" />
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export function MeetingMemoPanelSkeleton({showHeader = true, className}: MemoPanelSkeletonProps) {
+  return (
+    <div
+      aria-hidden
+      className={cn('flex h-full min-h-0 flex-col rounded-3xl border border-border bg-muted/30 py-4', className)}
+    >
+      {showHeader && (
+        <header className="border-b border-border/70 px-4 pb-3">
+          <Skeleton className="h-5 w-16 rounded-md" />
+          <Skeleton className="mt-2 h-4 w-36 rounded-md" />
+        </header>
+      )}
+
+      <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-3 py-5">
+        {[
+          'h-16 w-4/5',
+          'h-20 w-5/6',
+          'h-14 w-3/4',
+        ].map((className, index) => (
+          <li key={index} className="flex items-end justify-end gap-1.5">
+            <Skeleton className={`${className} max-w-[90%] rounded-2xl rounded-br-sm`} />
+            <Skeleton className="mb-0.5 size-6 shrink-0 rounded-md" />
+          </li>
+        ))}
+      </ul>
+
+      <div className="border-t border-border px-3 pt-4">
+        <Skeleton className="h-10 w-full rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+export function MeetingDetailSkeleton() {
+  return (
+    <section aria-hidden className="min-h-0 flex-1 md:grid md:grid-cols-[minmax(0,1fr)_21rem] md:gap-6 overflow-y-auto">
+      <MeetingDetailContentSkeleton />
+
+      <aside className="hidden min-h-0 md:block">
+        <MeetingMemoPanelSkeleton />
       </aside>
     </section>
   );

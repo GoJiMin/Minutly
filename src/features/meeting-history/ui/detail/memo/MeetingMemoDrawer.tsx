@@ -9,7 +9,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/shared/components/drawer';
-import {MeetingMemoPanel} from './MeetingMemoPanel';
+import {MeetingMemoPanelBoundary} from './MeetingMemoPanelBoundary';
 
 type Props = {
   meetingId: string;
@@ -34,7 +34,11 @@ export function MeetingMemoDrawer({meetingId}: Props) {
           </DrawerClose>
         </DrawerHeader>
         <Separator />
-        <MeetingMemoPanel meetingId={meetingId} showHeader={false} className="rounded-none border-0 pt-0 bg-muted/30" />
+        <MeetingMemoPanelBoundary
+          meetingId={meetingId}
+          showHeader={false}
+          className="rounded-none border-0 pt-0 bg-muted/30"
+        />
       </DrawerContent>
     </Drawer>
   );
