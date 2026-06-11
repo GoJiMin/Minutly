@@ -1,2 +1,2 @@
-export {RootLayout, metadata} from './RootLayout';
+export {RootLayout, metadata, viewport} from './RootLayout';
 export {ProtectedLayout} from './ProtectedLayout';

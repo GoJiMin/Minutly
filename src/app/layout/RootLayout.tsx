@@ -1,4 +1,4 @@
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import {AppProvider} from '../providers';
 import {pretendard} from '../styles';
 
@@ -13,6 +13,10 @@ export const metadata: Metadata = {
     address: false,
     email: false,
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#F8FAFC',
 };
 
 export function RootLayout({
