@@ -3,19 +3,22 @@ import {cva} from 'class-variance-authority';
 import {CircleAlert, CircleCheckBig, Info, X} from 'lucide-react';
 import {cn} from '../utils';
 
-const toastContainerVariants = cva('flex rounded-lg shadow-lg ring-1 ring-black/5 min-w-fit items-center p-4', {
-  variants: {
-    type: {
-      success: 'bg-green-50',
-      error: 'bg-red-50',
-      info: 'bg-white',
-      default: 'bg-white',
+const toastContainerVariants = cva(
+  'flex rounded-lg shadow-lg ring-1 ring-black/5 w-[calc(100vw-2rem)] max-w-md items-center p-4',
+  {
+    variants: {
+      type: {
+        success: 'bg-green-50',
+        error: 'bg-red-50',
+        info: 'bg-white',
+        default: 'bg-white',
+      },
+    },
+    defaultVariants: {
+      type: 'default',
     },
   },
-  defaultVariants: {
-    type: 'default',
-  },
-});
+);
 
 const toastTitleVariants = cva('font-medium', {
   variants: {
@@ -71,9 +74,9 @@ function AlertToast(props: ToastProps) {
         <Icon size={20} strokeWidth={2.2} />
       </div>
 
-      <div className="flex-1 mr-5">
+      <div className="flex-1 md:mr-5">
         <p className={toastTitleVariants({type})}>{title}</p>
-        {description && <p className="text-gray-500 mt-1 text-sm leading-5 text-nowrap">{description}</p>}
+        {description && <p className="text-gray-500 mt-1 text-sm leading-5 md:text-nowrap">{description}</p>}
       </div>
 
       <button
