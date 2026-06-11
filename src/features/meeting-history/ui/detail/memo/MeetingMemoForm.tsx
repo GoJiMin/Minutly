@@ -55,7 +55,7 @@ export function MeetingMemoForm({meetingId}: Props) {
               placeholder="메모 입력 후 Enter"
               aria-label="메모 내용"
               aria-invalid={fieldState.invalid}
-              className="h-10 rounded-xl bg-background px-4 text-sm"
+              className="h-10 rounded-xl bg-background px-4 md:text-sm"
               autoComplete="off"
             />
           </Field>

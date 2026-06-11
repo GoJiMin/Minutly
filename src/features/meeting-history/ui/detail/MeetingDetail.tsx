@@ -5,6 +5,7 @@ import {MeetingEditDialog} from './edit/MeetingEditDialog';
 import {MeetingMemoPanel} from './memo/MeetingMemoPanel';
 import {useMeetingDetailQuery} from '@/entities/meeting/client';
 import {Heading, Separator, Text} from '@/shared/components';
+import {MeetingMemoDrawer} from './memo/MeetingMemoDrawer';
 
 type Props = {
   meetingId: string;
@@ -23,7 +24,7 @@ export function MeetingDetail({meetingId}: Props) {
   const deleteProps = {meetingId, meetingDate};
 
   return (
-    <section className="min-h-0 flex-1 grid grid-cols-[minmax(0,1fr)_21rem] gap-6">
+    <section className="min-h-0 flex-1 md:grid md:grid-cols-[minmax(0,1fr)_21rem] md:gap-6 overflow-y-auto">
       <div className="flex flex-col min-h-0 @container/detail-main">
         <header className="flex flex-col gap-2 px-4 pb-3 @4xl/detail-main:flex-row @4xl/detail-main:items-start @4xl/detail-main:justify-between @4xl/detail-main:gap-4">
           <div className="min-w-0">
@@ -81,9 +82,13 @@ export function MeetingDetail({meetingId}: Props) {
           </article>
         </div>
       </div>
-      <aside className="min-h-0">
+      <aside className="hidden min-h-0 md:block">
         <MeetingMemoPanel meetingId={meetingId} />
       </aside>
+
+      <div className="fixed bottom-20 right-4 md:hidden">
+        <MeetingMemoDrawer meetingId={meetingId} />
+      </div>
     </section>
   );
 }
