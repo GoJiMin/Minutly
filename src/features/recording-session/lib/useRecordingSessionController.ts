@@ -9,6 +9,7 @@ type RecordingSessionStopReason = 'user_pause' | 'user_finish' | 'recognition_fa
 export function useRecordingSessionController() {
   const recognizerRef = useRef<Awaited<ReturnType<typeof createSpeechRecognizer>> | null>(null);
   const stopReasonRef = useRef<RecordingSessionStopReason>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const {
     createSpeechRecognizer,
@@ -44,6 +45,7 @@ export function useRecordingSessionController() {
   function markRecognitionStopFailed() {
     stopReasonRef.current = null;
     recognizerRef.current = null;
+    releaseScreenWakeLock();
 
     markRecordingError('speech_recognition_canceled');
     saveRecordingDraft('error');
@@ -85,8 +87,37 @@ export function useRecordingSessionController() {
 
         stopReasonRef.current = null;
         recognizerRef.current = null;
+        releaseScreenWakeLock();
       },
     });
+  }
+
+  async function requestScreenWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    if (wakeLockRef.current && !wakeLockRef.current.released) return;
+
+    try {
+      const wakeLock = await navigator.wakeLock.request('screen');
+
+      wakeLock.addEventListener('release', () => {
+        if (wakeLockRef.current === wakeLock) {
+          wakeLockRef.current = null;
+        }
+      });
+
+      wakeLockRef.current = wakeLock;
+    } catch {
+      wakeLockRef.current = null;
+    }
+  }
+
+  function releaseScreenWakeLock() {
+    const wakeLock = wakeLockRef.current;
+    wakeLockRef.current = null;
+
+    if (!wakeLock || wakeLock.released) return;
+
+    wakeLock.release().catch(() => {});
   }
 
   async function startRecordingSession() {
@@ -99,6 +130,7 @@ export function useRecordingSessionController() {
       bindRecordingRecognizerEvents(recognizer);
 
       await startContinuousRecognition(recognizer);
+      await requestScreenWakeLock();
 
       startRecording();
       saveRecordingDraft('recording');
@@ -119,6 +151,7 @@ export function useRecordingSessionController() {
       bindRecordingRecognizerEvents(recognizer);
 
       await startContinuousRecognition(recognizer);
+      await requestScreenWakeLock();
 
       resumeRecording();
       saveRecordingDraft('recording');
