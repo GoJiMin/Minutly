@@ -20,6 +20,8 @@ export function useRecordingSessionController() {
 
   const {
     status,
+    tryBeginStartConnecting,
+    tryBeginResumeConnecting,
     startRecording,
     pauseRecording,
     resumeRecording,
@@ -39,6 +41,8 @@ export function useRecordingSessionController() {
       pauseRecording: state.pauseRecording,
       resumeRecording: state.resumeRecording,
       finishRecording: state.finishRecording,
+      tryBeginResumeConnecting: state.tryBeginResumeConnecting,
+      tryBeginStartConnecting: state.tryBeginStartConnecting,
     })),
   );
 
@@ -121,6 +125,8 @@ export function useRecordingSessionController() {
   }
 
   async function startRecordingSession() {
+    if (!tryBeginStartConnecting()) return;
+
     try {
       stopReasonRef.current = null;
 
@@ -143,6 +149,8 @@ export function useRecordingSessionController() {
   }
 
   async function resumeRecordingSession() {
+    if (!tryBeginResumeConnecting()) return;
+
     try {
       stopReasonRef.current = null;
 

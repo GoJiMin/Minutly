@@ -16,6 +16,8 @@ type State = {
 };
 
 type Action = {
+  tryBeginStartConnecting: () => boolean;
+  tryBeginResumeConnecting: () => boolean;
   startRecording: () => void;
   pauseRecording: () => void;
   resumeRecording: () => void;
@@ -44,7 +46,7 @@ function appendPreviewChunk(previewChunks: TranscriptChunk[], chunk: TranscriptC
   return nextPreviewChunks;
 }
 
-export const useRecordingStore = create<State & Action>(set => ({
+export const useRecordingStore = create<State & Action>((set, get) => ({
   status: 'idle',
   errorCode: null,
   previewChunks: [],
@@ -54,6 +56,30 @@ export const useRecordingStore = create<State & Action>(set => ({
   recordingElapsedMs: 0,
   recordingStartedAt: null,
   interruptionCount: 0,
+
+  tryBeginStartConnecting: () => {
+    const {status} = get();
+    const canStartConnecting = status === 'idle' || status === 'error';
+
+    if (canStartConnecting) {
+      set({status: 'connecting'});
+      return true;
+    }
+
+    return false;
+  },
+
+  tryBeginResumeConnecting: () => {
+    const {status} = get();
+    const canResumeConnecting = status === 'paused';
+
+    if (canResumeConnecting) {
+      set({status: 'connecting'});
+      return true;
+    }
+
+    return false;
+  },
 
   startRecording: () =>
     set(() => {

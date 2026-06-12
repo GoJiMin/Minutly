@@ -5,6 +5,7 @@ export type SpeechTokenResponse = {
 
 export type RecordingStatus =
   | 'idle'
+  | 'connecting'
   | 'recording'
   | 'paused'
   | 'transcript_review'
