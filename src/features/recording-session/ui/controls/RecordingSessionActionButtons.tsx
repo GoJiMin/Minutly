@@ -9,6 +9,7 @@ export function RecordingSessionActionButtons() {
   const {startRecordingSession, pauseRecordingSession, resumeRecordingSession, finishRecordingSession} =
     useRecordingSessionController();
 
+  const isConnecting = status === 'connecting';
   const canStart = status === 'idle' || status === 'error';
   const canResume = status === 'paused';
   const canPause = status === 'recording';
@@ -20,11 +21,13 @@ export function RecordingSessionActionButtons() {
     <div className="flex w-auto max-w-none flex-row items-center gap-2 md:mt-6 md:w-full md:max-w-85 md:flex-col md:gap-3">
       <Button
         onClick={handlePrimaryClick}
-        disabled={!canStart && !canResume}
+        disabled={isConnecting || (!canStart && !canResume)}
         className="size-12 w-12 rounded-full p-0 md:h-14 md:w-full md:rounded-xl md:px-4 md:text-lg md:gap-2"
       >
         <CirclePlay className="size-6" />
-        <span className="sr-only md:not-sr-only">{canResume ? '이어서 녹음' : '녹음 시작'}</span>
+        <span className="sr-only md:not-sr-only">
+          {isConnecting ? '연결 중' : canResume ? '이어서 녹음' : '녹음 시작'}
+        </span>
       </Button>
 
       <div className="flex gap-2 md:grid md:w-full md:grid-cols-2 md:gap-3">

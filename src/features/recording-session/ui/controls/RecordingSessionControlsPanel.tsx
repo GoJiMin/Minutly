@@ -13,9 +13,8 @@ type Props = {
 export default function RecordingSessionControlsPanel({className}: Props) {
   const status = useRecordingStore(state => state.status);
 
-  const isRecordingControlVisible =
-    status === 'idle' || status === 'recording' || status === 'paused' || status === 'error';
   const isTranscriptReviewVisible = status === 'transcript_review';
+  const isRecordingControlVisible = !isTranscriptReviewVisible;
 
   return (
     <section

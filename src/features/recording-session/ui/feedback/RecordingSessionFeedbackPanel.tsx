@@ -1,6 +1,7 @@
 import {useShallow} from 'zustand/react/shallow';
 import {TextAlignStart} from 'lucide-react';
 import {RecordingOnboardingGuide} from './RecordingOnboardingGuide';
+import {ConnectingSpeechIndicator} from './ConnectingSpeechIndicator';
 import {WaitingForSpeechIndicator} from './WaitingForSpeechIndicator';
 import {TranscriptPreviewList} from './TranscriptPreviewList';
 import {RecordingErrorGuide} from './RecordingErrorGuide';
@@ -21,6 +22,7 @@ export function RecordingSessionFeedbackPanel({className}: Props) {
     })),
   );
 
+  const isConnecting = status === 'connecting';
   const isError = status === 'error';
   const isWaitingForSpeech = status === 'recording' && !hasPreviewChunks;
   const isFinishRecording = status === 'transcript_review';
@@ -30,6 +32,7 @@ export function RecordingSessionFeedbackPanel({className}: Props) {
 
   if (isError) content = <RecordingErrorGuide />;
   else if (isFinishRecording) content = <RecordingSessionReviewForm />;
+  else if (isConnecting) content = <ConnectingSpeechIndicator />;
   else if (hasPreviewChunks) content = <TranscriptPreviewList />;
   else if (isWaitingForSpeech) content = <WaitingForSpeechIndicator />;
   else content = <RecordingOnboardingGuide />;
