@@ -255,6 +255,10 @@ Neon connection string 확인 방법은 [Neon 공식 문서](https://neon.com/do
 
 `AZURE_SPEECH_REGION`에는 `koreacentral`, `westus`처럼 Azure Speech 리소스를 만든 region identifier를 입력합니다. Azure Speech는 key와 region이 서로 맞아야 인증에 성공합니다. region identifier는 [Azure Speech region 문서](https://learn.microsoft.com/azure/ai-services/speech-service/regions)에서 확인할 수 있습니다.
 
+`AZURE_SPEECH_PHRASES`는 선택 값입니다. Azure Speech가 자주 틀리는 고유명사, 브랜드명, 서비스명, 프로젝트명을 쉼표로 구분해 입력합니다. 예를 들어 `메타,인스타그램,핫라인`처럼 입력하면 음성 인식 중 등록한 값과 비슷한 발음이 들렸을 때 Azure Speech에 참고할 힌트로 전달됩니다. 비워두면 이 힌트를 전달하지 않습니다.
+
+이 값은 등록한 표현을 정답으로 강제하지 않습니다. 회의와 관련 없는 단어를 많이 넣으면 비슷한 발음을 해석할 때 잘못된 결과가 나올 수 있습니다. 소음, 마이크 품질, 여러 사람이 동시에 말하는 상황, 빠른 말 때문에 생기는 문제는 이 값만으로 해결되지 않습니다. 이 값에는 회사명이나 프로젝트명이 들어갈 수 있으므로 `NEXT_PUBLIC_` prefix를 붙이지 않습니다.
+
 #### Google AI Studio
 
 [Google AI Studio API Key 페이지](https://aistudio.google.com/app/apikey)에서 API key를 생성합니다. 생성한 key는 `.env.local`의 `GEMINI_API_KEY`에 입력합니다.
@@ -274,6 +278,7 @@ cp .env.example .env.local
 | `DATABASE_URL`              | Neon PostgreSQL connection string     |
 | `AZURE_SPEECH_SECRET_KEY`   | Azure Speech 리소스 key               |
 | `AZURE_SPEECH_REGION`       | Azure Speech 리소스 region identifier |
+| `AZURE_SPEECH_PHRASES`      | Azure Speech phrase list에 등록할 선택 단어 및 구문 |
 | `GEMINI_API_KEY`            | Google AI Studio에서 발급한 API key   |
 | `AUTH_LOGIN_ID`             | Minutly 로그인에 사용할 아이디        |
 | `AUTH_PASSWORD`             | Minutly 로그인에 사용할 비밀번호      |
