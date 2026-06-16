@@ -4,6 +4,7 @@ import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 import {useAzureSpeechTokenMutation} from './useAzureSpeechTokenMutation';
 
 const RECOGNITION_LANGUAGE = 'ko-KR';
+const PHRASE_LIST_GRAMMAR_WEIGHT = 1.2;
 
 type SpeechRecognitionCancelReason = 'error' | 'end_of_stream' | 'unknown';
 
@@ -24,10 +25,11 @@ export function useAzureSpeechRecognizer() {
   const {issueAzureSpeechToken} = useAzureSpeechTokenMutation();
 
   async function createSpeechRecognizer({deviceId}: {deviceId?: string}): Promise<sdk.SpeechRecognizer> {
-    const {token, region} = await issueAzureSpeechToken();
+    const {token, region, phrases} = await issueAzureSpeechToken();
 
     const speechConfig = sdk.SpeechConfig.fromAuthorizationToken(token, region);
     speechConfig.speechRecognitionLanguage = RECOGNITION_LANGUAGE;
+    speechConfig.setProperty(sdk.PropertyId.Speech_SegmentationStrategy, 'Semantic');
 
     let audioConfig: sdk.AudioConfig;
 
@@ -37,7 +39,15 @@ export function useAzureSpeechRecognizer() {
       audioConfig = sdk.AudioConfig.fromDefaultMicrophoneInput();
     }
 
-    return new sdk.SpeechRecognizer(speechConfig, audioConfig);
+    const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
+
+    if (phrases.length > 0) {
+      const phraseList = sdk.PhraseListGrammar.fromRecognizer(recognizer);
+      phraseList.addPhrases(phrases);
+      phraseList.setWeight(PHRASE_LIST_GRAMMAR_WEIGHT);
+    }
+
+    return recognizer;
   }
 
   function mapCancelReason(reason: sdk.CancellationReason): SpeechRecognitionCancelReason {
