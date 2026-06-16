@@ -1,6 +1,7 @@
 import 'server-only';
 
 import {SpeechTokenResponse} from '../model/types';
+import {parseAzureSpeechPhrases} from './azureSpeechPhrases';
 import {azureConfig} from '@/shared/server/env';
 
 type IssueAzureSpeechTokenResult = Promise<{ok: true; value: SpeechTokenResponse} | {ok: false}>;
@@ -35,7 +36,14 @@ export async function issueAzureSpeechToken(): IssueAzureSpeechTokenResult {
       return {ok: false};
     }
 
-    return {ok: true, value: {token, region: azureConfig.region}};
+    return {
+      ok: true,
+      value: {
+        token,
+        region: azureConfig.region,
+        phrases: parseAzureSpeechPhrases(azureConfig.phrasesText),
+      },
+    };
   } catch (error) {
     console.error('[azure-speech] token issue request failed', {
       message: error instanceof Error ? error.message : 'Unknown error',
