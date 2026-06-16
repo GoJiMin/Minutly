@@ -24,11 +24,12 @@ function readRequiredSecretEnv(key: SecretEnvKey) {
   return value;
 }
 
-// Minutly의 서버 환경 변수는 모두 required secret이다.
 // 서버 필수 환경 변수는 모듈 로드 시점에 검증해 누락시 fast-fail한다.
+// 선택 환경 변수는 빈 문자열로 읽고, 사용처에서 필요한 형식으로 해석한다.
 export const azureConfig = Object.freeze({
   apiKey: readRequiredSecretEnv('AZURE_SPEECH_SECRET_KEY'),
   region: readRequiredSecretEnv('AZURE_SPEECH_REGION'),
+  phrasesText: readStringEnv('AZURE_SPEECH_PHRASES'),
 });
 
 export const neonConfig = Object.freeze({
